@@ -1,0 +1,29 @@
+services:
+  mediawiki:
+    build:
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    networks:
+      - web
+    volumes:
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+       - ./nginx:/etc/nginx/conf.d
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    init: true
+    user: "${UID}:${GID}"
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - redis:/data
+networks:
+  web:
+volumes:
+  website:
+  redis:

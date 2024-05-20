@@ -13,10 +13,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,6 +34,9 @@ jobs:
         uses: sigstore/cosign-installer@v3.5.0
         with:
           cosign-release: 'v2.1.1'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -73,6 +74,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
@@ -88,3 +90,14 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.DOCKER_SSH_KNOWN_HOSTS }}
+      
+      - name: Deploy to server
+        run: docker compose -f docker-compose.yaml up -d
+        env:
+          DOCKER_HOST: ${{ secrets.DOCKER_HOST }}

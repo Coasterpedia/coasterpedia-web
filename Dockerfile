@@ -1,2 +1,47 @@
-FROM alpine:3.10
-RUN echo 'Hello, World!' > /test.txt
+FROM mediawiki:1.41-fpm-alpine
+ENV MEDIAWIKI_BRANCH REL1_41
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY ./composer.json /var/www/html/composer.local.json
+
+RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis.so
+
+RUN set -eux; chown -R www-data:www-data /var/www
+USER www-data
+
+RUN git clone --depth 1 -b v2.13.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
+
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
+RUN git clone --depth 1 -b v0.13.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
+RUN git clone --depth 1 -b 3.5.1 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CharInsert.git" extensions/CharInsert
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CheckUser.git" extensions/CheckUser
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Citoid.git" extensions/Citoid
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CodeMirror.git" extensions/CodeMirror
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CommonsMetadata.git" extensions/CommonsMetadata
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Disambiguator.git" extensions/Disambiguator
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
+RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
+RUN git clone --depth 1 -b v3.4.1 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
+RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Popups.git" extensions/Popups
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-SandboxLink.git" extensions/SandboxLink
+RUN git clone --depth 1 -b master "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TemplateStyles.git" extensions/TemplateStyles
+RUN git clone --depth 1 -b v1.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
+RUN composer install --no-dev
