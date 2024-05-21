@@ -98,6 +98,9 @@ jobs:
           known_hosts: ${{ secrets.DOCKER_SSH_KNOWN_HOSTS }}
       
       - name: Deploy to server
-        run: ssh  ${{ secrets.DOCKER_HOST }} 'git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia && docker compose -f coasterpedia/docker-compose.yml up -d'
-        env:
-          IMAGE: ${{steps.build-and-push.outputs.digest}}
+        run: >
+          ssh ${{ secrets.DOCKER_HOST }} '
+            IMAGE=${{steps.build-and-push.outputs.digest}}
+            git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia && 
+            docker compose -f coasterpedia/docker-compose.yml up -d
+          '
