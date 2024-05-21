@@ -1,6 +1,6 @@
 services:
   mediawiki:
-    image: ghcr.io/coasterpedia/coasterpedia-web:${steps.build.outputs.digest}
+    image: ghcr.io/coasterpedia/coasterpedia-web:${steps.build-and-push.outputs.digest}
     restart: always
     ports:
       - 80:80
