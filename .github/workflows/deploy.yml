@@ -101,3 +101,4 @@ jobs:
         run: docker compose -f docker-compose.yml up -d
         env:
           DOCKER_HOST: ${{ secrets.DOCKER_HOST }}
+          IMAGE: ${{steps.build-and-push.outputs.digest}}
