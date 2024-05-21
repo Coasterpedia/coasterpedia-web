@@ -98,6 +98,6 @@ jobs:
           known_hosts: ${{ secrets.DOCKER_SSH_KNOWN_HOSTS }}
       
       - name: Deploy to server
-        run: docker compose -f docker-compose.yaml up -d
+        run: docker compose -f docker-compose.yml up -d
         env:
           DOCKER_HOST: ${{ secrets.DOCKER_HOST }}

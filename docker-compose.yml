@@ -1,7 +1,6 @@
 services:
   mediawiki:
-    build:
-      dockerfile: ./Dockerfile
+    image: ghcr.io/coasterpedia/coasterpedia-web:main
     restart: always
     ports:
       - 80:80
