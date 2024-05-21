@@ -7,8 +7,8 @@ services:
     networks:
       - web
     volumes:
-      - ./LocalSettings.php:/var/www/html/LocalSettings.php
-       - ./nginx:/etc/nginx/conf.d
+      - ./config/mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./config/nginx:/etc/nginx/conf.d
   redis:
     image: redis:alpine
     restart: unless-stopped

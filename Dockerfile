@@ -3,8 +3,9 @@ ENV MEDIAWIKI_BRANCH REL1_41
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./composer.json /var/www/html/composer.local.json
+COPY ./config/supervisord/supervisord.conf /etc/
 
-RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx $PHPIZE_DEPS \
+RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx supervisor $PHPIZE_DEPS \
     && pecl install redis \
     && docker-php-ext-enable redis.so
 
