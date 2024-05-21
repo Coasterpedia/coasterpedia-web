@@ -100,7 +100,7 @@ jobs:
       - name: Deploy to server
         run: >
           ssh ${{ secrets.DOCKER_HOST }} '
-            IMAGE=${{steps.build-and-push.outputs.digest}}
-            git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia && 
+            IMAGE=${{steps.build-and-push.outputs.digest}} &&
+            if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose -f coasterpedia/docker-compose.yml up -d
           '
