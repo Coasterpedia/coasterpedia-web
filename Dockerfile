@@ -9,12 +9,18 @@ RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm
     && pecl install redis \
     && docker-php-ext-enable redis.so
 
+RUN mkdir /tmp/www && \
+    mv /var/www/html/* /tmp/www && \
+    mkdir /var/www/html/w && \
+    mv /tmp/www/* /var/www/html/w
+
 RUN chown -R www-data:www-data /var/www/html && \
     chown -R www-data:www-data /run && \
     chown -R www-data:www-data /var/lib/nginx && \
     chown -R www-data:www-data /var/log/nginx
 
 USER www-data
+WORKDIR /var/www/html/w/
 
 RUN git clone --depth 1 -b v2.13.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
