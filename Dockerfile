@@ -4,6 +4,7 @@ ENV MEDIAWIKI_BRANCH REL1_41
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./composer.json /var/www/html/composer.local.json
 COPY ./config/supervisord/supervisord.conf /etc/
+COPY ./config/php/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 
 RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx supervisor lua5.1 lua5.1-dev $PHPIZE_DEPS \
     && pecl install redis luasandbox \
