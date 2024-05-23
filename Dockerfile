@@ -5,9 +5,9 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./composer.json /var/www/html/composer.local.json
 COPY ./config/supervisord/supervisord.conf /etc/
 
-RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx supervisor $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis.so
+RUN apk add --no-cache pcre-dev ghostscript imagemagick poppler-utils nodejs npm nginx supervisor lua5.1 lua5.1-dev $PHPIZE_DEPS \
+    && pecl install redis luasandbox \
+    && docker-php-ext-enable redis.so luasandbox
 
 RUN mkdir /tmp/www && \
     mv /var/www/html/* /tmp/www && \

@@ -280,8 +280,7 @@ $wgPopupsOptInDefaultState = '1';
 $wgPopupsReferencePreviewsBetaFeature = false;
 
 # Scribunto
-$wgScribuntoDefaultEngine = 'luastandalone';
-$wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua';
+$wgScribuntoDefaultEngine = 'luasandbox';
 
 # Other 
 $wgPFEnableStringFunctions = true;
