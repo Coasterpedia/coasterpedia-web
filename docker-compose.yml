@@ -1,7 +1,10 @@
 services:
   traefik:
     image: traefik:3.0
-    command: --api.insecure=true --providers.docker
+    command: 
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
     restart: always
     ports:
       - 80:80
@@ -20,6 +23,7 @@ services:
       - ./config/nginx:/etc/nginx/http.d
     labels:
       - traefik.http.routers.mediawiki.rule=Host(`staging.coasterpedia.net`)
+      - traefik.http.routers.mediawiki.entrypoints=websecure
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
