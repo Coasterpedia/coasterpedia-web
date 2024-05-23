@@ -10,13 +10,13 @@ services:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx:/etc/nginx/http.d
     environment:
-      - MYSQL_DATABASE: ${MYSQL_DATABASE}
-      - MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      - MYSQL_SERVER: ${MYSQL_SERVER}
-      - MYSQL_USER: ${MYSQL_USER}
-      - SMTP_HOST: ${SMTP_HOST}
-      - SMTP_USER: ${SMTP_USER}
-      - SMTP_PASSWORD: ${SMTP_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_SERVER: ${MYSQL_SERVER}
+      MYSQL_USER: ${MYSQL_USER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
   redis:
     image: redis:alpine
     restart: unless-stopped
