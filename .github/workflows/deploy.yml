@@ -100,6 +100,7 @@ jobs:
       - name: Deploy to server
         run: >
           ssh ${{ secrets.DOCKER_HOST }} '
+            docker system prune -f &&
             export IMAGE=${{steps.build-and-push.outputs.digest}} &&
             export MYSQL_DATABASE=${{secrets.MYSQL_DATABASE}} &&
             export MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD}} &&
