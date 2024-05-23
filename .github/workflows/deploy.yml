@@ -101,6 +101,13 @@ jobs:
         run: >
           ssh ${{ secrets.DOCKER_HOST }} '
             export IMAGE=${{steps.build-and-push.outputs.digest}} &&
+            export MYSQL_DATABASE=${{secrets.MYSQL_DATABASE}} &&
+            export MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD}} &&
+            export MYSQL_SERVER=${{secrets.MYSQL_SERVER}} &&
+            export MYSQL_USER=${{secrets.MYSQL_USER}} &&
+            export SMTP_HOST=${{secrets.SMTP_HOST}} &&
+            export SMTP_USER=${{secrets.SMTP_USER}} &&
+            export SMTP_PASSWORD=${{secrets.SMTP_PASSWORD}} &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose up -d
           '
