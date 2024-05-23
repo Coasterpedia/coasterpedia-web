@@ -1,14 +1,25 @@
 services:
-  mediawiki:
-    image: ghcr.io/coasterpedia/coasterpedia-web@${IMAGE}
+  traefik:
+    image: traefik:3.0
+    command: --api.insecure=true --providers.docker
     restart: always
     ports:
       - 80:80
+      - "8080:8080"
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  mediawiki:
+    image: ghcr.io/coasterpedia/coasterpedia-web@${IMAGE}
+    restart: always
     networks:
       - web
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx:/etc/nginx/http.d
+    labels:
+      - traefik.http.routers.mediawiki.rule=Host(`staging.coasterpedia.net`)
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
