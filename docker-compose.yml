@@ -5,6 +5,7 @@ services:
       - --providers.docker=true
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --api.insecure=true
     restart: always
     ports:
       - 80:80
