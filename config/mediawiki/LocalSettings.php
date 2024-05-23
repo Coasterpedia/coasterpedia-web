@@ -175,6 +175,8 @@ $wgDefaultSkin = "citizen";
 
 $wgCitizenThemeColor = "#60AE26";
 $wgCitizenManifestThemeColor = "#60AE26";
+$wgCitizenTableNowrapClasses[] = 'infobox-new';
+$wgCitizenTableNowrapClasses[] = 'cp-navbox';
 
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
@@ -261,7 +263,9 @@ $wgCodeMirrorEnableBracketMatching = true;
 $wgUploadWizardConfig = [
 	'alternativeUploadToolsPage' => false, // Disable the link to alternative upload tools (default: points to Commons)
 	'fileExtensions' => $wgFileExtensions // omitting this may cause errors
-	];
+];
+$wgFileExtensions = [ 'png', 'jpg', 'jpeg', 'svg', 'webp']; // remove GIF from upload options
+$wgMaxUploadSize = 1024*1024*32;
 
 $wgWikiEditorRealtimePreview = true;
 
@@ -292,8 +296,13 @@ $wgNamespaceAliases['CP'] = NS_PROJECT;
 $wgNamespaceAliases['CP_talk'] = NS_PROJECT_TALK;
 $wgGroupPermissions['bot']['autopatrol'] = true;
 $wgGroupPermissions['sysop']['autopatrol'] = true;
-
+$wgGroupPermissions['sysop']['interwiki'] = true;
+$wgGroupPermissions['sysop']['deletelogentry'] = true;
+$wgGroupPermissions['sysop']['deleterevision'] = true;
+$wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['*']['edit'] = false;
+
+$wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
 
