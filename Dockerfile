@@ -58,4 +58,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
 RUN composer install --no-dev
 
+COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
+
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
