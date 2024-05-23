@@ -60,6 +60,16 @@ $wgSMTP = [
     'password'  => getenv( 'SMTP_PASSWORD' ) // Password to use for SMTP authentication (if being used)
 ];
 
+# AWS
+$wgAWSRegion = getenv( 'AWS_REGION' );
+$wgAWSBucketName = getenv( 'AWS_BUCKET_NAME' );
+$wgAWSBucketTopSubdirectory="";
+$wgAWSBucketDomain = 'images.coasterpedia.net';
+$wgAWSRepoHashLevels = '2';
+$wgAWSRepoDeletedHashLevels = '3';
+
+$wgFileBackends['s3']['privateWiki'] = true;
+
 ## Database settings
 $wgDBtype = "mysql";
 $wgDBserver = getenv( 'MYSQL_SERVER' );

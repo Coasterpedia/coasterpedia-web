@@ -109,6 +109,8 @@ jobs:
             export SMTP_HOST=${{secrets.SMTP_HOST}} &&
             export SMTP_USER=${{secrets.SMTP_USER}} &&
             export SMTP_PASSWORD=${{secrets.SMTP_PASSWORD}} &&
+            export AWS_REGION=${{secrets.AWS_REGION}} &&
+            export AWS_BUCKET_NAME=${{secrets.AWS_BUCKET_NAME}} &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose up -d
           '
