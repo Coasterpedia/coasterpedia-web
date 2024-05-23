@@ -22,7 +22,7 @@ RUN chown -R www-data:www-data /var/www/html && \
 USER www-data
 WORKDIR /var/www/html/w/
 
-RUN git clone --depth 1 -b v2.13.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v2.13.5 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
 
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
