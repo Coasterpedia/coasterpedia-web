@@ -13,7 +13,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   mediawiki:
-    image: ghcr.io/coasterpedia/mediawiki@${MEDIAWIKI_IMAGE}
+    image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     restart: always
     networks:
       - web
@@ -47,7 +47,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
   matomo:
-    image: ghcr.io/coasterpedia/matomo@${MATOMO_IMAGE}
+    image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
     networks:
       - web
