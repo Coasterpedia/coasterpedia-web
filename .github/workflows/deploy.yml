@@ -134,7 +134,6 @@ jobs:
     needs: [mediawiki_build, matomo_build]
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Install SSH key
@@ -147,21 +146,21 @@ jobs:
         run: >
           ssh ${{ secrets.DOCKER_HOST }} '
             docker system prune -f &&
-            export MEDIAWIKI_IMAGE=${{needs.mediawiki_build.outputs.digest}} &&
-            export MATOMO_IMAGE=${{needs.matomo_build.outputs.digest}} &&
-            export MYSQL_DATABASE=${{secrets.MYSQL_DATABASE}} &&
-            export MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD}} &&
-            export MYSQL_SERVER=${{secrets.MYSQL_SERVER}} &&
-            export MYSQL_USER=${{secrets.MYSQL_USER}} &&
-            export SMTP_HOST=${{secrets.SMTP_HOST}} &&
-            export SMTP_USER=${{secrets.SMTP_USER}} &&
-            export SMTP_PASSWORD=${{secrets.SMTP_PASSWORD}} &&
-            export AWS_REGION=${{secrets.AWS_REGION}} &&
-            export AWS_BUCKET_NAME=${{secrets.AWS_BUCKET_NAME}} &&
-            export MATOMO_DATABASE_DBNAME=${{secrets.MATOMO_DATABASE_DBNAME}} &&
-            export MATOMO_DATABASE_PASSWORD=${{secrets.MATOMO_DATABASE_PASSWORD}} &&
-            export MATOMO_DATABASE_HOST=${{secrets.MATOMO_DATABASE_HOST}} &&
-            export MATOMO_DATABASE_USERNAME=${{secrets.MATOMO_DATABASE_USERNAME}} &&
+            export MEDIAWIKI_IMAGE="${{needs.mediawiki_build.outputs.digest}}" &&
+            export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
+            export MYSQL_DATABASE="${{secrets.MYSQL_DATABASE}}" &&
+            export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
+            export MYSQL_SERVER="${{secrets.MYSQL_SERVER}}" &&
+            export MYSQL_USER="${{secrets.MYSQL_USER}}" &&
+            export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
+            export SMTP_USER="${{secrets.SMTP_USER}}" &&
+            export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
+            export AWS_REGION="${{secrets.AWS_REGION}}" &&
+            export AWS_BUCKET_NAME="${{secrets.AWS_BUCKET_NAME}}" &&
+            export MATOMO_DATABASE_DBNAME="${{secrets.MATOMO_DATABASE_DBNAME}}" &&
+            export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
+            export MATOMO_DATABASE_HOST="${{secrets.MATOMO_DATABASE_HOST}}" &&
+            export MATOMO_DATABASE_USERNAME="${{secrets.MATOMO_DATABASE_USERNAME}}" &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose up -d
           '
