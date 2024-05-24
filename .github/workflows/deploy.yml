@@ -67,8 +67,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,ref=${{env.IMAGE_NAME}}
+          cache-to: type=gha,mode=max,ref=${{env.IMAGE_NAME}}
           platforms: linux/arm64
 
   matomo_build:
@@ -125,8 +125,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,ref=${{env.IMAGE_NAME}}
+          cache-to: type=gha,mode=max,ref=${{env.IMAGE_NAME}}
           platforms: linux/arm64
 
   deploy:
