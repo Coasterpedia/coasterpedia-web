@@ -13,7 +13,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   mediawiki:
-    image: ghcr.io/coasterpedia/coasterpedia-web@${IMAGE}
+    image: ghcr.io/coasterpedia/mediawiki@${MEDIAWIKI_IMAGE}
     restart: always
     networks:
       - web
@@ -46,6 +46,25 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
+  matomo:
+    image: ghcr.io/coasterpedia/matomo@${MATOMO_IMAGE}
+    restart: always
+    networks:
+      - web
+    volumes:
+      - ./config/nginx:/etc/nginx/http.d
+    labels:
+      - traefik.http.routers.mediawiki.rule=Host(`analyticsstaging.coasterpedia.net`)
+      - traefik.http.routers.mediawiki.entrypoints=web,websecure
+      - traefik.http.services.mediawiki.loadbalancer.server.port=80
+    environment:
+      MATOMO_DATABASE_DBNAME: ${MATOMO_DATABASE_DBNAME}
+      MATOMO_DATABASE_PASSWORD: ${MATOMO_DATABASE_PASSWORD}
+      MATOMO_DATABASE_HOST: ${MATOMO_DATABASE_HOST}
+      MATOMO_DATABASE_USERNAME: ${MATOMO_DATABASE_USERNAME}
+      MATOMO_EMAIL_HOST: ${SMTP_HOST}
+      MATOMO_EMAIL_USERNAME: ${SMTP_USER}
+      MATOMO_EMAIL_PASSWORD: ${SMTP_PASSWORD}
 networks:
   web:
 volumes:

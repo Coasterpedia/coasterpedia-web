@@ -1,0 +1,24 @@
+FROM matomo:fpm-alpine
+RUN apk add --no-cache nginx supervisor unzip
+
+RUN curl -o EnvironmentVariables.zip \
+    https://plugins.matomo.org/api/2.0/plugins/EnvironmentVariables/download/5.0.1 \
+    && unzip EnvironmentVariables.zip \
+    && rm EnvironmentVariables.zip \
+    && mv EnvironmentVariables /usr/src/matomo/plugins
+
+RUN curl -o BotTracker.zip \
+    https://plugins.matomo.org/api/2.0/plugins/BotTracker/download/5.2.11 \
+    && unzip BotTracker.zip \
+    && rm BotTracker.zip \
+    && mv BotTracker /usr/src/matomo/plugins
+
+RUN curl -o TrackingSpamPrevention.zip \
+    https://plugins.matomo.org/api/2.0/plugins/TrackingSpamPrevention/download/5.0.2 \
+    && unzip TrackingSpamPrevention.zip \
+    && rm TrackingSpamPrevention.zip \
+    && mv TrackingSpamPrevention /usr/src/matomo/plugins
+
+COPY ./config/supervisord/supervisord.conf /etc/
+COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
+ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
