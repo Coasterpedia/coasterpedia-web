@@ -20,7 +20,7 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: mediawiki
+      IMAGE_NAME: Coasterpedia/coasterpedia-web/mediawiki
 
     outputs:
       digest: ${{steps.build-and-push.outputs.digest}}
@@ -78,7 +78,7 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: matomo
+      IMAGE_NAME: Coasterpedia/coasterpedia-web/matomo
 
     outputs:
       digest: ${{steps.build-and-push.outputs.digest}}
