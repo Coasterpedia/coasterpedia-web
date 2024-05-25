@@ -19,6 +19,8 @@ RUN curl -o TrackingSpamPrevention.zip \
     && rm TrackingSpamPrevention.zip \
     && mv TrackingSpamPrevention /usr/src/matomo/plugins
 
+RUN rm -r /var/www/html && ln -s /usr/src/matomo /var/www/html
+
 COPY ./config/supervisord/supervisord.conf /etc/
 COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
