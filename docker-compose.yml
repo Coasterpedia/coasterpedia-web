@@ -21,7 +21,7 @@ services:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/coasterpedia.conf
     labels:
-      - traefik.http.routers.mediawiki.rule=Host(`staging.coasterpedia.net`)
+      - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
       - traefik.http.routers.mediawiki.entrypoints=web,websecure
       - traefik.http.services.mediawiki.loadbalancer.server.port=80
     environment:
@@ -55,7 +55,7 @@ services:
       - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf
       - ./config/matomo/config.ini.php:/usr/src/matomo/config/config.ini.php
     labels:
-      - traefik.http.routers.matomo.rule=Host(`analyticsstaging.coasterpedia.net`)
+      - traefik.http.routers.matomo.rule=Host(`analytics.coasterpedia.net`)
       - traefik.http.routers.matomo.entrypoints=web,websecure
       - traefik.http.services.matomo.loadbalancer.server.port=80
     environment:

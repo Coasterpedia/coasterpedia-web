@@ -17,8 +17,8 @@ $wgArticlePath = "/wiki/$1";
 $wgUsePathInfo = true;
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "https://staging.coasterpedia.net"; // TODO: change back
-$wgCanonicalServer = "https://staging.coasterpedia.net"; // TODO: change back
+$wgServer = "https://coasterpedia.net"; // TODO: change back
+$wgCanonicalServer = "https://coasterpedia.net"; // TODO: change back
 
 $wgEnableCanonicalServerLink = true;
 $wgSecureLogin = true;
