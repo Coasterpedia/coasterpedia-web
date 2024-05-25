@@ -163,4 +163,4 @@ block_geoip_organisations[] = "digital ocean"
 
 [Tracker]
 debug = 0
-enable_sql_profiler = 0
+enable_sql_profiler = 1
