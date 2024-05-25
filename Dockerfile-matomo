@@ -30,7 +30,8 @@ RUN mkdir /usr/src/matomo/tmp/cache && \
 RUN chown -R www-data:www-data /usr/src/matomo && \
     chown -R www-data:www-data /run && \
     chown -R www-data:www-data /var/lib/nginx && \
-    chown -R www-data:www-data /var/log/nginx
+    chown -R www-data:www-data /var/log/nginx && \
+    chmod  -R 755 /usr/src/matomo/tmp
 
 USER www-data
 
