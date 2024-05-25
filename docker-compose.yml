@@ -53,6 +53,7 @@ services:
       - web
     volumes:
       - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf
+      - ./config/matomo/config.ini.php:/usr/src/matomo/config/config.ini.php
     labels:
       - traefik.http.routers.matomo.rule=Host(`analyticsstaging.coasterpedia.net`)
       - traefik.http.routers.matomo.entrypoints=web,websecure
