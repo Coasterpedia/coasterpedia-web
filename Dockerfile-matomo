@@ -25,7 +25,7 @@ COPY ./config/supervisord/supervisord.conf /etc/
 COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
 
 USER www-data
-RUN chown -R www-data:www-data /var/www/html && \
+RUN chown -R www-data:www-data /usr/src/matomo && \
     chown -R www-data:www-data /run && \
     chown -R www-data:www-data /var/lib/nginx && \
     chown -R www-data:www-data /var/log/nginx
