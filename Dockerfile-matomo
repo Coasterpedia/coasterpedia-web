@@ -24,7 +24,8 @@ RUN rm -r /var/www/html && ln -s /usr/src/matomo /var/www/html
 COPY ./config/supervisord/supervisord.conf /etc/
 COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
 
-RUN mkdir /usr/src/matomo/tmp/cache
+RUN mkdir /usr/src/matomo/tmp/cache && \
+    mkdir /usr/src/matomo/tmp/cache/tracker
 
 RUN chown -R www-data:www-data /usr/src/matomo && \
     chown -R www-data:www-data /run && \
