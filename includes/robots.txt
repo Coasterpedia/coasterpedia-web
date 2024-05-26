@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /w/load.php?
+Disallow: /w/
+Disallow: /api/
+Disallow: /wiki/Special:
+Crawl-delay: 60

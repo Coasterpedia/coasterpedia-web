@@ -60,5 +60,6 @@ RUN composer install --no-dev
 
 COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
+COPY ./includes/robots.txt /var/www/html/robots.txt
 
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
