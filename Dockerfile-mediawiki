@@ -59,5 +59,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN composer install --no-dev
 
 COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
+COPY ./includes/favicon.ico /var/www/html/favicon.ico
 
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
