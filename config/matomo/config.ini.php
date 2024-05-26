@@ -161,16 +161,16 @@ block_geoip_organisations[] = "alibaba cloud"
 block_geoip_organisations[] = "digitalocean"
 block_geoip_organisations[] = "digital ocean"
 
-[log]
-; Possible values are "screen" (default value), "file", "database" (logs to tables logger_*),
-; "errorlog" (logs using the error_log() php function) and "syslog" (logs to the syslog service)
-log_writers[] = file
-; Possible values are ERROR, WARN, INFO, DEBUG
-log_level = DEBUG
-; if configured to log to file, log entries will be written to this file
-logger_file_path = tmp/logs/matomo.log
-; if configured to log to syslog, this is used as the identifier
-logger_syslog_ident = matomo
+; [log]
+; ; Possible values are "screen" (default value), "file", "database" (logs to tables logger_*),
+; ; "errorlog" (logs using the error_log() php function) and "syslog" (logs to the syslog service)
+; log_writers[] = file
+; ; Possible values are ERROR, WARN, INFO, DEBUG
+; log_level = DEBUG
+; ; if configured to log to file, log entries will be written to this file
+; logger_file_path = tmp/logs/matomo.log
+; ; if configured to log to syslog, this is used as the identifier
+; logger_syslog_ident = matomo
 
 [Tracker]
 debug = 0
