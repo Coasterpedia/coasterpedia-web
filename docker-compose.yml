@@ -24,7 +24,6 @@ services:
       - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
       - traefik.http.routers.mediawiki.entrypoints=web,websecure
       - traefik.http.services.mediawiki.loadbalancer.server.port=80
-      - traefik.http.services.mediawiki.entrypoints.websecure.http.encodeQuerySemicolons=true
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
