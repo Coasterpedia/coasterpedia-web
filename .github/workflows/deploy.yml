@@ -161,6 +161,7 @@ jobs:
             export MATOMO_DATABASE_HOST="${{secrets.MATOMO_DATABASE_HOST}}" &&
             export MATOMO_DATABASE_USERNAME="${{secrets.MATOMO_DATABASE_USERNAME}}" &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
+            docker compose pull &&
             docker compose up -d -V &&
             docker system prune -f &&
             docker volume prune -f
