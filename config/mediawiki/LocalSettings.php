@@ -505,6 +505,7 @@ wfLoadSkin( 'Timeless' );
 wfLoadSkin( 'Vector' );
 
 # Extensions
+wfLoadExtension( 'AbuseFilter' );
 // wfLoadExtension( 'AdvancedSearch' );
 wfLoadExtension( 'AWS' );
 wfLoadExtension( 'Babel' );
