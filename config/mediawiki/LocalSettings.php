@@ -175,8 +175,8 @@ $wgDefaultSkin = "citizen";
 
 $wgCitizenThemeColor = "#60AE26";
 $wgCitizenManifestThemeColor = "#60AE26";
-$wgCitizenTableNowrapClasses[] = 'infobox-new';
-$wgCitizenTableNowrapClasses[] = 'cp-navbox';
+$wgCitizenOverflowNowrapClasses[] = 'infobox-new';
+$wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
 
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';

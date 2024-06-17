@@ -23,7 +23,7 @@ RUN chown -R www-data:www-data /var/www/html && \
 USER www-data
 WORKDIR /var/www/html/w/
 
-RUN git clone --depth 1 -b v2.14.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v2.18.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
 
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
@@ -40,7 +40,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
 RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
-RUN git clone --depth 1 -b v3.4.1 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
+RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
