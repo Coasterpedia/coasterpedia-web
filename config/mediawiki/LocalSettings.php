@@ -202,10 +202,10 @@ $wgMatomoIgnoreSysops = false;
 $wgCaptchaClass = 'QuestyCaptcha';
 $wgCaptchaTriggers['create'] = true; 
 // Add your questions in LocalSettings.php using this format
-$wgCaptchaQuestions[] = array( 'question' => "What is the tallest roller coaster?", 'answer' => "Kingda Ka");
-$wgCaptchaQuestions[] = array( 'question' => 'What is the fastest roller coaster?', 'answer' => 'Formula Rossa' );
-$wgCaptchaQuestions[] = array( 'question' => "What roller coaster has the longest track?", 'answer' => "Steel Dragon 2000" );
-$wgCaptchaQuestions[] = array( 'question' => "What is the oldest roller coaster?", 'answer' => "Leap The Dips" );
+$wgCaptchaQuestions[] = array( 'question' => "In which year did the UK theme park Alton Towers open?", 'answer' => "1980");
+$wgCaptchaQuestions[] = array( 'question' => 'In which year did the US theme park Six Flags AstroWorld close?', 'answer' => '2005' );
+$wgCaptchaQuestions[] = array( 'question' => "In which US state does the theme park Busch Gardens Tampa Bay operate in?", 'answer' => "Florida" );
+$wgCaptchaQuestions[] = array( 'question' => "In which country does the roller coaster Steel Dragon 2000 operate in?", 'answer' => "Japan" );
 # Upload Wizard
 $wgApiFrameOptions = 'SAMEORIGIN';
 $wgAllowCopyUploads = true;
