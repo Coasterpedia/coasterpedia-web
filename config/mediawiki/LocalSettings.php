@@ -65,8 +65,9 @@ $wgSMTP = [
 ];
 
 # AWS
+$BUCKET = getenv( 'AWS_BUCKET_NAME' );
 $wgAWSRegion = getenv( 'AWS_REGION' );
-$wgAWSBucketName = getenv( 'AWS_BUCKET_NAME' );
+// $wgAWSBucketName = getenv( 'AWS_BUCKET_NAME' );
 $wgAWSBucketTopSubdirectory="";
 $wgAWSBucketDomain = 'images.coasterpedia.net';
 $wgAWSRepoHashLevels = '2';
@@ -74,6 +75,26 @@ $wgAWSRepoDeletedHashLevels = '3';
 
 $wgFileBackends['s3']['privateWiki'] = true;
 $wgUploadPath = "https://images.coasterpedia.net";
+$wgFileBackends['s3']['containerPaths'] = [
+	"$wgDBname-local-public" => "${BUCKET}",
+	"$wgDBname-local-thumb" => "${BUCKET}/thumb",
+	"$wgDBname-local-deleted" => "${BUCKET}/deleted",
+	"$wgDBname-local-temp" => "${BUCKET}/temp"
+];
+
+$wgLocalFileRepo = [
+	'class'             => 'LocalRepo',
+	'name'              => 'local',
+	'backend'           => 'AmazonS3',
+	'url'               => $wgScriptPath . '/img_auth.php',
+	'hashLevels'        => 0,
+	'zones'             => [
+		'public'  => [ 'url' => "https://images.coasterpedia.net" ],
+		'thumb'   => [ 'url' => "https://images.coasterpedia.net/thumb" ],
+		'temp'    => [ 'url' => false ],
+		'deleted' => [ 'url' => false ]
+	]
+];
 
 ## Database settings
 $wgDBtype = "mysql";
