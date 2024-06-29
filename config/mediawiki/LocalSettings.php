@@ -129,14 +129,6 @@ $wgMaxImageArea = "3e7";
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
 $wgUseInstantCommons = false;
 
-// Define constants for my additional namespaces.
-define("NS_DRAFT", 3000); // This MUST be even.
-define("NS_DRAFT_TALK", 3001); // This MUST be the following odd integer.
-
-// Add namespaces.
-$wgExtraNamespaces[NS_FOO] = "Draft";
-$wgExtraNamespaces[NS_FOO_TALK] = "Draft_talk"; // Note underscores in the namespace name.
-
 # Periodically send a pingback to https://www.mediawiki.org/ with basic data
 # about this MediaWiki instance. The Wikimedia Foundation shares this data
 # with MediaWiki developers to help guide future development efforts.
