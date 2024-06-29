@@ -4,12 +4,12 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	exit;
 }
 
-$wgReadOnly = ( PHP_SAPI === 'cli' ) ? false : 'This wiki is currently being upgraded to a newer software version. Please check back in a couple of hours.';
+// $wgReadOnly = ( PHP_SAPI === 'cli' ) ? false : 'This wiki is currently being upgraded to a newer software version. Please check back in a couple of hours.';
 
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
-$wgShowExceptionDetails = true;
+// $wgShowExceptionDetails = true;
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
