@@ -47,6 +47,24 @@ $wgLogos = [
 
 ## UPO means: this is also a user preference option
 
+## Database settings
+$wgDBtype = "mysql";
+$wgDBserver = getenv( 'MYSQL_SERVER' );
+$wgDBname = getenv( 'MYSQL_DATABASE' );
+$wgDBuser = getenv( 'MYSQL_USER' );
+$wgDBpassword = getenv( 'MYSQL_PASSWORD' );
+
+# MySQL specific settings
+$wgDBprefix = "mw_";
+$wgDBssl = false;
+
+# MySQL table options to use during installation or update
+$wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
+
+# Shared database table
+# This has no effect unless $wgSharedDB is also set.
+$wgSharedTables[] = "actor";
+
 $wgEnableEmail = true;
 $wgEnableUserEmail = true; # UPO
 
@@ -87,7 +105,8 @@ $wgLocalFileRepo = [
 	'name'              => 'local',
 	'backend'           => 'AmazonS3',
 	'url'               => $wgScriptPath . '/img_auth.php',
-	'hashLevels'        => 2,
+	'hashLevels'        => $wgAWSRepoHashLevels,
+	'deletedHashLevels' => $wgAWSRepoDeletedHashLevels,
 	'zones'             => [
 		'public'  => [ 'url' => "https://images.coasterpedia.net" ],
 		'thumb'   => [ 'url' => "https://images.coasterpedia.net/thumb" ],
@@ -95,24 +114,6 @@ $wgLocalFileRepo = [
 		'deleted' => [ 'url' => false ]
 	]
 ];
-
-## Database settings
-$wgDBtype = "mysql";
-$wgDBserver = getenv( 'MYSQL_SERVER' );
-$wgDBname = getenv( 'MYSQL_DATABASE' );
-$wgDBuser = getenv( 'MYSQL_USER' );
-$wgDBpassword = getenv( 'MYSQL_PASSWORD' );
-
-# MySQL specific settings
-$wgDBprefix = "mw_";
-$wgDBssl = false;
-
-# MySQL table options to use during installation or update
-$wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
-
-# Shared database table
-# This has no effect unless $wgSharedDB is also set.
-$wgSharedTables[] = "actor";
 
 ## Shared memory settings
 $wgObjectCaches['redis'] = [
