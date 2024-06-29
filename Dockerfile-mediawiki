@@ -1,5 +1,5 @@
-FROM mediawiki:1.41-fpm-alpine
-ENV MEDIAWIKI_BRANCH REL1_41
+FROM mediawiki:1.42-fpm-alpine
+ENV MEDIAWIKI_BRANCH REL1_42
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./composer.json /var/www/html/composer.local.json
