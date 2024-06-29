@@ -70,21 +70,8 @@ $wgAWSBucketDomain = 'images.coasterpedia.net';
 $wgAWSRepoHashLevels = '2';
 $wgAWSRepoDeletedHashLevels = '3';
 
-$wgLocalFileRepo = [
-	'class'             => 'LocalRepo',
-	'name'              => 'local',
-	'backend'           => 'AmazonS3',
-	'url'               => $wgScriptPath . '/img_auth.php',
-	'hashLevels'        => 0,
-	'zones'             => [
-		'public'  => [ 'url' => "https://images.coasterpedia.net" ],
-		'thumb'   => [ 'url' => "https://images.coasterpedia.net/thumb" ],
-		'temp'    => [ 'url' => false ],
-		'deleted' => [ 'url' => false ]
-	]
-];
-
 $wgFileBackends['s3']['privateWiki'] = true;
+$wgUploadPath = "https://images.coasterpedia.net";
 
 ## Database settings
 $wgDBtype = "mysql";
