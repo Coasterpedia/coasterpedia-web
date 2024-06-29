@@ -4,6 +4,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	exit;
 }
 
+$wgReadOnly = 'This wiki is currently being upgraded to a newer software version. Please check back in a couple of hours.';
+
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
