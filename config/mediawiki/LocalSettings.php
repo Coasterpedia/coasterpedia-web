@@ -68,7 +68,7 @@ $wgAWSBucketDomain = 'images.coasterpedia.net';
 $wgAWSRepoHashLevels = '2';
 $wgAWSRepoDeletedHashLevels = '3';
 
-// $wgFileBackends['s3']['privateWiki'] = true;
+$wgFileBackends['s3']['privateWiki'] = true;
 
 ## Database settings
 $wgDBtype = "mysql";
