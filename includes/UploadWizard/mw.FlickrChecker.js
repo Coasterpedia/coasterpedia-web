@@ -45,8 +45,8 @@ mw.FlickrChecker.licenseList = [];
 // These are the current Flickr license names as of April 26, 2011.
 // Live list at http://api.flickr.com/services/rest/?&method=flickr.photos.licenses.getInfo&api_key=...
 mw.FlickrChecker.licenseMaps = {
-        'All Rights Reserved': 'invalid',
-        'Attribution License': '{{cc-by-2.0}}{{flickrreview}}',
+	'All Rights Reserved': 'invalid',
+	'Attribution License': '{{cc-by-2.0}}{{flickrreview}}',
         'Attribution-NoDerivs License': '{{cc-by-nd-2.0}}{{flickrreview}}',
         'Attribution-NonCommercial-NoDerivs License': '{{cc-by-nc-nd-2.0}}{{flickrreview}}',
         'Attribution-NonCommercial License': '{{cc-by-nc-2.0}}{{flickrreview}}',
@@ -415,7 +415,7 @@ mw.FlickrChecker.prototype = {
 					source: 'flickr',
 					licenseValue: licenseValue,
 					licenseMessage: license.licenseMessage,
-					license: license.licenseName !== 'Public Domain Mark',
+					licenseName: license.licenseName,
 					photoId: item.id,
 					location: {
 						latitude: item.latitude,
@@ -499,7 +499,7 @@ mw.FlickrChecker.prototype = {
 				} );
 			}
 		} ).fail( function ( message ) {
-			mw.errorDialog( message );
+			mw.errorDialog( message, mw.msg( 'mwe-upwiz-license-photoset-invalid-title' ) );
 			checker.$spinner.remove();
 			checker.ui.flickrInterfaceReset();
 		} );
@@ -566,7 +566,7 @@ mw.FlickrChecker.prototype = {
 				source: 'flickr',
 				licenseValue: license.licenseValue,
 				licenseMessage: license.licenseMessage,
-				license: license.licenseName !== 'Public Domain Mark',
+				licenseName: license.licenseName,
 				author: photoAuthor,
 				originalFormat: photo.originalformat,
 				date: photo.dates.taken,
@@ -588,7 +588,7 @@ mw.FlickrChecker.prototype = {
 				checker.ui.flickrInterfaceDestroy();
 			} );
 		} ).fail( function ( message ) {
-			mw.errorDialog( message );
+			mw.errorDialog( message, mw.msg( 'mwe-upwiz-license-external-invalid-title' ) );
 			checker.$spinner.remove();
 			checker.ui.flickrInterfaceReset();
 		} );
