@@ -495,13 +495,6 @@ $wgCdnServersNoPurge = [
 '44.234.108.128/25',
 '44.234.90.252/30'
 ];
-// Define constants for my additional namespaces.
-define("NS_DRAFT", 3000); // This MUST be even.
-define("NS_DRAFT_TALK", 3001); // This MUST be the following odd integer.
-
-// Add namespaces.
-$wgExtraNamespaces[NS_FOO] = "Draft";
-$wgExtraNamespaces[NS_FOO_TALK] = "Draft_talk"; // Note underscores in the namespace name.
 
 # Enabled skins.
 wfLoadSkin( 'Citizen' );
