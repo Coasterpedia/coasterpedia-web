@@ -9,6 +9,8 @@ $wgReadOnly = ( PHP_SAPI === 'cli' ) ? false : 'This wiki is currently being upg
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
+$wgShowExceptionDetails = true;
+
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
 ## For more information on customizing the URLs
