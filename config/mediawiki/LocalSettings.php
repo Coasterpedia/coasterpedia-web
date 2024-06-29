@@ -87,7 +87,7 @@ $wgLocalFileRepo = [
 	'name'              => 'local',
 	'backend'           => 'AmazonS3',
 	'url'               => $wgScriptPath . '/img_auth.php',
-	'hashLevels'        => 0,
+	'hashLevels'        => 2,
 	'zones'             => [
 		'public'  => [ 'url' => "https://images.coasterpedia.net" ],
 		'thumb'   => [ 'url' => "https://images.coasterpedia.net/thumb" ],
