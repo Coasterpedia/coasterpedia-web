@@ -94,10 +94,10 @@ $wgAWSRepoDeletedHashLevels = '3';
 $wgFileBackends['s3']['privateWiki'] = true;
 $wgUploadPath = "https://images.coasterpedia.net";
 $wgFileBackends['s3']['containerPaths'] = [
-	"$wgDBname-local-public" => "${BUCKET}",
-	"$wgDBname-local-thumb" => "${BUCKET}/thumb",
-	"$wgDBname-local-deleted" => "${BUCKET}/deleted",
-	"$wgDBname-local-temp" => "${BUCKET}/temp"
+	"local-public" => "${BUCKET}",
+	"local-thumb" => "${BUCKET}/thumb",
+	"local-deleted" => "${BUCKET}/deleted",
+	"local-temp" => "${BUCKET}/temp"
 ];
 
 $wgLocalFileRepo = [
