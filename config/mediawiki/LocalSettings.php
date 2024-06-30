@@ -297,6 +297,10 @@ $wgMaxUploadSize = 1024*1024*32;
 
 $wgWikiEditorRealtimePreview = true;
 
+// Autoconfirmed
+$wgAutoConfirmAge = 86400; // one day
+$wgAutoConfirmCount = 5;
+
 # Citoid
 $wgCitoidFullRestbaseURL = 'https://en.wikipedia.org/api/rest_';
 $wgCitoidISBNScannerDesktopEnable = true;
