@@ -332,6 +332,7 @@ $wgGroupPermissions['sysop']['interwiki'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
 $wgGroupPermissions['autoconfirmed']['upload'] = true;
+$wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 
 $wgMFStripResponsiveImages = false;
