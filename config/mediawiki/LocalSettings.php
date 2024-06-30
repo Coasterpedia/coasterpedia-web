@@ -163,7 +163,7 @@ $wgUseInstantCommons = false;
 $wgPingback = false;
 
 # Site language code, should be one of the list in ./includes/languages/data/Names.php
-$wgLanguageCode = "en-gb";
+$wgLanguageCode = "en";
 
 # Time zone
 $wgLocaltimezone = "UTC";
