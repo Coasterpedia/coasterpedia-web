@@ -203,8 +203,8 @@ $wgDefaultSkin = "citizen";
 
 $wgCitizenThemeColor = "#60AE26";
 $wgCitizenManifestThemeColor = "#60AE26";
-$wgCitizenTableNowrapClasses[] = 'infobox-new';
-$wgCitizenTableNowrapClasses[] = 'cp-navbox';
+$wgCitizenOverflowNowrapClasses[] = 'infobox-new';
+$wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
 
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
@@ -559,7 +559,7 @@ wfLoadExtension( 'DiscussionTools' );
 wfLoadExtension( 'DismissableSiteNotice' );
 wfLoadExtension( 'DynamicPageList3' );
 wfLoadExtension( 'Echo' );
-wfLoadExtension( 'Elastica' );
+// wfLoadExtension( 'Elastica' );
 wfLoadExtension( 'EmbedVideo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'GeoData' );

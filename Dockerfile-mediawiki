@@ -26,20 +26,20 @@ WORKDIR /var/www/html/w/
 RUN git clone --depth 1 -b v2.15.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
 
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
+# RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
 RUN git clone --depth 1 -b master "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
 RUN git clone --depth 1 -b 3.6 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CharInsert.git" extensions/CharInsert
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CheckUser.git" extensions/CheckUser
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
+# RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Citoid.git" extensions/Citoid
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CodeMirror.git" extensions/CodeMirror
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CommonsMetadata.git" extensions/CommonsMetadata
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Disambiguator.git" extensions/Disambiguator
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
 RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
+# RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
 RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
