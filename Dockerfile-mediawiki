@@ -61,7 +61,7 @@ RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki
 RUN git clone --depth 1 -b v1.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 
 # Separate version skins
-RUN git clone --depth 1 -b v2.14.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v2.25.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 RUN composer install --no-dev
 
