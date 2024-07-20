@@ -37,13 +37,7 @@ $wgDisableOutputCompression = true;
 ## The URL paths to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
 $wgLogo = "https://images.coasterpedia.net/0/09/Cp_pride.png";
-$wgLogos = [
-	'wordmark' => [
-		'src' => "https://images.coasterpedia.net/8/8c/Coasterpedia_with_circle.png",
-		'width' => 162,
-		'height' => 58,
-	],
-];
+$wgLogos = [];
 
 ## UPO means: this is also a user preference option
 
