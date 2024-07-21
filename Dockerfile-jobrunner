@@ -1,0 +1,27 @@
+FROM php:8.2-cli
+USER root
+
+COPY ./config/php/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
+
+RUN docker-php-ext-configure pcntl --enable-pcntl \
+  && docker-php-ext-install pcntl
+
+WORKDIR /var/www/html
+
+USER www-data
+
+RUN git clone --depth 1 "https://github.com/wikimedia/mediawiki-services-jobrunner.git" mediawiki-services-jobrunner
+
+RUN set -eux; \
+   cd mediawiki-services-jobrunner; \
+   /usr/bin/composer config --no-plugins allow-plugins.composer/installers true; \
+   /usr/bin/composer install --no-dev \
+     --ignore-platform-reqs \
+     --no-ansi \
+     --no-interaction \
+     --no-scripts
+
+COPY --chown=www-data:www-data ./config/jobrunner/jobrunner-conf.json /var/www/html/mediawiki-services-jobrunner
+COPY --chown=www-data:www-data --chmod=770 ./config/jobrunner/entrypoint.sh /var/www/html/mediawiki-services-jobrunner
+
+ENTRYPOINT [ "/var/www/html/mediawiki-services-jobrunner/entrypoint.sh" ]

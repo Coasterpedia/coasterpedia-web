@@ -50,6 +50,20 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
+  jobrunner:
+    image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
+    restart: unless-stopped
+    init: true
+    user: "www-data:www-data"
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - mediawiki
+      - redis
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - web
   matomo:
     image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
