@@ -253,10 +253,6 @@ $wgUploadDialog = [
 		'license' => '',
 		'uncategorized' => '',
 	],
-	'altUploadForm' => 'Special:Upload',
-	'tutorial' => [
-		'skip' => true
-	],
 ];
 
 # Footer
@@ -289,7 +285,11 @@ $wgCodeMirrorAccessibilityColors = true;
 $wgCodeMirrorEnableBracketMatching = true;
 $wgUploadWizardConfig = [
 	'alternativeUploadToolsPage' => false, // Disable the link to alternative upload tools (default: points to Commons)
-	'fileExtensions' => $wgFileExtensions // omitting this may cause errors
+	'fileExtensions' => $wgFileExtensions, // omitting this may cause errors
+	'altUploadForm' => 'Special:Upload',
+	'tutorial' => [
+		'skip' => true
+	]
 ];
 $wgFileExtensions = [ 'png', 'jpg', 'jpeg', 'svg', 'webp']; // remove GIF from upload options
 $wgMaxUploadSize = 1024*1024*32;
