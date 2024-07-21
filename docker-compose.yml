@@ -50,7 +50,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
-  jobrunner:
+  jobrunner-chron:
     image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
     restart: unless-stopped
     init: true
@@ -64,6 +64,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - web
+    environment:
+      RUNNER_TYPE: Chron
   matomo:
     image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
