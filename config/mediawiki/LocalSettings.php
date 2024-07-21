@@ -199,6 +199,7 @@ $wgCitizenThemeColor = "#60AE26";
 $wgCitizenManifestThemeColor = "#60AE26";
 $wgCitizenOverflowNowrapClasses[] = 'infobox-new';
 $wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
+$wgAllowSiteCSSOnRestrictedPages = true;
 
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
@@ -251,6 +252,10 @@ $wgUploadDialog = [
 		'ownwork' => '$SOURCE',
 		'license' => '',
 		'uncategorized' => '',
+	],
+	'altUploadForm' => 'Special:Upload',
+	'tutorial' => [
+		'skip' => true
 	],
 ];
 
