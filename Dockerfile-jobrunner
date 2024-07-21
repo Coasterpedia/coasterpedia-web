@@ -6,7 +6,9 @@ COPY ./config/php/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 RUN docker-php-ext-configure pcntl --enable-pcntl \
   && docker-php-ext-install pcntl
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git \
+    && pecl install redis \
+    && docker-php-ext-enable redis.so
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
