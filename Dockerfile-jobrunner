@@ -8,6 +8,8 @@ RUN docker-php-ext-configure pcntl --enable-pcntl \
 
 RUN apk add --no-cache git
 
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 
 USER www-data
