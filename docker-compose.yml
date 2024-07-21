@@ -7,6 +7,7 @@ services:
       - --entrypoints.websecure.address=:443
       - --entryPoints.websecure.http.encodequerysemicolons=true
       - --entrypoints.websecure.forwardedHeaders.insecure=true
+      - --entrypoints.web.forwardedHeaders.insecure=true
       - --entryPoints.web.http.encodequerysemicolons=true
       # - --accesslog=true
     restart: always
