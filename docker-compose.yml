@@ -88,6 +88,21 @@ services:
       MATOMO_EMAIL_HOST: ${SMTP_HOST}
       MATOMO_EMAIL_USERNAME: ${SMTP_USER}
       MATOMO_EMAIL_PASSWORD: ${SMTP_PASSWORD}
+  ofelia:
+    image: mcuadros/ofelia:latest
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+    depends_on:
+      - mediawiki
+      - matomo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/ofelia/ofelia.ini:/etc/ofelia/config.ini:ro
 networks:
   web:
 volumes:
