@@ -286,7 +286,6 @@ $wgCodeMirrorEnableBracketMatching = true;
 $wgUploadWizardConfig = [
 	'alternativeUploadToolsPage' => false, // Disable the link to alternative upload tools (default: points to Commons)
 	'fileExtensions' => $wgFileExtensions, // omitting this may cause errors
-	'altUploadForm' => 'Special:Upload',
 	'tutorial' => [
 		'skip' => true
 	]
