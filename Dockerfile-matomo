@@ -8,7 +8,7 @@ RUN curl -o EnvironmentVariables.zip \
     && mv EnvironmentVariables /usr/src/matomo/plugins
 
 RUN curl -o BotTracker.zip \
-    https://plugins.matomo.org/api/2.0/plugins/BotTracker/download/5.2.15 \
+    https://plugins.matomo.org/api/2.0/plugins/BotTracker/download/5.2.16 \
     && unzip BotTracker.zip \
     && rm BotTracker.zip \
     && mv BotTracker /usr/src/matomo/plugins
