@@ -55,14 +55,14 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 
 # Separate version extensions
 RUN git clone -b master "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS && git -C extensions/AWS reset --hard a42af46
-RUN git clone --depth 1 -b 3.6.1 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b 3.7 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 
 # Separate version skins
-RUN git clone --depth 1 -b v2.27.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v2.31.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 RUN composer install --no-dev
 
