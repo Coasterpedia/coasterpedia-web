@@ -27,7 +27,7 @@ WORKDIR /var/www/html/w/
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
 
 # Mediawiki linked version extensions
-# RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CharInsert.git" extensions/CharInsert
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CheckUser.git" extensions/CheckUser

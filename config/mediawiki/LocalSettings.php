@@ -548,7 +548,7 @@ wfLoadSkin( 'Vector' );
 
 # Extensions
 wfLoadExtension( 'AbuseFilter' );
-// wfLoadExtension( 'AdvancedSearch' );
+wfLoadExtension( 'AdvancedSearch' );
 wfLoadExtension( 'AWS' );
 wfLoadExtension( 'Babel' );
 wfLoadExtension( 'Cargo' );
