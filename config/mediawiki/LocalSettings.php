@@ -188,7 +188,8 @@ $wgRightsIcon = "https://images.coasterpedia.net/0/0f/Badge-ccbysa.svg";
 $wgDiff3 = "/usr/bin/diff3";
 
 # Search
-// $wgCirrusSearchServers = [ 'elasticsearch' ];
+$wgDisableSearchUpdate = true;
+$wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
 // $wgSearchType = 'CirrusSearch';
 
 ## Default skin: you can change the default skin. Use the internal symbolic
@@ -544,7 +545,7 @@ wfLoadExtension( 'Cargo' );
 wfLoadExtension( 'CategoryTree' );
 wfLoadExtension( 'CharInsert' );
 wfLoadExtension( 'CheckUser' );
-// wfLoadExtension( 'CirrusSearch' );
+wfLoadExtension( 'CirrusSearch' );
 wfLoadExtension( 'Cite' );
 wfLoadExtension( 'CiteThisPage' );
 wfLoadExtension( 'Citoid' );
@@ -557,7 +558,7 @@ wfLoadExtension( 'DiscussionTools' );
 wfLoadExtension( 'DismissableSiteNotice' );
 wfLoadExtension( 'DynamicPageList3' );
 wfLoadExtension( 'Echo' );
-// wfLoadExtension( 'Elastica' );
+wfLoadExtension( 'Elastica' );
 wfLoadExtension( 'EmbedVideo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'GeoData' );
