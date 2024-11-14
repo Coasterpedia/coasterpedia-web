@@ -208,6 +208,9 @@ $wgCitizenManifestThemeColor = "#60AE26";
 $wgCitizenOverflowNowrapClasses[] = 'infobox-new';
 $wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
 $wgAllowSiteCSSOnRestrictedPages = true;
+$wgCitizenSearchGateway = 'mwRestApi';
+$wgCitizenSearchDescriptionSource = 'wikidata';
+$wgCitizenMaxSearchResults = 10;
 
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
