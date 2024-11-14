@@ -190,7 +190,7 @@ $wgDiff3 = "/usr/bin/diff3";
 # Search
 // $wgDisableSearchUpdate = true;
 $wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
-// $wgSearchType = 'CirrusSearch';
+$wgSearchType = 'CirrusSearch';
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, e.g. 'vector' or 'monobook':
