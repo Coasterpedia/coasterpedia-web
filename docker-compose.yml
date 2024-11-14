@@ -40,6 +40,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
       SECRET_KEY: ${SECRET_KEY}
+      ES_IP: ${ES_IP}
   redis:
     image: redis:alpine
     restart: unless-stopped
