@@ -188,7 +188,7 @@ $wgRightsIcon = "https://images.coasterpedia.net/0/0f/Badge-ccbysa.svg";
 $wgDiff3 = "/usr/bin/diff3";
 
 # Search
-$wgDisableSearchUpdate = true;
+// $wgDisableSearchUpdate = true;
 $wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
 // $wgSearchType = 'CirrusSearch';
 
