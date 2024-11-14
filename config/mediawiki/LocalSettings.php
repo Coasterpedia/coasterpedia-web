@@ -192,6 +192,12 @@ $wgDiff3 = "/usr/bin/diff3";
 $wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
 $wgSearchType = 'CirrusSearch';
 $wgCirrusSearchUseCompletionSuggester = 'yes';
+$wgCirrusSearchCompletionSuggesterSubphrases = [
+	'build'  => true,
+	'use' => true,
+	'type' => 'anywords',
+	'limit' => 5,
+];
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, e.g. 'vector' or 'monobook':
