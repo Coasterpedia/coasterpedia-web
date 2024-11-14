@@ -327,6 +327,13 @@ $wgPopupsReferencePreviewsBetaFeature = false;
 # Scribunto
 $wgScribuntoDefaultEngine = 'luasandbox';
 
+# Related Articles
+$wgRelatedArticlesFooterWhitelistedSkins = [ 'citizen' ];
+$wgRelatedArticlesUseCirrusSearchApiUrl = '/api.php';
+$wgRelatedArticlesDescriptionSource = 'wikidata';
+$wgRelatedArticlesUseCirrusSearch = true;
+$wgRelatedArticlesOnlyUseCirrusSearch = true;
+
 # Other 
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
@@ -590,6 +597,7 @@ wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
 wfLoadExtension( 'Poem' );
 wfLoadExtension( 'Popups' );
+wfLoadExtension( 'RelatedArticles' );
 wfLoadExtension( 'RevisionSlider' );
 wfLoadExtension( 'SandboxLink' );
 wfLoadExtension( 'Scribunto' );
