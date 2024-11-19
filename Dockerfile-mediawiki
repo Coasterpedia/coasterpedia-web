@@ -48,7 +48,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RelatedArticles.git" extensions/RelatedArticles
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RevisionSlider.git" extensions/RevisionSlider
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-SandboxLink.git" extensions/SandboxLink
-RUN git clone --depth 1 -b master "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TemplateStyles.git" extensions/TemplateStyles
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
@@ -60,6 +59,7 @@ RUN git clone --depth 1 -b 3.7 "https://github.com/wikimedia/mediawiki-extension
 RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
+RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 
 # Separate version skins
