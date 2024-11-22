@@ -209,7 +209,7 @@ $wgCitizenOverflowNowrapClasses[] = 'infobox-new';
 $wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
 $wgAllowSiteCSSOnRestrictedPages = true;
 $wgCitizenSearchGateway = 'mwRestApi';
-$wgCitizenSearchDescriptionSource = 'textextracts';
+$wgCitizenSearchDescriptionSource = 'wikidata';
 $wgCitizenMaxSearchResults = 10;
 
 # Cargo
@@ -329,7 +329,7 @@ $wgScribuntoDefaultEngine = 'luasandbox';
 
 # Related Articles
 $wgRelatedArticlesFooterWhitelistedSkins = [ 'citizen' ];
-$wgRelatedArticlesDescriptionSource = 'textextracts';
+$wgRelatedArticlesDescriptionSource = 'wikidata';
 $wgRelatedArticlesUseCirrusSearch = true;
 $wgRelatedArticlesOnlyUseCirrusSearch = true;
 $wgRelatedArticlesCardLimit = 6;
