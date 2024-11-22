@@ -124,6 +124,7 @@ $wgJobTypeConf['default'] = [
         'connectTimeout' => 2,
         'compression' => 'gzip',
     ],
+	'checkDelay' => true,
     'claimTTL' => 3600,
     'daemonized' => true
 ];
