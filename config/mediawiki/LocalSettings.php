@@ -329,9 +329,10 @@ $wgScribuntoDefaultEngine = 'luasandbox';
 
 # Related Articles
 $wgRelatedArticlesFooterWhitelistedSkins = [ 'citizen' ];
-$wgRelatedArticlesDescriptionSource = 'wikidata';
+$wgRelatedArticlesDescriptionSource = 'textextracts';
 $wgRelatedArticlesUseCirrusSearch = true;
 $wgRelatedArticlesOnlyUseCirrusSearch = true;
+$wgRelatedArticlesCardLimit = 6;
 
 # Other 
 $wgPFEnableStringFunctions = true;
