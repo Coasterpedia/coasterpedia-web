@@ -209,7 +209,7 @@ $wgCitizenOverflowNowrapClasses[] = 'infobox-new';
 $wgCitizenOverflowNowrapClasses[] = 'cp-navbox';
 $wgAllowSiteCSSOnRestrictedPages = true;
 $wgCitizenSearchGateway = 'mwRestApi';
-$wgCitizenSearchDescriptionSource = 'wikidata';
+$wgCitizenSearchDescriptionSource = 'textextracts';
 $wgCitizenMaxSearchResults = 10;
 
 # Cargo
