@@ -335,6 +335,9 @@ $wgRelatedArticlesUseCirrusSearch = true;
 $wgRelatedArticlesOnlyUseCirrusSearch = true;
 $wgRelatedArticlesCardLimit = 6;
 
+# User rights
+$wgGroupPermissions['autopatrolled']['autopatrol'] = true;
+
 # Other 
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
