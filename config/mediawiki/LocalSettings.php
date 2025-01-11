@@ -335,6 +335,16 @@ $wgRelatedArticlesUseCirrusSearch = true;
 $wgRelatedArticlesOnlyUseCirrusSearch = true;
 $wgRelatedArticlesCardLimit = 6;
 
+# OAuth
+$wgOAuth2PrivateKey = getenv( 'OAUTH_PRIVATE' );
+$wgOAuth2PublicKey = getenv( 'OAUTH_PUBLIC' );
+$wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
+$wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
+$wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
+$wgGroupPermissions['sysop']['mwoauthsuppress'] = true;
+$wgGroupPermissions['sysop']['mwoauthviewsuppressed'] = true;
+$wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
+
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 
@@ -351,12 +361,6 @@ $wgGroupPermissions['sysop']['autopatrol'] = true;
 $wgGroupPermissions['sysop']['interwiki'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
-$wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthsuppress'] = true;
-$wgGroupPermissions['sysop']['mwoauthviewsuppressed'] = true;
-$wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 $wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['*']['edit'] = false;

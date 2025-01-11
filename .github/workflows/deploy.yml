@@ -215,6 +215,8 @@ jobs:
             export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
             export AWS_REGION="${{secrets.AWS_REGION}}" &&
             export AWS_BUCKET_NAME="${{secrets.AWS_BUCKET_NAME}}" &&
+            export OAUTH_PRIVATE="${{secrets.OAUTH_PRIVATE}}" &&
+            export OAUTH_PUBLIC="${{secrets.OAUTH_PUBLIC}}" &&
             export MATOMO_DATABASE_DBNAME="${{secrets.MATOMO_DATABASE_DBNAME}}" &&
             export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
             export MATOMO_DATABASE_HOST="${{secrets.MATOMO_DATABASE_HOST}}" &&

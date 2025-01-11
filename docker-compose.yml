@@ -41,6 +41,8 @@ services:
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
       SECRET_KEY: ${SECRET_KEY}
       ES_IP: ${ES_IP}
+      OAUTH_PUBLIC: ${OAUTH_PUBLIC}
+      OAUTH_PRIVATE: ${OAUTH_PRIVATE}
   redis:
     image: redis:alpine
     restart: unless-stopped
