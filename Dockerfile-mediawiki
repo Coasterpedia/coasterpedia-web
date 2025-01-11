@@ -1,5 +1,5 @@
-FROM mediawiki:1.42-fpm-alpine
-ENV MEDIAWIKI_BRANCH REL1_42
+FROM mediawiki:1.43-fpm-alpine
+ENV MEDIAWIKI_BRANCH REL1_43
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./composer.json /var/www/html/composer.local.json
@@ -29,7 +29,9 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 
 # Mediawiki linked version extensions
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CharInsert.git" extensions/CharInsert
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CheckUser.git" extensions/CheckUser
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
@@ -55,8 +57,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
 
 # Separate version extensions
-RUN git clone -b master "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS && git -C extensions/AWS reset --hard a42af46
-RUN git clone --depth 1 -b 3.7 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b 0.13.1 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
 RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
@@ -64,7 +65,7 @@ RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-e
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 
 # Separate version skins
-RUN git clone --depth 1 -b v2.39.4 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 99d926f
 
 RUN composer install --no-dev
 
