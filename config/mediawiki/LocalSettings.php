@@ -336,8 +336,8 @@ $wgRelatedArticlesOnlyUseCirrusSearch = true;
 $wgRelatedArticlesCardLimit = 6;
 
 # OAuth
-$wgOAuth2PrivateKey = getenv( 'OAUTH_PRIVATE' );
-$wgOAuth2PublicKey = getenv( 'OAUTH_PUBLIC' );
+$wgOAuth2PrivateKey = '/etc/pki/oauth/public.key';
+$wgOAuth2PublicKey = '/etc/pki/oauth/private.key';
 $wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
 $wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
 $wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;

@@ -25,6 +25,8 @@ services:
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/coasterpedia.conf
+      - ./oauth_public.key:/etc/pki/oauth/public.key
+      - ./oauth_private.key:/etc/pki/oauth/private.key
     labels:
       - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
       - traefik.http.routers.mediawiki.entrypoints=web,websecure
