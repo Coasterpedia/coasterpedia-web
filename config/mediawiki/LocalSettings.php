@@ -596,6 +596,7 @@ wfLoadExtension( 'MultimediaViewer' );
 wfLoadExtension( 'NativeSvgHandler' );
 wfLoadExtension( 'NearbyPages' );
 wfLoadExtension( 'Nuke' );
+wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
