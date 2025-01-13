@@ -215,14 +215,14 @@ jobs:
             export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
             export AWS_REGION="${{secrets.AWS_REGION}}" &&
             export AWS_BUCKET_NAME="${{secrets.AWS_BUCKET_NAME}}" &&
+            export OAUTH_PRIVATE="${{secrets.OAUTH_PRIVATE}}" &&
+            export OAUTH_PUBLIC="${{secrets.OAUTH_PUBLIC}}" &&
             export MATOMO_DATABASE_DBNAME="${{secrets.MATOMO_DATABASE_DBNAME}}" &&
             export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
             export MATOMO_DATABASE_HOST="${{secrets.MATOMO_DATABASE_HOST}}" &&
             export MATOMO_DATABASE_USERNAME="${{secrets.MATOMO_DATABASE_USERNAME}}" &&
             export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
             export ES_IP="${{secrets.ES_IP}}" &&
-            echo "${{secrets.OAUTH_PUBLIC}}" >> oauth_public.key &&
-            echo "${{secrets.OAUTH_PRIVATE}}" >> oauth_private.key &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose pull &&
             docker compose up -d -V &&
