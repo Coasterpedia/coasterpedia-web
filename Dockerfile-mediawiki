@@ -39,6 +39,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages

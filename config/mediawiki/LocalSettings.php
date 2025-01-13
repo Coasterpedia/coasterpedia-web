@@ -596,6 +596,7 @@ wfLoadExtension( 'InputBox' );
 wfLoadExtension( 'Interwiki' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
+wfLoadExtension( 'Loops' );
 wfLoadExtension( 'Matomo' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );
