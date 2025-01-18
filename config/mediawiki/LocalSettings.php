@@ -607,7 +607,6 @@ wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
-wfLoadExtension( 'Poem' );
 wfLoadExtension( 'Popups' );
 wfLoadExtension( 'RelatedArticles' );
 wfLoadExtension( 'RevisionSlider' );
