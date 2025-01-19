@@ -330,6 +330,7 @@ $wgKartographerStaticMapframe = false;
 $wgKartographerWikivoyageMode = false;
 
 # Json Config
+$wgExtraNamespaces[486] = "Map";
 $wgJsonConfigModels['Map.JsonConfig'] = 'JsonConfig\JCMapDataContent';
 $wgJsonConfigs['Map.JsonConfig'] = [ 
         'namespace' => 486,
