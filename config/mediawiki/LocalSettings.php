@@ -357,6 +357,14 @@ $wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 
+# External Data
+$wgExternalDataSources['api'] = [
+	'url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/$path$',
+	'params' => [ 'path' ],
+	'param filters' => [ 'path' => '/^([A-Za-z\/]*)/' ],
+	'format' => 'text',
+];
+
 # Other 
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
@@ -597,6 +605,7 @@ wfLoadExtension( 'DismissableSiteNotice' );
 wfLoadExtension( 'DynamicPageList3' );
 wfLoadExtension( 'Echo' );
 wfLoadExtension( 'Elastica' );
+wfLoadExtension( 'ExternalData' );
 wfLoadExtension( 'EmbedVideo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'GeoData' );
