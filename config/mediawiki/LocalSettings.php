@@ -325,7 +325,7 @@ $wgKartographerMapServer = 'https://tile.openstreetmap.org';
 $wgKartographerStyles = [''];
 $wgKartographerDfltStyle = '';
 $wgKartographerSrcsetScales = [ 1 ];
-$wgKartographerSimpleStyleMarkers = true;
+$wgKartographerSimpleStyleMarkers = false;
 $wgKartographerStaticMapframe = false;
 $wgKartographerWikivoyageMode = false;
 
