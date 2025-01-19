@@ -329,6 +329,17 @@ $wgKartographerSimpleStyleMarkers = false;
 $wgKartographerStaticMapframe = false;
 $wgKartographerWikivoyageMode = false;
 
+# Json Config
+$wgJsonConfigModels['Map.JsonConfig'] = 'JsonConfig\JCMapDataContent';
+$wgJsonConfigs['Map.JsonConfig'] = [ 
+        'namespace' => 486,
+        'nsName' => 'Data',
+        // page name must end in ".map", and contain at least one symbol
+        'pattern' => '/.\.map$/',
+        'license' => 'CC0-1.0',
+        'isLocal' => false,
+];
+
 // POPUPS Config
 $wgPopupsHideOptInOnPreferencesPage = true;
 $wgPopupsOptInDefaultState = '1';
