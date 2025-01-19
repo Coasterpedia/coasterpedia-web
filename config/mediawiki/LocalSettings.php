@@ -362,7 +362,7 @@ $wgExternalDataSources['api'] = [
 	'url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/$path$',
 	'params' => [ 'path' ],
 	'param filters' => [ 'path' => '/^([A-Za-z\/]*)/' ],
-	'format' => 'JSON',
+	'format' => 'text',
 ];
 
 # Other 
