@@ -39,6 +39,8 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-JsonConfig.git" extensions/JsonConfig
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Kartographer.git" extensions/Kartographer
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
@@ -62,7 +64,7 @@ RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-e
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 
 # Separate version skins
-RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 99d926f
+RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 991a409
 
 RUN composer install --no-dev
 

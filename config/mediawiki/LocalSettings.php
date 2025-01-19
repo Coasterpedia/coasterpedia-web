@@ -320,6 +320,15 @@ $wgMaxGeoSearchRadius = 1000000;
 $wgNearbyRange = 1000000;
 $wgNearbyPagesUrl = "https://coasterpedia.net/w/api.php";
 
+# Kartographer
+$wgKartographerMapServer = 'https://tile.openstreetmap.org';
+$wgKartographerStyles = [''];
+$wgKartographerDfltStyle = '';
+$wgKartographerSrcsetScales = [ 1 ];
+$wgKartographerSimpleStyleMarkers = false;
+$wgKartographerStaticMapframe = false;
+$wgKartographerWikivoyageMode = false;
+
 // POPUPS Config
 $wgPopupsHideOptInOnPreferencesPage = true;
 $wgPopupsOptInDefaultState = '1';
@@ -594,6 +603,8 @@ wfLoadExtension( 'GeoData' );
 wfLoadExtension( 'ImageMap' );
 wfLoadExtension( 'InputBox' );
 wfLoadExtension( 'Interwiki' );
+wfLoadExtension( 'JsonConfig' );
+wfLoadExtension( 'Kartographer' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
 wfLoadExtension( 'Loops' );
