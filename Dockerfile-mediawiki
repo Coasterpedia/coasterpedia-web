@@ -75,7 +75,7 @@ RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki
 RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b v1.2.2 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
+RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
 
 # Separate version skins
 RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 991a409
