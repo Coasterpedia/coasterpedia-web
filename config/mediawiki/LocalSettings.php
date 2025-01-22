@@ -407,8 +407,8 @@ $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
 
-$wgThumbroEnabled = false;
-$wgThumbroExposeTestPage = true;
+// $wgThumbroEnabled = false;
+// $wgThumbroExposeTestPage = true;
 
 // $wgGeoDataBackend = 'elastic';
 
