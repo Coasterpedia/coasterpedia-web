@@ -396,6 +396,7 @@ $wgGroupPermissions['sysop']['autopatrol'] = true;
 $wgGroupPermissions['sysop']['interwiki'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
+$wgGroupPermissions['sysop']['thumbro-test'] = true;
 $wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['*']['edit'] = false;
@@ -403,6 +404,8 @@ $wgGroupPermissions['*']['edit'] = false;
 $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
+
+$wgThumbroEnabled = false;
 
 // $wgGeoDataBackend = 'elastic';
 
