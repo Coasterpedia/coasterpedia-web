@@ -109,6 +109,7 @@ $wgLocalFileRepo = [
 		'deleted' => [ 'url' => false ]
 	]
 ];
+$wgImagePreconnect = true;
 
 ## Shared memory settings
 $wgObjectCaches['redis'] = [
