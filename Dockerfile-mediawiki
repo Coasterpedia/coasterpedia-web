@@ -6,7 +6,7 @@ COPY ./composer.json /var/www/html/composer.local.json
 COPY ./config/supervisord/supervisord.conf /etc/
 COPY ./config/php/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 
-RUN apk add --no-cache pcre-dev ghostscript poppler-utils nodejs npm nginx supervisor lua5.1 lua5.1-dev vips-dev vips-tools $PHPIZE_DEPS \
+RUN apk add --no-cache pcre-dev ghostscript imagemagick imagemagick-dev poppler-utils nodejs npm nginx supervisor lua5.1 lua5.1-dev vips-dev vips-tools $PHPIZE_DEPS \
     && pecl install redis luasandbox \
     && docker-php-ext-install exif \
     && docker-php-ext-enable redis.so luasandbox
