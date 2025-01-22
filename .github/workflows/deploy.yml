@@ -214,6 +214,8 @@ jobs:
             export MATOMO_DATABASE_USERNAME="${{secrets.MATOMO_DATABASE_USERNAME}}" &&
             export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
             export ES_IP="${{secrets.ES_IP}}" &&
+            export CLOUDFLARE_ZONEID="${{secrets.CLOUDFLARE_ZONEID}}" &&
+            export CLOUDFLARE_APITOKEN="${{secrets.CLOUDFLARE_APITOKEN}}" &&
             if cd coasterpedia; then git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia; fi &&
             docker compose pull &&
             docker compose up -d -V &&
