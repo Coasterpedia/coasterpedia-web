@@ -11,6 +11,16 @@ RUN apk add --no-cache pcre-dev ghostscript imagemagick imagemagick-dev poppler-
     && docker-php-ext-install exif \
     && docker-php-ext-enable redis.so luasandbox imagick
 
+RUN set -eux; \
+	# Install wikidiff2
+	# No pecl package for wikidiff2 (https://phabricator.wikimedia.org/T196132)
+	curl -sSLf \
+		-o /usr/local/bin/install-php-extensions \
+		https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+		chmod +x /usr/local/bin/install-php-extensions && \
+		install-php-extensions wikidiff2 \
+	;
+
 RUN mkdir /tmp/www && \
     mv /var/www/html/* /tmp/www && \
     mkdir /var/www/html/w && \

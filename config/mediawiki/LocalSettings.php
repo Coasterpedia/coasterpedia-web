@@ -354,6 +354,13 @@ $wgGroupPermissions['sysop']['mwoauthsuppress'] = true;
 $wgGroupPermissions['sysop']['mwoauthviewsuppressed'] = true;
 $wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 
+# WikiDiff2
+$isWikiDiff2Enabled = extension_loaded( 'wikidiff2' );
+if ( $isWikiDiff2Enabled ) {
+	$wgDiffEngine = 'wikidiff2';
+}
+
+
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 
