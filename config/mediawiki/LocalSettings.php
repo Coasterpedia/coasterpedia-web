@@ -636,6 +636,7 @@ wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
 wfLoadExtension( 'Loops' );
 wfLoadExtension( 'Matomo' );
+wfLoadExtension( 'MediaSearch' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );
 wfLoadExtension( 'MultiPurge' );
