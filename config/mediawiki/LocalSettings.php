@@ -663,6 +663,7 @@ wfLoadExtension( 'TemplateStyles' );
 wfLoadExtension( 'TemplateStylesExtender' );
 wfLoadExtension( 'TextExtracts' );
 wfLoadExtension( 'Thanks' );
+wfLoadExtension( 'Thumbro' );
 wfLoadExtension( 'TitleBlacklist' );
 wfLoadExtension( 'TwoColConflict' );
 wfLoadExtension( 'UploadWizard' );
