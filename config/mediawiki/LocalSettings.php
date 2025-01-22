@@ -401,6 +401,7 @@ $wgGroupPermissions['sysop']['thumbro-test'] = true;
 $wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['*']['edit'] = false;
+$wgEnableEditRecovery = true;
 
 $wgMFStripResponsiveImages = false;
 
