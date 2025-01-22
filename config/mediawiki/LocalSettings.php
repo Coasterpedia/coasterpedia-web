@@ -361,6 +361,17 @@ if ( $isWikiDiff2Enabled ) {
 }
 
 
+# MultiPurge
+$wgMultiPurgeEnabledServices = [ 'Cloudflare' ];
+$wgMultiPurgeServiceOrder = $wgMultiPurgeEnabledServices;
+$wgMultiPurgeCloudFlareZoneId = getenv( 'CLOUDFLARE_ZONEID' );
+$wgMultiPurgeCloudFlareApiToken = getenv( 'CLOUDFLARE_APITOKEN' );
+$wgMultiPurgeStaticPurges = [
+	'Startup script' => 'load.php?lang=en&modules=startup&only=scripts&raw=1&skin=citizen',
+	'Site styles' => 'load.php?lang=en&modules=site.styles&only=styles&skin=citizen'
+];
+$wgMultiPurgeRunInQueue = true;
+
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 
@@ -627,6 +638,7 @@ wfLoadExtension( 'Loops' );
 wfLoadExtension( 'Matomo' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );
+wfLoadExtension( 'MultiPurge' );
 wfLoadExtension( 'NativeSvgHandler' );
 wfLoadExtension( 'NearbyPages' );
 wfLoadExtension( 'Nuke' );
