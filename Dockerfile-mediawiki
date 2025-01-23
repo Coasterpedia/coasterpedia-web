@@ -35,52 +35,52 @@ USER www-data
 WORKDIR /var/www/html/w/
 
 # Mediawiki linked version skins
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-skins-Refreshed.git" skins/Refreshed
 
 # Mediawiki linked version extensions
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Citoid.git" extensions/Citoid
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CodeMirror.git" extensions/CodeMirror
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-CommonsMetadata.git" extensions/CommonsMetadata
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Disambiguator.git" extensions/Disambiguator
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-ExternalData.git" extensions/ExternalData
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-JsonConfig.git" extensions/JsonConfig
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Kartographer.git" extensions/Kartographer
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MediaSearch.git" extensions/MediaSearch
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Popups.git" extensions/Popups
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RelatedArticles.git" extensions/RelatedArticles
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RevisionSlider.git" extensions/RevisionSlider
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-SandboxLink.git" extensions/SandboxLink
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TemplateStyles.git" extensions/TemplateStyles
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-WebAuthn.git" extensions/WebAuthn
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-AdvancedSearch.git" extensions/AdvancedSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Babel.git" extensions/Babel
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-CirrusSearch.git" extensions/CirrusSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Citoid.git" extensions/Citoid
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-CodeMirror.git" extensions/CodeMirror
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-CommonsMetadata.git" extensions/CommonsMetadata
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Disambiguator.git" extensions/Disambiguator
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-ExternalData.git" extensions/ExternalData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-JsonConfig.git" extensions/JsonConfig
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Kartographer.git" extensions/Kartographer
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-MediaSearch.git" extensions/MediaSearch
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Popups.git" extensions/Popups
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-RelatedArticles.git" extensions/RelatedArticles
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-RevisionSlider.git" extensions/RevisionSlider
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-SandboxLink.git" extensions/SandboxLink
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-TemplateStyles.git" extensions/TemplateStyles
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "git@github.com:wikimedia/mediawiki-extensions-WebAuthn.git" extensions/WebAuthn
 
 # Separate version extensions
-RUN git clone --depth 1 -b v0.13.1 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
-RUN git clone --depth 1 -b 3.5.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
-RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
-RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
-RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
-RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
-RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
+RUN git clone --depth 1 -b v0.13.1 "git@github.com:edwardspec/mediawiki-aws-s3.git" extensions/AWS
+RUN git clone --depth 1 -b 3.5.2 "git@github.com:Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
+RUN git clone --depth 1 -b v3.4.2 "git@github.com:StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
+RUN git clone --depth 1 -b v5.0.0 "git@github.com:DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
+RUN git clone --depth 1 -b v1.2.1 "git@github.com:octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
+RUN git clone --depth 1 -b main "git@github.com:StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
+RUN git clone --depth 1 -b v1.2.2 "git@github.com:octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
+RUN git clone --depth 1 -b main "git@github.com:StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
 
 # Separate version skins
-RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 991a409
+RUN git clone -b main "git@github.com:StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 991a409
 
 RUN composer install --no-dev
 
