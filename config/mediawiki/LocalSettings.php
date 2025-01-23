@@ -643,6 +643,7 @@ wfLoadExtension( 'LabeledSectionTransclusion' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
 wfLoadExtension( 'Loops' );
+wfLoadExtension( 'Maps' );
 wfLoadExtension( 'Matomo' );
 wfLoadExtension( 'MediaSearch' );
 wfLoadExtension( 'MyVariables' );
