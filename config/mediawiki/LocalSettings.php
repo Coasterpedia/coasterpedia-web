@@ -384,6 +384,9 @@ $wgExternalDataSources['api'] = [
 	'format' => 'JSON',
 ];
 
+# Maps
+$egMapsEnableCoordinateFunction = false;
+
 # Other 
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
