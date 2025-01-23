@@ -81,7 +81,7 @@ RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
 
 # Separate version skins
-RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 991a409
+RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard c91135d
 
 RUN composer install --no-dev
 
