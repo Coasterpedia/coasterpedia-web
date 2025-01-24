@@ -316,6 +316,10 @@ $wgAutoConfirmCount = 5;
 $wgCitoidFullRestbaseURL = 'https://en.wikipedia.org/api/rest_';
 $wgCitoidISBNScannerDesktopEnable = true;
 
+# Details
+// Disable custom handling since we only need to write <details> and <summary> in wikitext
+$wgDetailsMWCollapsibleCompatibility = false;
+
 # Nearby
 $wgMaxGeoSearchRadius = 1000000;
 $wgNearbyRange = 1000000;
@@ -627,6 +631,7 @@ wfLoadExtension( 'CodeEditor' );
 wfLoadExtension( 'CodeMirror' );
 wfLoadExtension( 'CommonsMetadata' );
 wfLoadExtensions([ 'ConfirmEdit', 'ConfirmEdit/QuestyCaptcha' ]);
+wfLoadExtension( 'Details' );
 wfLoadExtension( 'Disambiguator' );
 wfLoadExtension( 'DiscussionTools' );
 wfLoadExtension( 'DismissableSiteNotice' );
