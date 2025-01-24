@@ -671,6 +671,7 @@ wfLoadExtension( 'Scribunto' );
 wfLoadExtension( 'ShortDescription' );
 wfLoadExtension( 'SpamBlacklist' );
 wfLoadExtension( 'SyntaxHighlight_GeSHi' );
+wfLoadExtension( 'TabberNeue' );
 wfLoadExtension( 'TemplateData' );
 wfLoadExtension( 'TemplateStyles' );
 wfLoadExtension( 'TemplateStylesExtender' );
