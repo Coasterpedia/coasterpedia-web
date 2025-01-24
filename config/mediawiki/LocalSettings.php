@@ -645,8 +645,6 @@ wfLoadExtension( 'GeoData' );
 wfLoadExtension( 'ImageMap' );
 wfLoadExtension( 'InputBox' );
 wfLoadExtension( 'Interwiki' );
-wfLoadExtension( 'JsonConfig' );
-wfLoadExtension( 'Kartographer' );
 wfLoadExtension( 'LabeledSectionTransclusion' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
