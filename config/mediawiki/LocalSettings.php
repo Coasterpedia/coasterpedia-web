@@ -391,6 +391,15 @@ $wgExternalDataSources['api'] = [
 # Maps
 $egMapsEnableCoordinateFunction = false;
 
+# Namespaces
+// Define constants for my additional namespaces.
+define("NS_DRAFT", 3000); // This MUST be even.
+define("NS_DRAFT_TALK", 3001); // This MUST be the following odd integer.
+
+// Add namespaces.
+$wgExtraNamespaces[NS_DRAFT] = "Draft";
+$wgExtraNamespaces[NS_DRAFT_TALK] = "Draft_talk"; // Note underscores in the namespace name.
+
 # Other 
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
