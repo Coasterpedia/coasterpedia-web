@@ -214,6 +214,9 @@ $wgCitizenSearchGateway = 'mwRestApi';
 $wgCitizenSearchDescriptionSource = 'wikidata';
 $wgCitizenMaxSearchResults = 10;
 
+# Namespaces
+$wgExtraNamespaces[3000] = "Draft";
+
 # Cargo
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
 $wgCargoAllowedSQLFunctions[] = 'REPLACE';
