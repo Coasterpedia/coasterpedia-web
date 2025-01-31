@@ -233,7 +233,7 @@ $wgCargoPageDataColumns[] = 'isRedirect';
 $wgCargoPageDataColumns[] = 'pageNameOrRedirect';
 $wgCargoPageDataColumns[] = 'pageIDOrRedirect';
 
-$wgCargoMapClusteringMinimum = '100';
+$wgCargoMapClusteringMinimum = 100;
 
 ##### MATOMO #####
 $wgMatomoURL = "analytics.coasterpedia.net";
