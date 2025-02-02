@@ -292,7 +292,8 @@ $wgVisualEditorAvailableNamespaces = [
     "User" => true,
     "User_talk" => true,
     "Talk" => true,
-    "Coasterpedia" => true
+    "Coasterpedia" => true,
+    "Draft" => true
 ];
 $wgForeignUploadTargets = []; // disable upload dialog in VisualEditor
 $wgTemplateDataSuggestedValuesEditor = true;
