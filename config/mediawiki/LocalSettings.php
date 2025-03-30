@@ -417,6 +417,8 @@ $wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['user']['oathauth-enable'] = true;
 $wgGroupPermissions['*']['edit'] = false;
+$wgGroupPermissions['*']['runcargoqueries'] = false;
+$wgGroupPermissions['sysop']['runcargoqueries'] = true;
 $wgEnableEditRecovery = true;
 $wgFixDoubleRedirects = true;
 
