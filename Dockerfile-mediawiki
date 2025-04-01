@@ -70,8 +70,8 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b v0.13.1 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
 RUN git clone --depth 1 -b 3.7.1 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b 1.2 "https://github.com/chariz/mediawiki-extensions-Details.git" extensions/Details
-RUN git clone --depth 1 -b 3.6.1 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
-RUN git clone --depth 1 -b v3.4.2 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
+RUN git clone --depth 1 -b 3.6.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
+RUN git clone --depth 1 -b v3.4.3 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
 RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
@@ -80,7 +80,7 @@ RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && git -C extensions/Thumbro reset --hard 9b560cd
 
 # Separate version skins
-RUN git clone -b main "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen && git -C skins/Citizen reset --hard 57711a9
+RUN git clone --depth 1 -b v3.0.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 RUN composer install --no-dev
 
