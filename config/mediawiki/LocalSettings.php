@@ -676,6 +676,7 @@ wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
 wfLoadExtension( 'Popups' );
 wfLoadExtension( 'RelatedArticles' );
+wfLoadExtension( 'ReplaceText' );
 wfLoadExtension( 'RevisionSlider' );
 wfLoadExtension( 'SandboxLink' );
 wfLoadExtension( 'Scribunto' );
