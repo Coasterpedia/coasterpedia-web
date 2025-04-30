@@ -68,7 +68,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.13.1 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
-RUN git clone --depth 1 -b 3.7.1 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b 3.8 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b 1.2 "https://github.com/chariz/mediawiki-extensions-Details.git" extensions/Details
 RUN git clone --depth 1 -b 3.6.2 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b v3.4.3 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
