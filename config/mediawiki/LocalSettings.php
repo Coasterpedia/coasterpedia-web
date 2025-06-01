@@ -143,6 +143,8 @@ $wgUseFileCache = false;
 $wgParserCacheExpireTime = 2592000;
 $wgObjectCacheSessionExpiry = 3600 * 3;
 
+$wgMiserMode = true;
+
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
 $wgEnableUploads = true;
