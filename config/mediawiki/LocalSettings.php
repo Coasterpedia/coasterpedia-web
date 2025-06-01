@@ -429,6 +429,9 @@ $wgFixDoubleRedirects = true;
 $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
+$wgDisableQueryPageUpdate = [
+    'Deadendpages'
+];
 
 // $wgThumbroEnabled = false;
 // $wgThumbroExposeTestPage = true;
