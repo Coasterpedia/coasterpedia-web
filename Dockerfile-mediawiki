@@ -49,6 +49,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-ExternalData.git" extensions/ExternalData
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-HoneyPot.git" extensions/HoneyPot
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MediaSearch.git" extensions/MediaSearch
@@ -74,6 +75,7 @@ RUN git clone --depth 1 -b 3.6.2 "https://github.com/Universal-Omega/DynamicPage
 RUN git clone --depth 1 -b v3.4.3 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
 RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
+RUN git clone --depth 1 -b main "https://github.com/miraheze/RottenLinks.git" extensions/RottenLinks && git -C extensions/RottenLinks reset --hard f30d075
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
