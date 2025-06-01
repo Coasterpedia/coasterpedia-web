@@ -3,6 +3,8 @@
 [database]
 tables_prefix = "matomo_"
 charset = "utf8mb4"
+collation = 'utf8mb4_general_ci'
+schema = Mariadb
 
 [General]
 force_ssl = 1
