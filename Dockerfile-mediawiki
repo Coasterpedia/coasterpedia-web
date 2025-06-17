@@ -78,11 +78,11 @@ RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b main "https://github.com/miraheze/RottenLinks.git" extensions/RottenLinks && git -C extensions/RottenLinks reset --hard f30d075
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
-RUN git clone --depth 1 -b v1.2.2 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
+RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 RUN git clone --depth 1 -b v1.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.2.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.3.2 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 RUN composer install --no-dev
 
