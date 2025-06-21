@@ -157,4 +157,6 @@ Disallow: /wiki/Module:Sandbox
 Disallow: /wiki/Module%3ASandbox
 Disallow: /wiki/Template:TemplateStyles_sandbox
 Disallow: /wiki/Template%3ATemplateStyles_sandbox
+Disallow: /wiki/Draft:
+Disallow: /wiki/Draft%3A
 Crawl-delay: 5
