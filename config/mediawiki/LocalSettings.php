@@ -244,7 +244,7 @@ $wgMatomoTrackUsernames = true;
 $wgMatomoIgnoreSysops = false;
 
 ##### CAPTCHA #####
-$wgCaptchaClass = 'Turnstile';
+$wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 $wgCaptchaTriggers['create'] = true;
 $wgTurnstileSiteKey= '0x4AAAAAABh32xrwXkf_zM90';
 $wgTurnstileSecretKey= getenv( 'TURNSTILE_SECRET' );
