@@ -244,13 +244,11 @@ $wgMatomoTrackUsernames = true;
 $wgMatomoIgnoreSysops = false;
 
 ##### CAPTCHA #####
-$wgCaptchaClass = 'QuestyCaptcha';
-$wgCaptchaTriggers['create'] = true; 
-// Add your questions in LocalSettings.php using this format
-$wgCaptchaQuestions[] = array( 'question' => "In which year did the UK theme park Alton Towers open?", 'answer' => "1980");
-$wgCaptchaQuestions[] = array( 'question' => 'In which year did the US theme park Six Flags AstroWorld close?', 'answer' => '2005' );
-$wgCaptchaQuestions[] = array( 'question' => "In which US state does the theme park Busch Gardens Tampa Bay operate in?", 'answer' => "Florida" );
-$wgCaptchaQuestions[] = array( 'question' => "In which country does the roller coaster Steel Dragon 2000 operate in?", 'answer' => "Japan" );
+$wgCaptchaClass = 'Turnstile';
+$wgCaptchaTriggers['create'] = true;
+$wgTurnstileSiteKey= '0x4AAAAAABh32xrwXkf_zM90';
+$wgTurnstileSecretKey= getenv( 'TURNSTILE_SECRET' );
+
 # Upload Wizard
 $wgApiFrameOptions = 'SAMEORIGIN';
 $wgAllowCopyUploads = true;
@@ -648,7 +646,7 @@ wfLoadExtension( 'Citoid' );
 wfLoadExtension( 'CodeEditor' );
 wfLoadExtension( 'CodeMirror' );
 wfLoadExtension( 'CommonsMetadata' );
-wfLoadExtensions([ 'ConfirmEdit', 'ConfirmEdit/QuestyCaptcha' ]);
+wfLoadExtensions([ 'ConfirmEdit', 'ConfirmEdit/Turnstile' ]);
 wfLoadExtension( 'Details' );
 wfLoadExtension( 'Disambiguator' );
 wfLoadExtension( 'DiscussionTools' );

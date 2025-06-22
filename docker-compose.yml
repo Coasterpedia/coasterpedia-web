@@ -45,6 +45,7 @@ services:
       OAUTH_PRIVATE: ${OAUTH_PRIVATE}
       CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
+      TURNSTILE_SECRET: ${TURNSTILE_SECRET}
   redis:
     image: redis:alpine
     restart: unless-stopped
