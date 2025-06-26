@@ -74,6 +74,22 @@ services:
       - web
     environment:
       RUNNER_TYPE: Chron
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_SERVER: ${MYSQL_SERVER}
+      MYSQL_USER: ${MYSQL_USER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      AWS_REGION: ${AWS_REGION}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      SECRET_KEY: ${SECRET_KEY}
+      ES_IP: ${ES_IP}
+      OAUTH_PUBLIC: ${OAUTH_PUBLIC}
+      OAUTH_PRIVATE: ${OAUTH_PRIVATE}
+      CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
+      CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
+      TURNSTILE_SECRET: ${TURNSTILE_SECRET}
   jobrunner:
     image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
     restart: unless-stopped
@@ -88,6 +104,23 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - web
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_SERVER: ${MYSQL_SERVER}
+      MYSQL_USER: ${MYSQL_USER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      AWS_REGION: ${AWS_REGION}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      SECRET_KEY: ${SECRET_KEY}
+      ES_IP: ${ES_IP}
+      OAUTH_PUBLIC: ${OAUTH_PUBLIC}
+      OAUTH_PRIVATE: ${OAUTH_PRIVATE}
+      CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
+      CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
+      TURNSTILE_SECRET: ${TURNSTILE_SECRET}
   matomo:
     image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
