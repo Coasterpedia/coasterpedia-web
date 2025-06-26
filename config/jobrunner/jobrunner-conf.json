@@ -1,7 +1,15 @@
 {
     "groups": {
       "basic": {
-        "runners": 0
+        "runners": 3,
+        "include": [
+          "*"
+        ],
+        "low-priority": [
+          "cirrusSearchLinksUpdate",
+          "htmlCacheUpdate",
+          "refreshLinks"
+        ]
       }
     },
   

@@ -129,7 +129,8 @@ $wgJobTypeConf['default'] = [
     'claimTTL' => 3600,
     'daemonized' => true
 ];
-
+// We have jobrunner set up so don't run any jobs on request
+$wgJobRunRate = 0;
 
 $wgMainCacheType = 'redis';
 $wgParserCacheType = CACHE_DB;
@@ -314,6 +315,8 @@ $wgUploadWizardConfig = [
 ];
 $wgFileExtensions = [ 'png', 'jpg', 'jpeg', 'svg', 'webp']; // remove GIF from upload options
 $wgMaxUploadSize = 1024*1024*32;
+$wgAllowTitlesInSVG = true;
+$wgSVGNativeRendering = true;
 
 $wgWikiEditorRealtimePreview = true;
 
