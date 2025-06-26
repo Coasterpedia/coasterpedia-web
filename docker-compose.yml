@@ -96,6 +96,7 @@ services:
     restart: unless-stopped
     init: true
     user: "www-data:www-data"
+    cpu_shares: 256
     security_opt:
       - no-new-privileges:true
     depends_on:
