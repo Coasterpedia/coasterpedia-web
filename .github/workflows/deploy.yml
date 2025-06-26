@@ -123,6 +123,7 @@ jobs:
           cache-from: type=gha,scope=${{ github.ref_name }}-matomo
           cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-matomo
           platforms: linux/arm64
+          target: mediawiki
 
   jobrunner_build:
     runs-on: ubuntu-24.04-arm
@@ -175,9 +176,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ github.ref_name }}-jobrunner
-          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-jobrunner
+          cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-mediawiki
           platforms: linux/arm64
+          target: jobrunner
 
   deploy:
     runs-on: ubuntu-latest
