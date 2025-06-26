@@ -1,4 +1,4 @@
-FROM mediawiki:1.43-fpm-alpine
+FROM mediawiki:1.43-fpm-alpine AS mediawiki
 ENV MEDIAWIKI_BRANCH REL1_43
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -90,3 +90,22 @@ COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
 
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
+
+FROM mediawiki AS jobrunner
+USER root
+
+RUN git clone --depth 1 "https://github.com/wikimedia/mediawiki-services-jobrunner.git" mediawiki-services-jobrunner
+
+RUN set -eux; \
+   cd mediawiki-services-jobrunner; \
+   /usr/bin/composer config --no-plugins allow-plugins.composer/installers true; \
+   /usr/bin/composer install --no-dev \
+     --ignore-platform-reqs \
+     --no-ansi \
+     --no-interaction \
+     --no-scripts
+
+COPY --chown=www-data:www-data ./config/jobrunner/jobrunner-conf.json /var/www/html/mediawiki-services-jobrunner
+COPY --chown=www-data:www-data --chmod=770 ./config/jobrunner/entrypoint.sh /var/www/html/mediawiki-services-jobrunner
+
+ENTRYPOINT [ "/var/www/html/w/mediawiki-services-jobrunner/entrypoint.sh" ]
