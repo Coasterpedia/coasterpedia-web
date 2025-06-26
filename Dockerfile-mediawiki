@@ -92,6 +92,11 @@ COPY ./includes/robots.txt /var/www/html/robots.txt
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
 
 FROM mediawiki AS jobrunner
+USER root
+
+RUN docker-php-ext-configure pcntl --enable-pcntl \
+  && docker-php-ext-install pcntl
+
 USER www-data
 WORKDIR /var/www/html/w/
 
