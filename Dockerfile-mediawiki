@@ -105,7 +105,7 @@ RUN set -eux; \
      --no-interaction \
      --no-scripts
 
-COPY --chown=www-data:www-data ./config/jobrunner/jobrunner-conf.json /var/www/html/mediawiki-services-jobrunner
-COPY --chown=www-data:www-data --chmod=770 ./config/jobrunner/entrypoint.sh /var/www/html/mediawiki-services-jobrunner
+COPY --chown=www-data:www-data ./config/jobrunner/jobrunner-conf.json /var/www/html/w/mediawiki-services-jobrunner
+COPY --chown=www-data:www-data --chmod=770 ./config/jobrunner/entrypoint.sh /var/www/w/html/mediawiki-services-jobrunner
 
 ENTRYPOINT [ "/var/www/html/w/mediawiki-services-jobrunner/entrypoint.sh" ]
