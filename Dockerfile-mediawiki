@@ -92,7 +92,8 @@ COPY ./includes/robots.txt /var/www/html/robots.txt
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
 
 FROM mediawiki AS jobrunner
-USER root
+USER www-data
+WORKDIR /var/www/html/w/
 
 RUN git clone --depth 1 "https://github.com/wikimedia/mediawiki-services-jobrunner.git" mediawiki-services-jobrunner
 
