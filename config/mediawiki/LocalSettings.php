@@ -389,24 +389,24 @@ if ( $isWikiDiff2Enabled ) {
 }
 
 # Security
-$wgForceHTTPS = true;
-$wgBreakFrames = true;
-$wgCSPHeader = [
-	// nonces have limited support and removed in MW 1.41
-	'useNonces' => false,
-	'script-src' => [
-		'\'self\''
-	],
-	'default-src' => [
-		'\'self\'',
-		// Flickr API is required for UploadWizard
-		'https://api.flickr.com'
-	],
-	'style-src' => ['\'self\'',],
-	'object-src' => ['\'none\''],
-];
-$wgCookieSameSite = 'Strict';
-$wgCookieSecure = true;
+// $wgForceHTTPS = true;
+// $wgBreakFrames = true;
+// $wgCSPHeader = [
+// 	// nonces have limited support and removed in MW 1.41
+// 	'useNonces' => false,
+// 	'script-src' => [
+// 		'\'self\''
+// 	],
+// 	'default-src' => [
+// 		'\'self\'',
+// 		// Flickr API is required for UploadWizard
+// 		'https://api.flickr.com'
+// 	],
+// 	'style-src' => ['\'self\'',],
+// 	'object-src' => ['\'none\''],
+// ];
+// $wgCookieSameSite = 'Strict';
+// $wgCookieSecure = true;
 $wgPasswordDefault = 'argon2';
 $wgExternalLinkTarget = '_blank';
 
