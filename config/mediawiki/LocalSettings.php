@@ -695,7 +695,7 @@ $wgCdnServersNoPurge = [
 	'2a06:98c0::/29',
 	'2c0f:f248::/32',
 	// Private IPs
-	'72.16.0.0/12'
+	'172.16.0.0/12'
 ];
 
 # Enabled skins.
