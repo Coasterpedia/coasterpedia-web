@@ -74,7 +74,7 @@ RUN git clone --depth 1 -b 3.6.4 "https://github.com/Universal-Omega/DynamicPage
 RUN git clone --depth 1 -b v3.4.3 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
 RUN git clone --depth 1 -b v1.2.1 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
-RUN git clone --depth 1 -b main "https://github.com/miraheze/RottenLinks.git" extensions/RottenLinks && git -C extensions/RottenLinks reset --hard 0c29955
+RUN git clone --depth 1 -b main "https://github.com/miraheze/RottenLinks.git" extensions/RottenLinks && git -C extensions/RottenLinks reset --hard 5f05d8e
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.3.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
