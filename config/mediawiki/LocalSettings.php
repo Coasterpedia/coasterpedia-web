@@ -61,6 +61,7 @@ $wgSharedTables[] = "actor";
 
 $wgEnableEmail = true;
 $wgEnableUserEmail = true; # UPO
+$wgAllowHTMLEmail = true;
 
 $wgPasswordSender = "wiki@coasterpedia.net";
 
@@ -145,7 +146,14 @@ $wgUseFileCache = false;
 $wgParserCacheExpireTime = 2592000;
 $wgObjectCacheSessionExpiry = 3600 * 3;
 
+# Performance
+
 $wgMiserMode = true;
+$wgMultiShardSiteStats = true;
+$wgInvalidateCacheOnLocalSettingsChange = false;
+$wgDisableQueryPageUpdate = [
+    'Deadendpages'
+];
 
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
@@ -153,6 +161,7 @@ $wgEnableUploads = true;
 $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 $wgMaxImageArea = "3e7";
+$wgIgnoreImageErrors = true;
 
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
 $wgUseInstantCommons = false;
@@ -305,6 +314,10 @@ $wgVisualEditorTransclusionDialogInlineDescriptions = true;
 $wgVisualEditorTransclusionDialogBackButton = true;
 $wgTemplateWizardTemplateSearchImprovements = true;
 $wgVisualEditorTemplateSearchImprovements = true;
+// Enable Edit Check
+// @see https://www.mediawiki.org/wiki/Edit_check
+$wgVisualEditorEditCheck = true;
+
 $wgCodeMirrorAccessibilityColors = true;
 $wgCodeMirrorEnableBracketMatching = true;
 $wgCodeMirrorV6 = true;
@@ -339,6 +352,9 @@ $wgDisambiguatorNotifications = true;
 
 # DismissableSiteNotice
 $wgDismissableSiteNoticeForAnons = true;
+
+# Echo
+$wgEchoUseJobQueue = true;
 
 # EmbedVideo
 $wgEmbedVideoUseEmbedStyleForLocalVideos = false;
@@ -463,9 +479,6 @@ $wgGitRepositoryViewers['https://github.com/(.*?)(.git)?'] = 'https://github.com
 $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
-$wgDisableQueryPageUpdate = [
-    'Deadendpages'
-];
 
 // $wgThumbroEnabled = false;
 // $wgThumbroExposeTestPage = true;
@@ -476,6 +489,7 @@ $wgDisableQueryPageUpdate = [
 $wgUseCdn = true;
 $wgCdnMatchParameterOrder = false;
 $wgUsePrivateIPs = true;
+$wgCdnMaxAge = $wgParserCacheExpireTime;
 $wgCdnServersNoPurge = [
 	// Cloudfront
 	'120.52.22.96/27',
@@ -776,3 +790,35 @@ wfLoadExtension( 'Variables' );
 wfLoadExtension( 'VisualEditor' );
 wfLoadExtension( 'WebAuthn' );
 wfLoadExtension( 'WikiEditor' );
+
+$wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$linkAttribs ) {
+	/**
+	 * Eager load the first image on the page
+	 * Currently we don't have a reliable way to set which image,
+	 * so we will just grab the first image with 400px as width,
+	 * since it is used by infoboxes usually.
+	 */
+
+	/**
+	 * Check if the image is a LCP image
+	 * 1. Make sure that the image has the mw-file-description class
+	 * 2. Make sure that the image has 400px image width (i.e. infobox image)
+	 */
+	$isLCPImage = strpos( $linkAttribs['class'] ?? '', 'mw-file-description' ) !== false &&
+		$attribs['width'] === 400;
+	if ( $isLCPImage ) {
+		unset( $attribs['loading'] );
+		$attribs['fetchpriority'] = 'high';
+		$sctHasSetImageEager = true;
+	}
+	return true;
+};
+
+/** @see https://www.mediawiki.org/wiki/Manual:$wgNoFollowLinks */
+$wgHooks['HtmlPageLinkRendererEnd'][] = function( $linkRenderer, $target, $isKnown, &$text, &$attribs, &$ret ) {
+	// Append rel="nofollow" to red links to avoid unnecessary crawler traffic
+	if ( !$isKnown && preg_match( '/\bnew\b/S', $attribs['class'] ?? '' ) ) {
+        $attribs['rel'] = 'nofollow';
+    }
+    return true;
+};
