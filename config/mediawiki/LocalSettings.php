@@ -326,8 +326,12 @@ $wgUploadWizardConfig = [
 	'fileExtensions' => $wgFileExtensions, // omitting this may cause errors
 	'tutorial' => [
 		'skip' => true
+	],
+	'licensing' => [
+		'defaultType' => 'ownwork'
 	]
 ];
+	
 $wgFileExtensions = [ 'png', 'jpg', 'jpeg', 'svg', 'webp']; // remove GIF from upload options
 $wgMaxUploadSize = 1024*1024*32;
 $wgAllowTitlesInSVG = true;
