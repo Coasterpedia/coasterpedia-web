@@ -409,7 +409,7 @@ if ( $isWikiDiff2Enabled ) {
 }
 
 # Security
-// $wgForceHTTPS = true;
+$wgForceHTTPS = true;
 // $wgBreakFrames = true;
 // $wgCSPHeader = [
 // 	// nonces have limited support and removed in MW 1.41
