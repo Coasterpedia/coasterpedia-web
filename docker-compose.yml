@@ -14,9 +14,9 @@ services:
       - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
       - --providers.docker.exposedbydefault=false
       - --entrypoints.websecure.http.tls.certresolver=myresolver
-      # - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      # - --entryPoints.web.http.redirections.entrypoint.scheme=https
-      # - --entrypoints.websecure.asDefault=true
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entryPoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.asDefault=true
       # - --accesslog=true
     labels:
       - traefik.enable=true
