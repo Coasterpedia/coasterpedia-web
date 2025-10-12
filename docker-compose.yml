@@ -12,15 +12,17 @@ services:
       - --api=true
       - --certificatesresolvers.myresolver.acme.storage=/acme_data/acme.json
       - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --providers.docker.exposedbydefault=false
       # - --entryPoints.web.http.redirections.to=websecure
       # - --entryPoints.web.http.redirections.scheme=https
       # - --entryPoints.web.http.redirections.permanent=true
       # - --accesslog=true
     labels:
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.coasterpedia.net`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.entrypoints=web,websecure"
-      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`traefik.coasterpedia.net`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.entrypoints=web,websecure
+      - traefik.http.services.dashboard.loadbalancer.server.port=8080
     restart: always
     ports:
       - 80:80
@@ -39,6 +41,7 @@ services:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/coasterpedia.conf
     labels:
+      - traefik.enable=true
       - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
       - traefik.http.routers.mediawiki.entrypoints=web,websecure
       - traefik.http.services.mediawiki.loadbalancer.server.port=80
@@ -146,9 +149,11 @@ services:
     volumes:
       - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf
     labels:
+      - traefik.enable=true
       - traefik.http.routers.matomo.rule=Host(`analytics.coasterpedia.net`)
       - traefik.http.routers.matomo.entrypoints=web,websecure
       - traefik.http.services.matomo.loadbalancer.server.port=80
+      - traefik.http.routers.whoami.tls.certresolver=myresolver
     environment:
       MATOMO_DATABASE_DBNAME: ${MATOMO_DATABASE_DBNAME}
       MATOMO_DATABASE_PASSWORD: ${MATOMO_DATABASE_PASSWORD}
