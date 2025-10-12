@@ -253,6 +253,7 @@ $wgMatomoURL = "analytics.coasterpedia.net";
 $wgMatomoIDSite = "2";
 $wgMatomoTrackUsernames = true;
 $wgMatomoIgnoreSysops = false;
+$wgMatomoDisableCookies = true;
 
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
