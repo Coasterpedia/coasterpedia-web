@@ -425,8 +425,9 @@ if ( $isWikiDiff2Enabled ) {
 // 	'style-src' => ['\'self\'',],
 // 	'object-src' => ['\'none\''],
 // ];
-// $wgCookieSameSite = 'Strict';
-// $wgCookieSecure = true;
+$wgCookieSameSite = 'Strict';
+$wgCookieSecure = true;
+$wgVaryOnXFP = true;
 $wgPasswordDefault = 'argon2';
 $wgExternalLinkTarget = '_blank';
 
