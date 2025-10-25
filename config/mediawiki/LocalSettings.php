@@ -445,6 +445,7 @@ $wgMultiPurgeRunInQueue = true;
 
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
+$wgGroupPermissions['patroller']['patrol'] = true;
 
 # External Data
 $wgExternalDataSources['api'] = [
