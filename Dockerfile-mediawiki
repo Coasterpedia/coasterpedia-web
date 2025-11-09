@@ -69,7 +69,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.13.1 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
-RUN git clone --depth 1 -b 3.8.2 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b 3.8.5 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b 1.2 "https://github.com/chariz/mediawiki-extensions-Details.git" extensions/Details
 RUN git clone --depth 1 -b 3.6.4 "https://github.com/Universal-Omega/DynamicPageList3.git" extensions/DynamicPageList3
 RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
@@ -78,10 +78,10 @@ RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.3.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.1.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b v1.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
+RUN git clone --depth 1 -b v1.1.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.8.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.10.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 RUN composer install --no-dev
 
