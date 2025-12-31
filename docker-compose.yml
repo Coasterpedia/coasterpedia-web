@@ -114,6 +114,10 @@ services:
     init: true
     user: "www-data:www-data"
     cpu_shares: 256
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
     security_opt:
       - no-new-privileges:true
     depends_on:
