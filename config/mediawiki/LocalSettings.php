@@ -90,10 +90,10 @@ $wgFileBackends['s3']['privateWiki'] = true;
 $wgUploadPath = "https://images.coasterpedia.net";
 $wikiId = WikiMap::getCurrentWikiId();
 $wgFileBackends['s3']['containerPaths'] = [
-	"$wikiId-local-public" => "${BUCKET}",
-	"$wikiId-local-thumb" => "${BUCKET}/thumb",
-	"$wikiId-local-deleted" => "${BUCKET}/deleted",
-	"$wikiId-local-temp" => "${BUCKET}/temp"
+	"$wikiId-local-public" => "{$BUCKET}",
+	"$wikiId-local-thumb" => "{$BUCKET}/thumb",
+	"$wikiId-local-deleted" => "{$BUCKET}/deleted",
+	"$wikiId-local-temp" => "{$BUCKET}/temp"
 ];
 
 $wgLocalFileRepo = [
