@@ -155,6 +155,8 @@ $wgInvalidateCacheOnLocalSettingsChange = false;
 $wgDisableQueryPageUpdate = [
     'Deadendpages'
 ];
+$wgUpdateRowsPerJob = 20;
+$wgJobBackoffThrottling['htmlCacheUpdate'] = 5;
 
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
