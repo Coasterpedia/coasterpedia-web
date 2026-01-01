@@ -117,7 +117,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.125'
+          cpus: '0.250'
     security_opt:
       - no-new-privileges:true
     depends_on:
