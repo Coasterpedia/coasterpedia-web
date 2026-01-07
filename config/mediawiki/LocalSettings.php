@@ -450,6 +450,8 @@ $wgMultiPurgeRunInQueue = true;
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 $wgGroupPermissions['patroller']['patrol'] = true;
+// Block creating accounts using the API
+$wgAPIModules['createaccount'] = 'ApiDisabled';
 
 # External Data
 $wgExternalDataSources['api'] = [
