@@ -221,6 +221,7 @@ $wgCirrusSearchCompletionSuggesterSubphrases = [
 ## names, e.g. 'vector' or 'monobook':
 $wgDefaultSkin = "citizen";
 
+$wgCitizenEnableManifest = false;
 $wgCitizenThemeColor = "#60AE26";
 $wgCitizenManifestThemeColor = "#60AE26";
 $wgCitizenOverflowNowrapClasses[] = 'infobox-new';
