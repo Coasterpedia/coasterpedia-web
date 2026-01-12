@@ -6,13 +6,13 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entryPoints.websecure.http.encodequerysemicolons=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSlash=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedBackSlash=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedNullCharacter=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSemicolon=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedPercent=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedQuestionMark=false
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedHash=false
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSlash=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedBackSlash=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedNullCharacter=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSemicolon=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedPercent=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedQuestionMark=true
+      - --entryPoints.websecure.http.encodedCharacters.allowEncodedHash=true
       - --entrypoints.websecure.forwardedHeaders.insecure
       - --entrypoints.web.forwardedHeaders.insecure
       - --entryPoints.web.http.encodequerysemicolons=true
