@@ -159,4 +159,4 @@ Disallow: /wiki/Template:TemplateStyles_sandbox
 Disallow: /wiki/Template%3ATemplateStyles_sandbox
 Disallow: /wiki/Draft:
 Disallow: /wiki/Draft%3A
-Crawl-delay: 5
+Crawl-delay: 15
