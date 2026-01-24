@@ -436,6 +436,9 @@ $wgVaryOnXFP = true;
 $wgPasswordDefault = 'argon2';
 $wgExternalLinkTarget = '_blank';
 
+// Hide real name preference
+$wgHiddenPrefs[] = 'realname';
+
 # MultiPurge
 $wgMultiPurgeEnabledServices = [ 'Cloudflare' ];
 $wgMultiPurgeServiceOrder = $wgMultiPurgeEnabledServices;
@@ -835,3 +838,49 @@ $wgHooks['HtmlPageLinkRendererEnd'][] = function( $linkRenderer, $target, $isKno
     }
     return true;
 };
+
+/**
+ * Add links to the footer
+ *
+ * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinAddFooterLinks
+ */
+$wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
+	// Early edit
+	if ( $key !== 'places' ) {
+		return;
+	}
+	$rel = 'nofollow noreferrer noopener';
+	$footerlinks[ 'cookiestatement' ] = Html::rawElement( 'a',
+		[
+			'href' => Title::newFromText(
+				$sk->msg('cookiestatementpage')->inContentLanguage()->text()
+			)->getFullURL()
+		],
+		$sk->msg('cookiestatement')->escaped()
+	);
+	$footerlinks['statuspage'] = Html::rawElement(
+		'a',
+		[
+			'href' => 'https://status.coasterpedia.net',
+			'rel' => $rel
+		],
+		$sk->msg('footer-statuspage')->escaped()
+	);
+	$footerlinks['github'] = Html::rawElement(
+		'a',
+		[
+			'href' => 'https://github.com/Coasterpedia',
+			'rel' => $rel
+		],
+		$sk->msg('footer-github')->escaped()
+	);
+	$footerlinks['kofi'] = Html::rawElement(
+		'a',
+		[
+			'href' => 'hhttps://ko-fi.com/lachlanshanks',
+			'rel' => $rel
+		],
+		$sk->msg('footer-kofi')->escaped()
+	);
+};
+
