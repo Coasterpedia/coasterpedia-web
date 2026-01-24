@@ -877,7 +877,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 	$footerlinks['kofi'] = Html::rawElement(
 		'a',
 		[
-			'href' => 'hhttps://ko-fi.com/lachlanshanks',
+			'href' => 'https://ko-fi.com/lachlanshanks',
 			'rel' => $rel
 		],
 		$sk->msg('footer-kofi')->escaped()
