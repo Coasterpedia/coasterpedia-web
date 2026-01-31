@@ -83,7 +83,7 @@ RUN git clone --depth 1 -b v1.1.1 "https://github.com/StarCitizenTools/mediawiki
 # Separate version skins
 RUN git clone --depth 1 -b v3.12.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
-RUN composer install --no-dev
+RUN composer install --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs
 
 COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
