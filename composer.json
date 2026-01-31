@@ -6,5 +6,12 @@
 				"skins/*/composer.json"
 			]
 		}
-	}
+	},
+	"config": {
+        "audit": {
+            "ignore": {
+                "PKSA-z3gr-8qht-p93v": "Not used in production deployment."
+            }
+        }
+    }
 }
