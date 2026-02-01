@@ -466,9 +466,7 @@ $wgExternalDataSources['api'] = [
 
 # EventBus
 $wgEventServices = [
-    'eventbus'  => ['url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/events', 'timeout' => 10],
-    // 'eventgate' => ['url' => 'http://hostname:8192/v1/events'],
-    // ...
+    'eventgate-main'  => ['url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/events']
 ];
 
 # Maps
