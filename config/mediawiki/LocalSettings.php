@@ -469,6 +469,18 @@ $wgEventServices = [
     'eventgate-main'  => ['url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/events']
 ];
 $wgEnableEventBus = "TYPE_ALL";
+$wgEventStreams = [
+    'my_stream' => [
+        'producers' => [
+            // EventBus specific settings go here:
+            'mediawiki_eventbus' => [
+                // Key of the event service in EventServices
+                'event_service_name' => 'eventgate-main'
+            ],
+        ],
+    ],
+];
+$wgEventServiceDefault = 'eventgate-main';
 
 # Maps
 $egMapsEnableCoordinateFunction = false;
