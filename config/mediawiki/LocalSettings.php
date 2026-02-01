@@ -468,7 +468,7 @@ $wgExternalDataSources['api'] = [
 $wgEventServices = [
     'eventgate-main'  => ['url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/events']
 ];
-$wgEnableEventBus = "TYPE_ALL";
+$wgEnableEventBus = "TYPE_EVENT";
 $wgEventStreams = [
     'my_stream' => [
         'producers' => [
