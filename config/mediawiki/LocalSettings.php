@@ -464,6 +464,13 @@ $wgExternalDataSources['api'] = [
 	'format' => 'JSON',
 ];
 
+# EventBus
+$wgEventServices = [
+    'eventbus'  => ['url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/events', 'timeout' => 10],
+    // 'eventgate' => ['url' => 'http://hostname:8192/v1/events'],
+    // ...
+];
+
 # Maps
 $egMapsEnableCoordinateFunction = false;
 
@@ -759,6 +766,7 @@ wfLoadExtension( 'DismissableSiteNotice' );
 wfLoadExtension( 'DynamicPageList3' );
 wfLoadExtension( 'Echo' );
 wfLoadExtension( 'Elastica' );
+wfLoadExtension( 'EventBus' );
 wfLoadExtension( 'ExternalData' );
 wfLoadExtension( 'EmbedVideo' );
 wfLoadExtension( 'Gadgets' );
