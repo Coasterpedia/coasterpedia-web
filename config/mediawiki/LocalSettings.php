@@ -400,6 +400,7 @@ $wgRelatedArticlesCardLimit = 6;
 # OAuth
 $wgOAuth2PrivateKey = getenv( 'OAUTH_PRIVATE' );
 $wgOAuth2PublicKey = getenv( 'OAUTH_PUBLIC' );
+$wgMWOAuthSessionCacheType = CACHE_DB;
 $wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
 $wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
 $wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
