@@ -86,6 +86,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
   jobrunner-chron:
     image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
     restart: unless-stopped
