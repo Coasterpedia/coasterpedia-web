@@ -51,7 +51,7 @@ services:
       - web
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
-      - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/coasterpedia.conf
+      - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf
     labels:
       - traefik.enable=true
       - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
