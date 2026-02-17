@@ -252,8 +252,6 @@ $wgCargoPageDataColumns[] = 'pageIDOrRedirect';
 
 $wgCargoMapClusteringMinimum = 100;
 
-$wgGrantPermissions['cargo-query']['runcargoqueries'] = true;
-
 ##### MATOMO #####
 $wgMatomoURL = "analytics.coasterpedia.net";
 $wgMatomoIDSite = "2";
@@ -507,7 +505,6 @@ $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['user']['oathauth-enable'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['runcargoqueries'] = false;
-$wgGroupPermissions['user']['runcargoqueries'] = true;
 $wgGroupPermissions['sysop']['runcargoqueries'] = true;
 $wgGroupPermissions['bot']['replacetext'] = true;
 $wgEnableEditRecovery = true;
