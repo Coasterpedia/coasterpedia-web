@@ -36,8 +36,11 @@ $wgDisableOutputCompression = true;
 
 ## The URL paths to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
-$wgLogo = "https://images.coasterpedia.net/0/09/Cp_pride.png";
-$wgLogos = [];
+$wgLogos = [
+	'1x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/32px-Cp_pride.png.webp",    // relative path to file in document root
+	'1.5x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/48px-Cp_pride.png.webp",  // full URL to elsewhere
+	'2x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/64px-Cp_pride.png.webp",  
+];
 
 ## UPO means: this is also a user preference option
 
@@ -458,12 +461,12 @@ $wgGroupPermissions['patroller']['patrol'] = true;
 $wgAPIModules['createaccount'] = 'ApiDisabled';
 
 # External Data
-$wgExternalDataSources['api'] = [
-	'url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/$path$',
-	'params' => [ 'path' ],
-	'param filters' => [ 'path' => '/^([A-Za-z\/]*)/' ],
-	'format' => 'JSON',
-];
+// $wgExternalDataSources['api'] = [
+// 	'url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/$path$',
+// 	'params' => [ 'path' ],
+// 	'param filters' => [ 'path' => '/^([A-Za-z\/]*)/' ],
+// 	'format' => 'JSON',
+// ];
 
 # EventBus
 $wgEventServices = [
