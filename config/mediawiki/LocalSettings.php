@@ -37,8 +37,8 @@ $wgDisableOutputCompression = true;
 ## The URL paths to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
 $wgLogos = [
-	'1x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/32px-Cp_pride.png.webp",    // relative path to file in document root
-	'1.5x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/48px-Cp_pride.png.webp",  // full URL to elsewhere
+	'1x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/32px-Cp_pride.png.webp",
+	'1.5x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/48px-Cp_pride.png.webp",
 	'2x' => "https://images.coasterpedia.net/thumb/0/09/Cp_pride.png/64px-Cp_pride.png.webp",  
 ];
 
