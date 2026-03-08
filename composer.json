@@ -13,5 +13,8 @@
                 "PKSA-z3gr-8qht-p93v": "Not used in production deployment."
             }
         }
-    }
+    },
+	"require": {
+		"firebase/php-jwt": "^7.0.2"
+	}
 }
