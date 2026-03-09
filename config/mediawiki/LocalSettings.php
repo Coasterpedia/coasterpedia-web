@@ -874,7 +874,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 	$rel = 'nofollow noreferrer noopener';
 	$footerlinks[ 'cookiestatement' ] = MediaWiki\Html\Html::rawElement( 'a',
 		[
-			'href' => Title::newFromText(
+			'href' => MediaWiki\Title\Title::newFromText(
 				$sk->msg('cookiestatementpage')->inContentLanguage()->text()
 			)->getFullURL()
 		],
