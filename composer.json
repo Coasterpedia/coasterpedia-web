@@ -58,6 +58,7 @@
 				"extensions/TabberNeue/composer.json",
 				"extensions/TemplateData/composer.json",
 				"extensions/TemplateStyles/composer.json",
+				"extensions/TemplateStylesExtender/composer.json",
 				"extensions/TextExtracts/composer.json",
 				"extensions/Thanks/composer.json",
 				"extensions/Thumbro/composer.json",
