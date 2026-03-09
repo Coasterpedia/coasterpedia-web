@@ -817,7 +817,7 @@ wfLoadExtension( 'SyntaxHighlight_GeSHi' );
 wfLoadExtension( 'TabberNeue' );
 wfLoadExtension( 'TemplateData' );
 wfLoadExtension( 'TemplateStyles' );
-wfLoadExtension( 'TemplateStylesExtender' );
+// wfLoadExtension( 'TemplateStylesExtender' );
 wfLoadExtension( 'TextExtracts' );
 wfLoadExtension( 'Thanks' );
 wfLoadExtension( 'Thumbro' );
@@ -872,7 +872,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		return;
 	}
 	$rel = 'nofollow noreferrer noopener';
-	$footerlinks[ 'cookiestatement' ] = Html::rawElement( 'a',
+	$footerlinks[ 'cookiestatement' ] = MediaWiki\Html\Html::rawElement( 'a',
 		[
 			'href' => Title::newFromText(
 				$sk->msg('cookiestatementpage')->inContentLanguage()->text()
@@ -880,7 +880,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		],
 		$sk->msg('cookiestatement')->escaped()
 	);
-	$footerlinks['statuspage'] = Html::rawElement(
+	$footerlinks['statuspage'] = MediaWiki\Html\Html::rawElement(
 		'a',
 		[
 			'href' => 'https://status.coasterpedia.net',
@@ -888,7 +888,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		],
 		$sk->msg('footer-statuspage')->escaped()
 	);
-	$footerlinks['github'] = Html::rawElement(
+	$footerlinks['github'] = MediaWiki\Html\Html::rawElement(
 		'a',
 		[
 			'href' => 'https://github.com/Coasterpedia',
@@ -896,7 +896,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		],
 		$sk->msg('footer-github')->escaped()
 	);
-	$footerlinks['kofi'] = Html::rawElement(
+	$footerlinks['kofi'] = MediaWiki\Html\Html::rawElement(
 		'a',
 		[
 			'href' => 'https://ko-fi.com/lachlanshanks',
