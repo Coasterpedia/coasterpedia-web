@@ -788,7 +788,6 @@ wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'GeoData' );
 wfLoadExtension( 'ImageMap' );
 wfLoadExtension( 'InputBox' );
-wfLoadExtension( 'Interwiki' );
 wfLoadExtension( 'LabeledSectionTransclusion' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
