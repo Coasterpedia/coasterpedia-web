@@ -2,7 +2,45 @@
 	"extra": {
 		"merge-plugin": {
 			"include": [
-				"extensions/*/composer.json",
+				"extensions/OAuth/composer.json",
+				"extensions/AdvancedSearch/composer.json",
+				"extensions/Babel/composer.json",
+				"extensions/CirrusSearch/composer.json",
+				"extensions/Citoid/composer.json",
+				"extensions/CodeMirror/composer.json",
+				"extensions/CommonsMetadata/composer.json",
+				"extensions/Disambiguator/composer.json",
+				"extensions/DismissableSiteNotice/composer.json",
+				"extensions/Elastica/composer.json",
+				"extensions/EventBus/composer.json",
+				"extensions/ExternalData/composer.json",
+				"extensions/GeoData/composer.json",
+				"extensions/LabeledSectionTransclusion/composer.json",
+				"extensions/Loops/composer.json",
+				"extensions/MediaSearch/composer.json",
+				"extensions/MyVariables/composer.json",
+				"extensions/NativeSvgHandler/composer.json",
+				"extensions/NearbyPages/composer.json",
+				"extensions/OAuth/composer.json",
+				"extensions/Popups/composer.json",
+				"extensions/RelatedArticles/composer.json",
+				"extensions/RevisionSlider/composer.json",
+				"extensions/SandboxLink/composer.json",
+				"extensions/TwoColConflict/composer.json",
+				"extensions/UploadWizard/composer.json",
+				"extensions/Variables/composer.json",
+				"extensions/WebAuthn/composer.json",
+				"extensions/AWS/composer.json",
+				"extensions/Cargo/composer.json",
+				"extensions/Details/composer.json",
+				"extensions/DynamicPageList3/composer.json",
+				"extensions/EmbedVideo/composer.json",
+				"extensions/Matomo/composer.json",
+				"extensions/MultiPurge/composer.json",
+				"extensions/ShortDescription/composer.json",
+				"extensions/TabberNeue/composer.json",
+				"extensions/TemplateStylesExtender/composer.json",
+				"extensions/Thumbro/composer.json",
 				"skins/*/composer.json"
 			]
 		}
@@ -13,8 +51,5 @@
                 "PKSA-z3gr-8qht-p93v": "Not used in production deployment."
             }
         }
-    },
-	"require": {
-		"firebase/php-jwt": "^7.0.2"
-	}
+    }
 }
