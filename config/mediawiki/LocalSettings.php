@@ -256,7 +256,7 @@ $wgCargoPageDataColumns[] = 'pageIDOrRedirect';
 $wgCargoMapClusteringMinimum = 100;
 
 ##### MATOMO #####
-$wgMatomoAnalyticsServerURL = "analytics.coasterpedia.net";
+$wgMatomoAnalyticsServerURL = "https://analytics.coasterpedia.net/";
 $wgMatomoAnalyticsTokenAuth = getenv( 'MATOMO_API_KEY' );
 $wgMatomoAnalyticsSiteID = 2;
 $wgMatomoAnalyticsDisableCookie = true;
