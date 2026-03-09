@@ -92,7 +92,7 @@ $wgAWSRepoDeletedHashLevels = '3';
 
 $wgFileBackends['s3']['privateWiki'] = true;
 $wgUploadPath = "https://images.coasterpedia.net";
-$wikiId = WikiMap::getCurrentWikiId();
+$wikiId = MediaWiki\WikiMap\WikiMap::getCurrentWikiId();
 $wgFileBackends['s3']['containerPaths'] = [
 	"$wikiId-local-public" => "{$BUCKET}",
 	"$wikiId-local-thumb" => "{$BUCKET}/thumb",
