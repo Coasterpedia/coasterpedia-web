@@ -257,6 +257,7 @@ $wgCargoMapClusteringMinimum = 100;
 
 ##### MATOMO #####
 $wgMatomoAnalyticsServerURL = "analytics.coasterpedia.net";
+$wgMatomoAnalyticsTokenAuth = getenv( 'MATOMO_API_KEY' );
 $wgMatomoAnalyticsSiteID = 2;
 $wgMatomoAnalyticsDisableCookie = true;
 
@@ -790,7 +791,7 @@ wfLoadExtension( 'LabeledSectionTransclusion' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
 wfLoadExtension( 'Loops' );
-// wfLoadExtension( 'MatomoAnalytics' );
+wfLoadExtension( 'MatomoAnalytics' );
 wfLoadExtension( 'MediaSearch' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );

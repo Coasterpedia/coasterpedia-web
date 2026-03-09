@@ -74,6 +74,7 @@ services:
       CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
+      MATOMO_API_KEY: ${MATOMO_API_KEY}
   redis:
     image: redis:alpine
     restart: unless-stopped

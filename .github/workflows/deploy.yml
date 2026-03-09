@@ -214,6 +214,7 @@ jobs:
             export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
             export MATOMO_DATABASE_HOST="${{secrets.MATOMO_DATABASE_HOST}}" &&
             export MATOMO_DATABASE_USERNAME="${{secrets.MATOMO_DATABASE_USERNAME}}" &&
+            export MATOMO_API_KEY="${{secrets.MATOMO_API_KEY}}" &&
             export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
             export ES_IP="${{secrets.ES_IP}}" &&
             export CLOUDFLARE_ZONEID="${{secrets.CLOUDFLARE_ZONEID}}" &&
