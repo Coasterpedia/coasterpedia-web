@@ -778,7 +778,7 @@ wfLoadExtension( 'Details' );
 wfLoadExtension( 'Disambiguator' );
 wfLoadExtension( 'DiscussionTools' );
 wfLoadExtension( 'DismissableSiteNotice' );
-wfLoadExtension( 'DynamicPageList3' );
+wfLoadExtension( 'DynamicPageList4' );
 wfLoadExtension( 'Echo' );
 wfLoadExtension( 'Elastica' );
 wfLoadExtension( 'EventBus' );
