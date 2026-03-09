@@ -75,7 +75,7 @@ RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.3.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
-RUN git clone --depth 1 -b main "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
+RUN git clone --depth 1 -b master "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 RUN git clone --depth 1 -b v1.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 
 # Separate version skins
