@@ -256,11 +256,9 @@ $wgCargoPageDataColumns[] = 'pageIDOrRedirect';
 $wgCargoMapClusteringMinimum = 100;
 
 ##### MATOMO #####
-$wgMatomoURL = "analytics.coasterpedia.net";
-$wgMatomoIDSite = "2";
-$wgMatomoTrackUsernames = true;
-$wgMatomoIgnoreSysops = false;
-$wgMatomoDisableCookies = true;
+$wgMatomoAnalyticsServerURL = "analytics.coasterpedia.net";
+$wgMatomoAnalyticsSiteID = 2;
+$wgMatomoAnalyticsDisableCookie = true;
 
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
@@ -792,7 +790,7 @@ wfLoadExtension( 'LabeledSectionTransclusion' );
 wfLoadExtension( 'Linter' );
 wfLoadExtension( 'LoginNotify' );
 wfLoadExtension( 'Loops' );
-wfLoadExtension( 'Matomo' );
+// wfLoadExtension( 'MatomoAnalytics' );
 wfLoadExtension( 'MediaSearch' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );

@@ -2,7 +2,6 @@ FROM mediawiki:1.45-fpm-alpine AS mediawiki
 ENV MEDIAWIKI_BRANCH REL1_45
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
-COPY ./composer.json /var/www/html/composer.local.json
 COPY ./config/supervisord/supervisord.conf /etc/
 COPY ./config/php/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 
@@ -72,7 +71,7 @@ RUN git clone --depth 1 -b 3.8.7 "https://github.com/wikimedia/mediawiki-extensi
 RUN git clone --depth 1 -b 1.2 "https://github.com/chariz/mediawiki-extensions-Details.git" extensions/Details
 RUN git clone --depth 1 -b 4.0.5 "https://github.com/Universal-Omega/DynamicPageList4.git" extensions/DynamicPageList4
 RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
-RUN git clone --depth 1 -b v5.0.0 "https://github.com/DaSchTour/matomo-mediawiki-extension.git" extensions/Matomo
+RUN git clone --depth 1 -b v5.0.0 "https://github.com/miraheze/MatomoAnalytics.git" extensions/MatomoAnalytics
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v3.3.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
@@ -82,6 +81,7 @@ RUN git clone --depth 1 -b v1.1.0 "https://github.com/StarCitizenTools/mediawiki
 # Separate version skins
 RUN git clone --depth 1 -b v3.14.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
+COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
 COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
