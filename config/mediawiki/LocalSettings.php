@@ -209,8 +209,13 @@ $wgRightsIcon = "https://images.coasterpedia.net/0/0f/Badge-ccbysa.svg";
 $wgDiff3 = "/usr/bin/diff3";
 
 # Search
-// $wgDisableSearchUpdate = true;
-$wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
+$wgDisableSearchUpdate = true;
+// $wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
+$wgCirrusSearchClusters = [
+        'default' => [
+            [ 'host' => 'coasterpedia-aws-sigv4-proxy-1', 'port' => 8080 ],
+        ]
+    ];
 $wgSearchType = 'CirrusSearch';
 $wgCirrusSearchUseCompletionSuggester = 'yes';
 $wgCirrusSearchCompletionSuggesterSubphrases = [
