@@ -193,7 +193,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/ofelia/ofelia.ini:/etc/ofelia/config.ini:ro
-  aws_sigv4_proxy:
+  aws-sigv4-proxy:
     image: ghcr.io/coasterpedia/coasterpedia-web/aws_sigv4_proxy@${AWS_SIGV4_PROXY_IMAGE}
     networks:
       - web
