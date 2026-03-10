@@ -180,9 +180,69 @@ jobs:
           platforms: linux/arm64
           target: jobrunner
 
+  aws_sigv4_proxy_build:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      IMAGE_NAME: Coasterpedia/coasterpedia-web/aws_sigv4_proxy
+
+    outputs:
+      digest: ${{steps.build-and-push.outputs.digest}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          repository: awslabs/aws-sigv4-proxy
+          ref: v1.11.1
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ github.ref_name }}-aws_sigv4_proxy
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-aws_sigv4_proxy
+          platforms: linux/arm64
+          target: aws_sigv4_proxy
+
+  
   deploy:
     runs-on: ubuntu-latest
-    needs: [mediawiki_build, matomo_build, jobrunner_build]
+    needs: [mediawiki_build, matomo_build, jobrunner_build, aws_sigv4_proxy_build]
     permissions:
       contents: read
 
@@ -199,6 +259,7 @@ jobs:
             export MEDIAWIKI_IMAGE="${{needs.mediawiki_build.outputs.digest}}" &&
             export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
             export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
+            export AWS_SIGV4_PROXY_IMAGE="${{needs.aws_sigv4_proxy_build.outputs.digest}}" &&
             export MYSQL_DATABASE="${{secrets.MYSQL_DATABASE}}" &&
             export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
             export MYSQL_SERVER="${{secrets.MYSQL_SERVER}}" &&
@@ -217,6 +278,7 @@ jobs:
             export MATOMO_API_KEY="${{secrets.MATOMO_API_KEY}}" &&
             export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
             export ES_IP="${{secrets.ES_IP}}" &&
+            export OPENSEARCH_HOST="${{secrets.OPENSEARCH_HOST}}" &&
             export CLOUDFLARE_ZONEID="${{secrets.CLOUDFLARE_ZONEID}}" &&
             export CLOUDFLARE_APITOKEN="${{secrets.CLOUDFLARE_APITOKEN}}" &&
             export CLOUDFLARE_DNS_APITOKEN="${{secrets.CLOUDFLARE_DNS_APITOKEN}}" &&
