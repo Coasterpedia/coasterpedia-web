@@ -193,15 +193,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/ofelia/ofelia.ini:/etc/ofelia/config.ini:ro
-  aws-sigv4-proxy:
-    image: ghcr.io/coasterpedia/coasterpedia-web/aws_sigv4_proxy@${AWS_SIGV4_PROXY_IMAGE}
-    networks:
-      - web
-    expose:
-      - 8080
-    volumes:
-      - ~/.aws:/root/.aws
-    command: -v --name es --region eu-west-2 --host ${OPENSEARCH_HOST}
 networks:
   web:
 volumes:

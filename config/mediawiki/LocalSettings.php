@@ -210,12 +210,7 @@ $wgDiff3 = "/usr/bin/diff3";
 
 # Search
 // $wgDisableSearchUpdate = true;
-// $wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
-$wgCirrusSearchClusters = [
-        'default' => [
-            [ 'host' => 'coasterpedia-aws-sigv4-proxy-1', 'port' => 8080 ],
-        ]
-    ];
+$wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
 $wgSearchType = 'CirrusSearch';
 $wgCirrusSearchUseCompletionSuggester = 'yes';
 $wgCirrusSearchCompletionSuggesterSubphrases = [
