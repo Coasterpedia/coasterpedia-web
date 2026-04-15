@@ -79,7 +79,7 @@ RUN git clone --depth 1 -b master "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b v1.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.14.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.15.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
