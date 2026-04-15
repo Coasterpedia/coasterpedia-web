@@ -75,6 +75,12 @@ services:
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: eu-west-2
+        awslogs-group: Coasterpedia/Mediawiki
+        awslogs-create-group: "true"
   redis:
     image: redis:alpine
     restart: unless-stopped
@@ -121,6 +127,12 @@ services:
       CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: eu-west-2
+        awslogs-group: Coasterpedia/JobrunnerChron
+        awslogs-create-group: "true"
   jobrunner:
     image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
     restart: unless-stopped
@@ -158,6 +170,12 @@ services:
       CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: eu-west-2
+        awslogs-group: Coasterpedia/Jobrunner
+        awslogs-create-group: "true"
   matomo:
     image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
@@ -178,6 +196,12 @@ services:
       MATOMO_EMAIL_HOST: ${SMTP_HOST}
       MATOMO_EMAIL_USERNAME: ${SMTP_USER}
       MATOMO_EMAIL_PASSWORD: ${SMTP_PASSWORD}
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: eu-west-2
+        awslogs-group: Coasterpedia/Matomo
+        awslogs-create-group: "true"
   ofelia:
     image: mcuadros/ofelia:latest
     restart: unless-stopped
@@ -193,6 +217,12 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/ofelia/ofelia.ini:/etc/ofelia/config.ini:ro
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: eu-west-2
+        awslogs-group: Coasterpedia/Ofelia
+        awslogs-create-group: "true"
 networks:
   web:
 volumes:
