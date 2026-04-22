@@ -64,8 +64,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki
-          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-mediawiki
+          cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki-v2
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-mediawiki-v2
           platforms: linux/arm64
           target: mediawiki
 
@@ -175,8 +175,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki
-          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-mediawiki
+          cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki-v2
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-mediawiki-v2
           platforms: linux/arm64
           target: jobrunner
   
