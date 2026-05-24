@@ -436,7 +436,6 @@ $wgCookieSameSite = 'Strict';
 // $wgCookieSecure = true;
 $wgVaryOnXFP = true;
 $wgPasswordDefault = 'argon2';
-$wgExternalLinkTarget = '_blank';
 
 // Hide real name preference
 $wgHiddenPrefs[] = 'realname';
