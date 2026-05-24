@@ -147,7 +147,6 @@ $wgEnableSidebarCache = true;
 $wgUseLocalMessageCache = true;
 $wgUseFileCache = false;
 
-$wgParserCacheExpireTime = 2592000;
 $wgObjectCacheSessionExpiry = 3600 * 3;
 
 # Performance
