@@ -9,7 +9,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
-$wgShowExceptionDetails = true;
+$wgShowExceptionDetails = false;
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
@@ -54,7 +54,6 @@ $wgDBssl = true;
 
 # MySQL specific settings
 $wgDBprefix = "mw_";
-$wgDBssl = false;
 
 # MySQL table options to use during installation or update
 $wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
