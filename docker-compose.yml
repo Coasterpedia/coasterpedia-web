@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:3.6
+    image: traefik:3.7
     command: 
       - --providers.docker=true
       - --entrypoints.web.address=:80

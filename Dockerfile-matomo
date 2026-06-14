@@ -1,4 +1,4 @@
-FROM matomo:fpm-alpine
+FROM matomo:5.11-fpm-alpine
 RUN apk add --no-cache nginx supervisor unzip
 
 RUN curl -o EnvironmentVariables.zip \
