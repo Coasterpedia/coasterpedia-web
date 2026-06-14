@@ -235,6 +235,8 @@ $wgCitizenMaxSearchResults = 10;
 # Namespaces
 $wgExtraNamespaces[3000] = "Draft";
 $wgExtraNamespaces[3001] = "Draft_talk";
+$wgNamespaceRobotPolicies[3000] = 'noindex';
+$wgNamespaceRobotPolicies[3001] = 'noindex';
 
 
 # Cargo
