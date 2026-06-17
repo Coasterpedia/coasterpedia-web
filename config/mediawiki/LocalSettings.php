@@ -244,6 +244,7 @@ $wgCargoDBserver = getenv( 'CARGO_MYSQL_SERVER' );
 $wgCargoDBname = getenv( 'CARGO_MYSQL_DATABASE' );
 $wgCargoDBuser = getenv( 'CARGO_MYSQL_USER' );
 $wgCargoDBpassword = getenv( 'CARGO_MYSQL_PASSWORD' );
+$wgCargoDBprefix = "";
 
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
 $wgCargoAllowedSQLFunctions[] = 'REPLACE';
