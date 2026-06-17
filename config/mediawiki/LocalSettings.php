@@ -240,6 +240,11 @@ $wgNamespaceRobotPolicies[3001] = 'noindex';
 
 
 # Cargo
+$wgCargoDBserver = getenv( 'CARGO_MYSQL_SERVER' );
+$wgCargoDBname = getenv( 'CARGO_MYSQL_DATABASE' );
+$wgCargoDBuser = getenv( 'CARGO_MYSQL_USER' );
+$wgCargoDBpassword = getenv( 'CARGO_MYSQL_PASSWORD' );
+
 $wgCargoAllowedSQLFunctions[] = 'LENGTH';
 $wgCargoAllowedSQLFunctions[] = 'REPLACE';
 $wgCargoAllowedSQLFunctions[] = 'CURDATE';
