@@ -439,7 +439,7 @@ $wgForceHTTPS = true;
 // 	'style-src' => ['\'self\'',],
 // 	'object-src' => ['\'none\''],
 // ];
-$wgCookieSameSite = 'Strict';
+$wgCookieSameSite = 'Lax';
 // $wgCookieSecure = true;
 $wgVaryOnXFP = true;
 $wgPasswordDefault = 'argon2';
