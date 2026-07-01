@@ -267,6 +267,10 @@ $wgMatomoAnalyticsTokenAuth = getenv( 'MATOMO_API_KEY' );
 $wgMatomoAnalyticsSiteID = 2;
 $wgMatomoAnalyticsDisableCookie = true;
 
+#### PLAUSIBLE ####
+$wgPlausibleDomain = "https://analytics2.coasterpedia.net";  
+$wgPlausibleDomainKey = "coasterpedia.net"; 
+
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 $wgCaptchaTriggers['create'] = true;
@@ -809,6 +813,7 @@ wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
+wfLoadExtension( 'Plausible' );
 wfLoadExtension( 'Popups' );
 wfLoadExtension( 'RelatedArticles' );
 wfLoadExtension( 'ReplaceText' );

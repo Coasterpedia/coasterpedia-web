@@ -74,6 +74,7 @@ RUN git clone --depth 1 -b 4.0.6 "https://github.com/Universal-Omega/DynamicPage
 RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git" extensions/MatomoAnalytics
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
+RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-Plausible.git" extensions/Plausible
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
