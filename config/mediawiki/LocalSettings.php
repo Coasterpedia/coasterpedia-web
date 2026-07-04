@@ -9,7 +9,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
-// $wgShowExceptionDetails = true;
+$wgShowExceptionDetails = true;
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
@@ -910,16 +910,5 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 			'rel' => $rel
 		],
 		$sk->msg('footer-kofi')->escaped()
-	);
-};
-
-$wgHooks['BeforePageDisplay'][] = function ( OutputPage $out, Skin $skin ) {
-	$out->addHTML( <<<'SVG'
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <filter id="cp-icon-red"    color-interpolation-filters="sRGB"><feFlood flood-color="red"/><feComposite in2="SourceAlpha" operator="in"/></filter>
-  <filter id="cp-icon-orange" color-interpolation-filters="sRGB"><feFlood flood-color="orange"/><feComposite in2="SourceAlpha" operator="in"/></filter>
-  <filter id="cp-icon-green"  color-interpolation-filters="sRGB"><feFlood flood-color="green"/><feComposite in2="SourceAlpha" operator="in"/></filter>
-</svg>
-SVG
 	);
 };
