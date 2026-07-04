@@ -1,5 +1,5 @@
-FROM mediawiki:1.45-fpm-alpine AS mediawiki
-ENV MEDIAWIKI_BRANCH REL1_45
+FROM mediawiki:1.46-fpm-alpine AS mediawiki
+ENV MEDIAWIKI_BRANCH REL1_46
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY ./config/supervisord/supervisord.conf /etc/
@@ -54,7 +54,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MediaSearch.git" extensions/MediaSearch
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NativeSvgHandler.git" extensions/NativeSvgHandler
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Popups.git" extensions/Popups
@@ -64,7 +63,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-WebAuthn.git" extensions/WebAuthn
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.14.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS

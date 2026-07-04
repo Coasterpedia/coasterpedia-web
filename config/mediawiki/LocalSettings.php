@@ -805,7 +805,6 @@ wfLoadExtension( 'MediaSearch' );
 wfLoadExtension( 'MyVariables' );
 wfLoadExtension( 'MultimediaViewer' );
 wfLoadExtension( 'MultiPurge' );
-wfLoadExtension( 'NativeSvgHandler' );
 wfLoadExtension( 'NearbyPages' );
 wfLoadExtension( 'Nuke' );
 wfLoadExtension( 'OATHAuth' );
@@ -835,7 +834,6 @@ wfLoadExtension( 'TwoColConflict' );
 wfLoadExtension( 'UploadWizard' );
 wfLoadExtension( 'Variables' );
 wfLoadExtension( 'VisualEditor' );
-wfLoadExtension( 'WebAuthn' );
 wfLoadExtension( 'WikiEditor' );
 
 $wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$linkAttribs ) {
@@ -908,7 +906,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 	$footerlinks['kofi'] = MediaWiki\Html\Html::rawElement(
 		'a',
 		[
-			'href' => 'https://ko-fi.com/lachlanshanks',
+			'href' => 'https://ko-fi.com/coasterpedia',
 			'rel' => $rel
 		],
 		$sk->msg('footer-kofi')->escaped()
