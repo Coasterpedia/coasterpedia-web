@@ -76,7 +76,12 @@ RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
+RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && \
+    # Hotfix: Thumbro calls File::getFilePageThumbUrl(), which does not exist in MediaWiki core.
+    # The current core equivalent is File::modifyClientThumbUrl($url, $handlerParams).
+    # https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/blob/v2.0.0/includes/MediaHandlers/ThumbroHandlerTrait.php
+    sed -i "s/\$image->getFilePageThumbUrl( \$url )/\$image->modifyClientThumbUrl( \$url, \$scalerParams )/" \
+        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
 
 # Separate version skins
 RUN git clone --depth 1 -b v3.17.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
