@@ -521,7 +521,7 @@ $wgGroupPermissions['bot']['replacetext'] = true;
 $wgEnableEditRecovery = true;
 $wgFixDoubleRedirects = true;
 $wgGitRepositoryViewers['https://github.com/(.*?)(.git)?'] = 'https://github.com/$1/commit/%H';
-
+$wgSitemapApiConfig['enabled'] = true;
 $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
