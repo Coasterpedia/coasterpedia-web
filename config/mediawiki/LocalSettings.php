@@ -81,15 +81,21 @@ $wgSMTP = [
 ];
 
 # AWS
-$BUCKET = getenv( 'AWS_BUCKET_NAME' );
-$wgAWSRegion = getenv( 'AWS_REGION' );
+$BUCKET = getenv( 'R2_BUCKET_NAME' );
+// $wgAWSRegion = getenv( 'AWS_REGION' );
 // $wgAWSBucketName = getenv( 'AWS_BUCKET_NAME' );
-$wgAWSBucketTopSubdirectory="";
+$wgAWSBucketTopSubdirectory = "";
 $wgAWSBucketDomain = 'images.coasterpedia.net';
 $wgAWSRepoHashLevels = '2';
 $wgAWSRepoDeletedHashLevels = '3';
 
+$wgAWSCredentials = [
+	'key' => getenv( 'R2_ACCESS_KEY' ),
+	'secret' => getenv( 'R2_ACCESS_SECRET' ),
+	'token' => false
+];
 $wgFileBackends['s3']['privateWiki'] = true;
+$wgFileBackends['s3']['endpoint'] = getenv( 'R2_ENDPOINT' );
 $wgUploadPath = "https://images.coasterpedia.net";
 $wikiId = MediaWiki\WikiMap\WikiMap::getCurrentWikiId();
 $wgFileBackends['s3']['containerPaths'] = [
@@ -501,7 +507,8 @@ $egMapsEnableCoordinateFunction = false;
 $wgPFEnableStringFunctions = true;
 $wgDefaultUserOptions['multimediaviewer-enable'] = 1;
 $wgAllowUserJs = true;
-$wgGenerateThumbnailOnParse = true;
+// $wgGenerateThumbnailOnParse = true;
+$wgThumbnailSteps = [20, 40, 60, 120, 250, 330, 500, 960, 1280, 1920, 3840];
 $wgFragmentMode = [ 'html5' ];
 $wgNamespaceAliases['CP'] = NS_PROJECT;
 $wgNamespaceAliases['CP_talk'] = NS_PROJECT_TALK;

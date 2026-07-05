@@ -199,7 +199,6 @@ jobs:
             export MEDIAWIKI_IMAGE="${{needs.mediawiki_build.outputs.digest}}" &&
             export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
             export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
-            export AWS_SIGV4_PROXY_IMAGE="${{needs.aws_sigv4_proxy_build.outputs.digest}}" &&
             export MYSQL_DATABASE="${{secrets.MYSQL_DATABASE}}" &&
             export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
             export MYSQL_SERVER="${{secrets.MYSQL_SERVER}}" &&
@@ -211,8 +210,11 @@ jobs:
             export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
             export SMTP_USER="${{secrets.SMTP_USER}}" &&
             export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
-            export AWS_REGION="${{secrets.AWS_REGION}}" &&
-            export AWS_BUCKET_NAME="${{secrets.AWS_BUCKET_NAME}}" &&
+            export R2_ACCESS_KEY="${{secrets.R2_ACCESS_KEY}}" &&
+            export R2_ACCESS_SECRET="${{secrets.R2_ACCESS_SECRET}}" &&
+            export R2_BUCKET_NAME="${{secrets.R2_BUCKET_NAME}}" &&
+            export R2_BUCKET_NAME="${{secrets.R2_BUCKET_NAME}}" &&
+            export R2_ENDPOINT="${{secrets.R2_ENDPOINT}}" &&
             export OAUTH_PRIVATE="${{secrets.OAUTH_PRIVATE}}" &&
             export OAUTH_PUBLIC="${{secrets.OAUTH_PUBLIC}}" &&
             export MATOMO_DATABASE_DBNAME="${{secrets.MATOMO_DATABASE_DBNAME}}" &&
