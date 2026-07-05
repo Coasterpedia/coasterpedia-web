@@ -522,6 +522,7 @@ $wgEnableEditRecovery = true;
 $wgFixDoubleRedirects = true;
 $wgGitRepositoryViewers['https://github.com/(.*?)(.git)?'] = 'https://github.com/$1/commit/%H';
 $wgSitemapApiConfig['enabled'] = true;
+$wgRestAPIAdditionalRouteFiles[] = 'includes/Rest/site.v1.json';
 $wgMFStripResponsiveImages = false;
 
 $wgMinervaEnableSiteNotice = true;
