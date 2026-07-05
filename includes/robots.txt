@@ -148,6 +148,7 @@ Disallow: /
 # /api/rest_v1/?doc.
 #
 User-agent: *
+Allow: /w/rest.php/site/v1/sitemap/0
 Allow: /w/load.php?
 Disallow: /w/
 Disallow: /api/
@@ -158,3 +159,4 @@ Disallow: /wiki/Module%3ASandbox
 Disallow: /wiki/Template:TemplateStyles_sandbox
 Disallow: /wiki/Template%3ATemplateStyles_sandbox
 Crawl-delay: 15
+Sitemap: https://coasterpedia.net/w/rest.php/site/v1/sitemap/0
