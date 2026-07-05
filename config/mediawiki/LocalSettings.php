@@ -82,7 +82,7 @@ $wgSMTP = [
 
 # AWS
 $BUCKET = getenv( 'R2_BUCKET_NAME' );
-// $wgAWSRegion = getenv( 'AWS_REGION' );
+$wgAWSRegion = "us-east-1"; // dummy value
 // $wgAWSBucketName = getenv( 'AWS_BUCKET_NAME' );
 $wgAWSBucketTopSubdirectory = "";
 $wgAWSBucketDomain = 'images.coasterpedia.net';
