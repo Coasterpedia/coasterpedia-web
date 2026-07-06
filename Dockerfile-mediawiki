@@ -81,6 +81,10 @@ RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki
     # The current core equivalent is File::modifyClientThumbUrl($url, $handlerParams).
     # https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/blob/v2.0.0/includes/MediaHandlers/ThumbroHandlerTrait.php
     sed -i "s/\$image->getFilePageThumbUrl( \$url )/\$image->modifyClientThumbUrl( \$url, \$scalerParams )/" \
+        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
+    sed -i \
+        -e "s/'width' => \$scalerParams\['clientWidth'\],/'width' => \$scalerParams['clientWidth'] ?? \$scalerParams['width'],/" \
+        -e "s/'height' => \$scalerParams\['clientHeight'\]/'height' => \$scalerParams['clientHeight'] ?? \$scalerParams['height']/" \
         extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
 
 # Separate version skins
