@@ -79,16 +79,17 @@ RUN git clone --depth 1 -b v2.2.0 "https://github.com/octfx/mediawiki-extensions
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && \
     # Hotfix: Thumbro calls File::getFilePageThumbUrl(), which does not exist in MediaWiki core.
     # The current core equivalent is File::modifyClientThumbUrl($url, $handlerParams).
-    # https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/blob/v2.0.0/includes/MediaHandlers/ThumbroHandlerTrait.php
     sed -i "s/\$image->getFilePageThumbUrl( \$url )/\$image->modifyClientThumbUrl( \$url, \$scalerParams )/" \
         extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
     sed -i \
         -e "s/'width' => \$scalerParams\['clientWidth'\],/'width' => \$scalerParams['clientWidth'] ?? \$scalerParams['width'],/" \
         -e "s/'height' => \$scalerParams\['clientHeight'\]/'height' => \$scalerParams['clientHeight'] ?? \$scalerParams['height']/" \
         extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
-    sed -i "/protected function getScalerType( \$dstPath, \$checkDstPath = true ) {/i\\
-            \\t/**\\n\\t * @inheritDoc\\n\\t * libvips supports autorotation via vips_autorot().\\n\\t */\\n\\tpublic function canRotate() {\\n\\t\\treturn true;\\n\\t}\\n" \
-                extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
+    # Hotfix: libvips scaler isn't recognized by BitmapHandler::canRotate(), so
+    # autoRotateEnabled() is always false and EXIF orientation is ignored,
+    # causing swapped width/height on portrait photos.
+    sed -i "s/\(protected function getScalerType( \\\$dstPath, \\\$checkDstPath = true ) {\)/public function canRotate() {\n\t\treturn true;\n\t}\n\n\t\1/" \
+        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
 
 # Separate version skins
 RUN git clone --depth 1 -b v3.17.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
