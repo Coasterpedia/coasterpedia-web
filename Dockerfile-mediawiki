@@ -85,7 +85,10 @@ RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki
     sed -i \
         -e "s/'width' => \$scalerParams\['clientWidth'\],/'width' => \$scalerParams['clientWidth'] ?? \$scalerParams['width'],/" \
         -e "s/'height' => \$scalerParams\['clientHeight'\]/'height' => \$scalerParams['clientHeight'] ?? \$scalerParams['height']/" \
-        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
+        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
+    sed -i "/protected function getScalerType( \$dstPath, \$checkDstPath = true ) {/i\\
+            \\t/**\\n\\t * @inheritDoc\\n\\t * libvips supports autorotation via vips_autorot().\\n\\t */\\n\\tpublic function canRotate() {\\n\\t\\treturn true;\\n\\t}\\n" \
+                extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
 
 # Separate version skins
 RUN git clone --depth 1 -b v3.17.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
