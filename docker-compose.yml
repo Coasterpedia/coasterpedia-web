@@ -209,7 +209,7 @@ services:
     depends_on:
       - mariadb
     volumes:
-      - ./secrets:/secrets:ro      # backup.cnf + rclone.conf (git-ignored)
+      - ../coasterpedia-secrets:/secrets:ro      # backup.cnf + rclone.conf (git-ignored)
       - dr-work:/work
     networks:
       - web
