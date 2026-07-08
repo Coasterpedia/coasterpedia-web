@@ -264,7 +264,7 @@ jobs:
         run: |
           scp -p secret_files/rclone.conf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia/secrets/rclone.conf
           scp -p secret_files/backup.cnf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia/secrets/backup.cnf
-          ssh ${{ secrets.DOCKER_HOST_2 }} 'chown 1000:1000 coasterpedia/secrets/*'
+          ssh ${{ secrets.DOCKER_HOST_2 }} 'setfacl -m u:1000:rw coasterpedia/secrets/*'
           rm -rf secret_files
 
       - name: Deploy to server
