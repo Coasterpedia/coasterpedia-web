@@ -47,6 +47,8 @@ services:
   mediawiki:
     image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     restart: always
+    mem_limit: 900m
+    mem_reservation: 400m
     networks:
       - web
     volumes:
