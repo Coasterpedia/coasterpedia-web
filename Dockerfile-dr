@@ -1,0 +1,18 @@
+FROM mariadb:11.8
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        age rclone curl ca-certificates gzip; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -r -g 1000 dr && useradd -r -u 1000 -g dr -d /work -m dr
+
+COPY --chown=dr:dr dr/ /opt/dr/
+RUN chmod +x /opt/dr/*.sh
+
+RUN mkdir -p /work && chown dr:dr /work
+USER dr
+
+ENTRYPOINT []
+CMD ["sleep", "infinity"]

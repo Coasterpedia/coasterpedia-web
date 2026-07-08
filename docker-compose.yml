@@ -1,71 +1,48 @@
 services:
-  traefik:
-    image: traefik:3.7
-    command: 
-      - --providers.docker=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entryPoints.websecure.http.encodequerysemicolons=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSlash=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedBackSlash=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedNullCharacter=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedSemicolon=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedPercent=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedQuestionMark=true
-      - --entryPoints.websecure.http.encodedCharacters.allowEncodedHash=true
-      - --entrypoints.websecure.forwardedHeaders.insecure
-      - --entrypoints.web.forwardedHeaders.insecure
-      - --entryPoints.web.http.encodequerysemicolons=true
-      # - --api=true
-      - --certificatesresolvers.myresolver.acme.storage=/acme_data/acme.json
-      - --certificatesresolvers.myresolver.acme.dnsChallenge.provider=cloudflare
-      - --certificatesresolvers.myresolver.acme.dnsChallenge.delayBeforeCheck=10
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.websecure.http.tls.certresolver=myresolver
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entryPoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.asDefault=true
-      # - --accesslog=true
-    # labels:
-    #   - traefik.enable=true
-    #   - traefik.http.routers.dashboard.rule=Host(`traefik.coasterpedia.net`)
-    #   - traefik.http.routers.dashboard.service=api@internal
-    #   - traefik.http.routers.dashboard.entrypoints=web,websecure
-    #   - traefik.http.services.dashboard.loadbalancer.server.port=8080
-    environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_APITOKEN}
+  mariadb:
+    image: mariadb:11.8
     restart: always
-    ports:
-      - 80:80
-      - 443:443
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      CARGO_MYSQL_PASSWORD: ${CARGO_MYSQL_PASSWORD}
+      MATOMO_DATABASE_PASSWORD: ${MATOMO_DATABASE_PASSWORD}
+      COASTERPEDIA_TOOLS_MYSQL_PASSWORD: ${COASTERPEDIA_TOOLS_MYSQL_PASSWORD}
+      BACKUP_MYSQL_PASSWORD: ${BACKUP_MYSQL_PASSWORD}
     networks:
       - web
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - acme_data:/acme_data
+    - ./data:/var/lib/mysql
+    - ./config/mariadb/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf:ro
+    - ./config/mariadb/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
   mediawiki:
     image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     restart: always
+    init: true
+    security_opt:
+      - no-new-privileges:true
     networks:
       - web
+    depends_on:
+      - mariadb
+      - redis
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.mediawiki.rule=Host(`coasterpedia.net`)
-      - traefik.http.routers.mediawiki.entrypoints=web,websecure
-      - traefik.http.services.mediawiki.loadbalancer.server.port=80
+    ports:
+      -  127.0.0.1:9001:80
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: coasterpedia
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_SERVER: ${MYSQL_SERVER}
-      MYSQL_USER: ${MYSQL_USER}
-      CARGO_MYSQL_DATABASE: ${CARGO_MYSQL_DATABASE}
+      MYSQL_SERVER: mariadb
+      MYSQL_USER: coasterpedia
+      CARGO_MYSQL_DATABASE: cargo_db
       CARGO_MYSQL_PASSWORD: ${CARGO_MYSQL_PASSWORD}
-      CARGO_MYSQL_SERVER: ${CARGO_MYSQL_SERVER}
-      CARGO_MYSQL_USER: ${CARGO_MYSQL_USER}
+      CARGO_MYSQL_SERVER: mariadb
+      CARGO_MYSQL_USER: cargo_user
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
@@ -81,17 +58,10 @@ services:
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: eu-west-2
-        awslogs-group: Coasterpedia/Mediawiki
-        awslogs-create-group: "true"
   redis:
     image: redis:alpine
     restart: unless-stopped
     init: true
-    user: "${UID}:${GID}"
     security_opt:
       - no-new-privileges:true
     networks:
@@ -110,6 +80,7 @@ services:
     depends_on:
       - mediawiki
       - redis
+      - mariadb
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
@@ -117,14 +88,14 @@ services:
       - web
     environment:
       RUNNER_TYPE: Chron
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: coasterpedia
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_SERVER: ${MYSQL_SERVER}
-      MYSQL_USER: ${MYSQL_USER}
-      CARGO_MYSQL_DATABASE: ${CARGO_MYSQL_DATABASE}
+      MYSQL_SERVER: mariadb
+      MYSQL_USER: coasterpedia
+      CARGO_MYSQL_DATABASE: cargo_db
       CARGO_MYSQL_PASSWORD: ${CARGO_MYSQL_PASSWORD}
-      CARGO_MYSQL_SERVER: ${CARGO_MYSQL_SERVER}
-      CARGO_MYSQL_USER: ${CARGO_MYSQL_USER}
+      CARGO_MYSQL_SERVER: mariadb
+      CARGO_MYSQL_USER: cargo_user
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
@@ -140,41 +111,32 @@ services:
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: eu-west-2
-        awslogs-group: Coasterpedia/JobrunnerChron
-        awslogs-create-group: "true"
   jobrunner:
     image: ghcr.io/coasterpedia/coasterpedia-web/jobrunner@${JOBRUNNER_IMAGE}
     restart: unless-stopped
     init: true
     user: "www-data:www-data"
     cpu_shares: 256
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
     security_opt:
       - no-new-privileges:true
     depends_on:
       - mediawiki
       - redis
+      - mariadb
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
     networks:
       - web
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: coasterpedia
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_SERVER: ${MYSQL_SERVER}
-      MYSQL_USER: ${MYSQL_USER}
-      CARGO_MYSQL_DATABASE: ${CARGO_MYSQL_DATABASE}
+      MYSQL_SERVER: mariadb
+      MYSQL_USER: coasterpedia
+      CARGO_MYSQL_DATABASE: cargo_db
       CARGO_MYSQL_PASSWORD: ${CARGO_MYSQL_PASSWORD}
-      CARGO_MYSQL_SERVER: ${CARGO_MYSQL_SERVER}
-      CARGO_MYSQL_USER: ${CARGO_MYSQL_USER}
+      CARGO_MYSQL_SERVER: mariadb
+      CARGO_MYSQL_USER: cargo_user
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
@@ -190,40 +152,30 @@ services:
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: eu-west-2
-        awslogs-group: Coasterpedia/Jobrunner
-        awslogs-create-group: "true"
   matomo:
     image: ghcr.io/coasterpedia/coasterpedia-web/matomo@${MATOMO_IMAGE}
     restart: always
+    init: true
+    security_opt:
+      - no-new-privileges:true
     networks:
       - web
+    depends_on:
+      - mariadb
     volumes:
       - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.matomo.rule=Host(`analytics.coasterpedia.net`)
-      - traefik.http.routers.matomo.entrypoints=web,websecure
-      - traefik.http.services.matomo.loadbalancer.server.port=80
+    ports:
+      - 127.0.0.1:9002:80
     environment:
-      MATOMO_DATABASE_DBNAME: ${MATOMO_DATABASE_DBNAME}
+      MATOMO_DATABASE_DBNAME: coasterpedia_analytics
       MATOMO_DATABASE_PASSWORD: ${MATOMO_DATABASE_PASSWORD}
-      MATOMO_DATABASE_HOST: ${MATOMO_DATABASE_HOST}
-      MATOMO_DATABASE_USERNAME: ${MATOMO_DATABASE_USERNAME}
+      MATOMO_DATABASE_HOST: mariadb
+      MATOMO_DATABASE_USERNAME: coasterpedia_analytics
       MATOMO_EMAIL_HOST: ${SMTP_HOST}
       MATOMO_EMAIL_USERNAME: ${SMTP_USER}
       MATOMO_EMAIL_PASSWORD: ${SMTP_PASSWORD}
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: eu-west-2
-        awslogs-group: Coasterpedia/Matomo
-        awslogs-create-group: "true"
   ofelia:
-    image: mcuadros/ofelia:latest
+    image: mcuadros/ofelia:0.3
     restart: unless-stopped
     init: true
     security_opt:
@@ -233,18 +185,36 @@ services:
     depends_on:
       - mediawiki
       - matomo
+      - dr
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/ofelia/ofelia.ini:/etc/ofelia/config.ini:ro
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: eu-west-2
-        awslogs-group: Coasterpedia/Ofelia
-        awslogs-create-group: "true"
+  dr:
+    image: ghcr.io/coasterpedia/coasterpedia-web/dr@${DR_IMAGE}
+    restart: unless-stopped
+    init: true
+    user: "dr:dr"
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: coasterpedia coasterpedia_analytics cargo_db coasterpedia_tools
+      AGE_RECIPIENT: ${AGE_RECIPIENT}
+      R2_REMOTE: ${R2_REMOTE}
+      HC_URL: ${HC_BASE_BACKUP_URL}
+      RCLONE_CONFIG: /secrets/rclone.conf
+      DEFAULTS_FILE: /secrets/backup.cnf
+      WORKDIR: /work
+    depends_on:
+      - mariadb
+    volumes:
+      - ./secrets:/secrets:ro      # backup.cnf + rclone.conf (git-ignored)
+      - dr-work:/work
+    networks:
+      - web
 networks:
   web:
 volumes:
   redis:
-  acme_data:
+  dr-work:
