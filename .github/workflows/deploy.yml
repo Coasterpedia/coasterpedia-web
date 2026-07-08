@@ -298,7 +298,7 @@ jobs:
             export MARIADB_ROOT_PASSWORD="${{secrets.MARIADB_ROOT_PASSWORD}}" &&
             export COASTERPEDIA_TOOLS_MYSQL_PASSWORD="${{secrets.COASTERPEDIA_TOOLS_MYSQL_PASSWORD}}" &&
             export BACKUP_MYSQL_PASSWORD="${{secrets.BACKUP_MYSQL_PASSWORD}}" &&
-            if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b main https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
+            if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
             docker compose pull &&
             docker compose up -d -V &&
             docker system prune -f &&
