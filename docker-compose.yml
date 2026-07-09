@@ -15,7 +15,7 @@ services:
     networks:
       - web
     volumes:
-    - ./data:/var/lib/mysql
+    - mariadb:/var/lib/mysql
     - ./config/mariadb/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf:ro
     - ./config/mariadb/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
   mediawiki:
@@ -218,3 +218,4 @@ networks:
 volumes:
   redis:
   dr-work:
+  mariadb:
