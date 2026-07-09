@@ -18,6 +18,8 @@ services:
     - mariadb:/var/lib/mysql
     - ./config/mariadb/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf:ro
     - ./config/mariadb/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   mediawiki:
     image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     restart: always

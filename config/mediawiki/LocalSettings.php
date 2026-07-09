@@ -214,7 +214,7 @@ $wgDiff3 = "/usr/bin/diff3";
 
 # Search
 // $wgDisableSearchUpdate = true;
-$wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
+$wgCirrusSearchServers = [ 'host.docker.internal' ];
 $wgSearchType = 'CirrusSearch';
 $wgCirrusSearchUseCompletionSuggester = 'yes';
 $wgCirrusSearchCompletionSuggesterSubphrases = [
