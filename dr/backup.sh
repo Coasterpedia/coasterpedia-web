@@ -39,7 +39,7 @@ curl -fsS -m 10 --retry 3 "${HC_URL}/start" >/dev/null 2>&1 || true
 mariadb-dump \
   --defaults-extra-file="$DEFAULTS_FILE" \
   -h "$DB_HOST" \
-  --single-transaction --quick --hex-blob \
+  --single-transaction --quick \
   --routines --triggers --events \
   --master-data=2 --gtid --flush-logs \
   --databases $DB_NAME \
