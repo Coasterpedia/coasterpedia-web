@@ -144,7 +144,7 @@ $wgJobTypeConf['default'] = [
 $wgJobRunRate = 0;
 
 $wgMainCacheType = 'redis';
-$wgParserCacheType = CACHE_DB;
+$wgParserCacheType = 'redis';
 $wgSessionCacheType = 'redis';
 $wgMainStash = 'redis';
 
