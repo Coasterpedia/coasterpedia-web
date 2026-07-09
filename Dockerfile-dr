@@ -3,7 +3,8 @@ FROM mariadb:11.8
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        age rclone curl ca-certificates gzip; \
+        age curl ca-certificates gzip unzip; \
+    curl -fsSL https://rclone.org/install.sh | bash; \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r -g 1000 dr && useradd -r -u 1000 -g dr -d /work -m dr
