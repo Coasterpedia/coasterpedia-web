@@ -76,20 +76,7 @@ RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b v2.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro && \
-    # Hotfix: Thumbro calls File::getFilePageThumbUrl(), which does not exist in MediaWiki core.
-    # The current core equivalent is File::modifyClientThumbUrl($url, $handlerParams).
-    sed -i "s/\$image->getFilePageThumbUrl( \$url )/\$image->modifyClientThumbUrl( \$url, \$scalerParams )/" \
-        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
-    sed -i \
-        -e "s/'width' => \$scalerParams\['clientWidth'\],/'width' => \$scalerParams['clientWidth'] ?? \$scalerParams['width'],/" \
-        -e "s/'height' => \$scalerParams\['clientHeight'\]/'height' => \$scalerParams['clientHeight'] ?? \$scalerParams['height']/" \
-        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php && \
-    # Hotfix: libvips scaler isn't recognized by BitmapHandler::canRotate(), so
-    # autoRotateEnabled() is always false and EXIF orientation is ignored,
-    # causing swapped width/height on portrait photos.
-    sed -i "s/\(protected function getScalerType( \\\$dstPath, \\\$checkDstPath = true ) {\)/public function canRotate() {\n\t\treturn true;\n\t}\n\n\t\1/" \
-        extensions/Thumbro/includes/MediaHandlers/ThumbroHandlerTrait.php
+RUN git clone --depth 1 -b v2.0.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 
 # Separate version skins
 RUN git clone --depth 1 -b v3.17.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
