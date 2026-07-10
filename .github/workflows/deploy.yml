@@ -239,7 +239,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [mediawiki_build, matomo_build, jobrunner_build, dr_build]
     permissions:
-      contents: read
+      contents: write
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
 
     steps:
       - name: Checkout repository
