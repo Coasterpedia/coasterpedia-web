@@ -17,7 +17,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/ofelia/ofelia.pi.ini:/etc/ofelia/config.ini:ro
+      - ./config/ofelia/ofelia.dr.ini:/etc/ofelia/config.ini:ro
 
   # Continuous binlog capture. NOT an Ofelia job - it's a long-lived process,
   # so it gets `restart: always` and supervises itself.
