@@ -107,6 +107,8 @@ services:
     networks:
       default:
         aliases: [ mariadb ]   # LocalSettings expects MYSQL_SERVER=mariadb
+    env_file:
+      - ${SECRETS_DIR}/r2-readonly.env
     environment:
       # --- structural guarantee: nothing can write, whatever else we forgot ---
       MW_READ_ONLY: "Disaster recovery drill - read only"
