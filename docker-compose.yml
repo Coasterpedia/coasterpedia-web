@@ -14,6 +14,8 @@ services:
       BACKUP_MYSQL_PASSWORD: ${BACKUP_MYSQL_PASSWORD}
     networks:
       - web
+    ports:
+      - "100.126.37.32:3306:3306"
     volumes:
     - mariadb:/var/lib/mysql
     - ./config/mariadb/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf:ro
@@ -51,7 +53,7 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME}
       R2_ENDPOINT: ${R2_ENDPOINT}
       SECRET_KEY: ${SECRET_KEY}
-      ES_IP: ${ES_IP}
+      ES_IP: host.docker.internal
       OAUTH_PUBLIC: ${OAUTH_PUBLIC}
       OAUTH_PRIVATE: ${OAUTH_PRIVATE}
       CLOUDFLARE_ZONEID: ${CLOUDFLARE_ZONEID}

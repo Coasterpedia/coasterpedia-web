@@ -1,0 +1,145 @@
+# Coasterpedia DR
+#
+# Bring up:  docker compose --env-file versions.env -f docker-compose.pi.yml up -d
+# (The drill-profile services stay down; drill.sh brings them up and destroys
+#  them each night.)
+
+services:
+
+  # ---- persistent -----------------------------------------------------------
+
+  ofelia:
+    image: mcuadros/ofelia:0.3
+    restart: unless-stopped
+    init: true
+    security_opt: [ "no-new-privileges:true" ]
+    depends_on: [ dr, binlog-streamer ]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/ofelia/ofelia.pi.ini:/etc/ofelia/config.ini:ro
+
+  # Continuous binlog capture. NOT an Ofelia job - it's a long-lived process,
+  # so it gets `restart: always` and supervises itself.
+  binlog-streamer:
+    image: ghcr.io/coasterpedia/coasterpedia-web/dr@${DR_IMAGE}
+    restart: always
+    init: true
+    user: "dr:dr"
+    security_opt: [ "no-new-privileges:true" ]
+    command: [ "/opt/dr/stream-binlogs.sh" ]
+    environment:
+      DB_HOST: coasterpedia-01
+      BINLOG_DIR: /mnt/ssd/binlogs
+      DEFAULTS_FILE: /secrets/backup.cnf
+      STREAM_SERVER_ID: "99"
+    volumes:
+      - ${SECRETS_DIR}:/secrets:ro
+      - ${SSD_ROOT}/binlogs:/mnt/ssd/binlogs
+
+  # Toolbox + Ofelia exec target. On the DR host only, it gets the docker socket so
+  # drill.sh can orchestrate the drill-profile containers.
+  #
+  # NOTE: the docker socket is root-equivalent on this host. Acceptable on a
+  # dedicated DR box whose whole job is rehearsing recovery; do NOT copy this
+  # mount to the production compose.
+  dr:
+    image: ghcr.io/coasterpedia/coasterpedia-web/dr@${DR_IMAGE}
+    restart: unless-stopped
+    init: true
+    security_opt: [ "no-new-privileges:true" ]
+    environment:
+      COMPOSE_FILE: /docker-compose.dr.yml
+      DUMP_DIR: /mnt/ssd/db-backups
+      BINLOG_DIR: /mnt/ssd/binlogs
+      AGE_KEY_FILE: /secrets/age-backup.key
+      STATE_FILE: /mnt/ssd/state/drill-last.env
+      RCLONE_CONFIG: /secrets/rclone.conf
+      R2_REMOTE: ${R2_REMOTE}
+      R2_IMAGES_REMOTE: ${R2_IMAGES_REMOTE}
+      LOCAL_DIR: /mnt/ssd/db-backups
+      LOCAL_IMAGE_DIR: /mnt/ssd/images
+      DRILL_MYSQL_ROOT_PASSWORD: drill
+      HC_DRILL_URL: ${HC_DRILL_URL}
+      HC_MIRROR_URL: ${HC_MIRROR_URL}
+      HC_IMAGES_URL: ${HC_IMAGES_URL}
+      HC_STALENESS_URL: ${HC_STALENESS_URL}
+    volumes:
+      - ${SECRETS_DIR}:/secrets:ro
+      - ${SSD_ROOT}/db-backups:/mnt/ssd/db-backups
+      - ${SSD_ROOT}/binlogs:/mnt/ssd/binlogs:ro
+      - ${SSD_ROOT}/images:/mnt/ssd/images
+      - ${SSD_ROOT}/state:/mnt/ssd/state
+      - .:/pi:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # ---- ephemeral: drill only -------------------------------------------------
+
+  mariadb-drill:
+    profiles: [ drill ]
+    image: mariadb:11.8
+    init: true
+    environment:
+      MARIADB_ROOT_PASSWORD: drill
+    volumes:
+      - ./config/mariadb/drill.cnf:/etc/mysql/conf.d/drill.cnf:ro
+      - drill-mariadb:/var/lib/mysql
+    tmpfs:
+      - /tmp
+
+  redis-drill:
+    profiles: [ drill ]
+    image: redis:alpine
+    init: true
+    # LocalSettings.php hardcodes the hostname `redis` for cache + job queue.
+    networks:
+      default:
+        aliases: [ redis ]
+
+  mediawiki-drill:
+    profiles: [ drill ]
+    image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
+    init: true
+    depends_on: [ mariadb-drill, redis-drill ]
+    volumes:
+      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
+      - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
+    networks:
+      default:
+        aliases: [ mariadb ]   # LocalSettings expects MYSQL_SERVER=mariadb
+    environment:
+      # --- structural guarantee: nothing can write, whatever else we forgot ---
+      MW_READ_ONLY: "Disaster recovery drill - read only"
+      MW_SERVER: "http://mediawiki-drill"
+      MW_DISABLE_SEARCH: "1"
+
+      MYSQL_SERVER: mariadb-drill
+      MYSQL_DATABASE: coasterpedia
+      MYSQL_USER: root
+      MYSQL_PASSWORD: drill
+      CARGO_MYSQL_SERVER: mariadb-drill
+      CARGO_MYSQL_DATABASE: cargo_db
+      CARGO_MYSQL_USER: root
+      CARGO_MYSQL_PASSWORD: drill
+
+      # --- deliberately invalid: a missed override must fail LOUDLY, not act ---
+      SMTP_HOST: "smtp.invalid"
+      SMTP_USER: "drill"
+      SMTP_PASSWORD: "drill"
+      CLOUDFLARE_ZONEID: "drill-invalid"
+      CLOUDFLARE_APITOKEN: "drill-invalid"
+      TURNSTILE_SECRET: "drill-invalid"
+      MATOMO_API_KEY: "drill-invalid"
+      OAUTH_PUBLIC: "drill-invalid"
+      OAUTH_PRIVATE: "drill-invalid"
+      ES_IP: "http://opensearch.invalid:9200"
+      SECRET_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+
+      # --- read-only R2 token: a real capability boundary, not a convention ---
+      R2_ACCESS_KEY: ${R2_READONLY_ACCESS_KEY}
+      R2_ACCESS_SECRET: ${R2_READONLY_ACCESS_SECRET}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_ENDPOINT: ${R2_ENDPOINT}
+
+volumes:
+  drill-mariadb:

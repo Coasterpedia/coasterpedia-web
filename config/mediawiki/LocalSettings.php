@@ -6,6 +6,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 // $wgReadOnly = ( PHP_SAPI === 'cli' ) ? false : 'This wiki is currently being upgraded to a newer software version. Please check back in a couple of hours.';
 
+$wgReadOnly = getenv( 'MW_READ_ONLY' ) ?: false; 
+
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
@@ -21,7 +23,7 @@ $wgArticlePath = "/wiki/$1";
 $wgUsePathInfo = true;
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "https://coasterpedia.net";
+$wgServer   = getenv( 'MW_SERVER' ) ?: "https://coasterpedia.net";
 $wgCanonicalServer = "https://coasterpedia.net";
 
 $wgEnableCanonicalServerLink = true;
@@ -214,7 +216,7 @@ $wgDiff3 = "/usr/bin/diff3";
 
 # Search
 // $wgDisableSearchUpdate = true;
-$wgCirrusSearchServers = [ 'host.docker.internal' ];
+$wgCirrusSearchServers = [ getenv( 'ES_IP' ) ];
 $wgSearchType = 'CirrusSearch';
 $wgCirrusSearchUseCompletionSuggester = 'yes';
 $wgCirrusSearchCompletionSuggesterSubphrases = [
@@ -484,7 +486,7 @@ $wgAPIModules['createaccount'] = 'ApiDisabled';
 
 # EventBus
 $wgEventServices = [
-    'eventgate-main'  => ['url' => 'http://100.72.107.9:8080/events']
+    'eventgate-main'  => ['url' => 'http://coasterpedia-legacy:8080/events']
 ];
 $wgEnableEventBus = "TYPE_EVENT";
 $wgEventStreams = [

@@ -3,7 +3,7 @@ FROM mariadb:11.8
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        age curl ca-certificates gzip unzip; \
+        age curl ca-certificates gzip unzip docker.io docker-compose-v2; \
     curl -fsSL https://rclone.org/install.sh | bash; \
     rm -rf /var/lib/apt/lists/*
 
