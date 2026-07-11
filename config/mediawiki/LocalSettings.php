@@ -435,7 +435,7 @@ if ( $isWikiDiff2Enabled ) {
 }
 
 # Security
-$wgForceHTTPS = true;
+$wgForceHTTPS = getenv( 'MW_FORCE_HTTPS' ) !== 'false';
 // $wgBreakFrames = true;
 // $wgCSPHeader = [
 // 	// nonces have limited support and removed in MW 1.41

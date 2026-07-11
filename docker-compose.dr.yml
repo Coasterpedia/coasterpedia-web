@@ -112,6 +112,7 @@ services:
       MW_READ_ONLY: "Disaster recovery drill - read only"
       MW_SERVER: "http://mediawiki-drill"
       MW_DISABLE_SEARCH: "1"
+      MW_FORCE_HTTPS: "false"
 
       MYSQL_SERVER: mariadb-drill
       MYSQL_DATABASE: coasterpedia
