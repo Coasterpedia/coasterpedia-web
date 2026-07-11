@@ -3,7 +3,7 @@
 # Bring up:  docker compose --env-file versions.env -f docker-compose.pi.yml up -d
 # (The drill-profile services stay down; drill.sh brings them up and destroys
 #  them each night.)
-
+name: coasterpedia-web
 services:
 
   # ---- persistent -----------------------------------------------------------
@@ -83,6 +83,8 @@ services:
     init: true
     environment:
       MARIADB_ROOT_PASSWORD: drill
+    web:
+        aliases: [ mariadb ]
     volumes:
       - ./config/mariadb/drill.cnf:/etc/mysql/conf.d/drill.cnf:ro
       - drill-mariadb:/var/lib/mysql
@@ -95,7 +97,7 @@ services:
     init: true
     # LocalSettings.php hardcodes the hostname `redis` for cache + job queue.
     networks:
-      default:
+      web:
         aliases: [ redis ]
 
   mediawiki-drill:
@@ -107,7 +109,7 @@ services:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
     networks:
-      default:
+      web:
         aliases: [ mariadb ]   # LocalSettings expects MYSQL_SERVER=mariadb
     env_file:
       - ${SECRETS_DIR}/r2-readonly.env
