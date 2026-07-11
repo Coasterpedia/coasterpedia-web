@@ -34,9 +34,10 @@ STATE_FILE="${STATE_FILE:-/state/drill-last.env}"
 HEARTBEAT_MAX_LAG="${HEARTBEAT_MAX_LAG:-1200}"   # 20 min
 ROOT_PW="${DRILL_MYSQL_ROOT_PASSWORD:-drill}"
 
-COMPOSE=(docker compose -f "$COMPOSE_FILE" --profile drill)
+COMPOSE=(docker compose --env-file .env --env-file versions.env -f "$COMPOSE_FILE" --profile drill)
 MYSQL=(mariadb -h "$DRILL_DB_HOST" -u root -p"$ROOT_PW" -N -B)
 
+cd /mnt/ssd/repo
 log()  { echo "[drill $(date -u +%H:%M:%S)] $*"; }
 fail() {
   log "FAILED: $1"
