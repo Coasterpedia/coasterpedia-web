@@ -39,7 +39,7 @@ PROJECT="${COMPOSE_PROJECT:-coasterpedia-web}"
 COMPOSE=(docker compose -p "$PROJECT" --env-file .env --env-file versions.env -f "$COMPOSE_FILE" --profile drill)
 MYSQL=(mariadb -h "$DRILL_DB_HOST" -u root -p"$ROOT_PW" -N -B)
 
-cd /mnt/ssd/repo
+cd "$(dirname "$COMPOSE_FILE")"
 
 log() { echo "[drill $(date -u +%H:%M:%S)] $*"; }
 
