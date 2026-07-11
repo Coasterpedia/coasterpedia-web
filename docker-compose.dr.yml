@@ -146,3 +146,6 @@ services:
 
 volumes:
   drill-mariadb:
+
+networks:
+  web:
