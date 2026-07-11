@@ -1,0 +1,15 @@
+[mariadbd]
+# Disable all durability as instance is ephemeral
+innodb_flush_log_at_trx_commit = 0
+sync_binlog                    = 0
+skip_log_bin
+
+# 4GB Pi, shared with MediaWiki + Redis during the render phase. Leave room.
+innodb_buffer_pool_size        = 768M
+innodb_log_file_size           = 256M
+
+# Big single-statement INSERTs come out of mariadb-dump.
+max_allowed_packet             = 256M
+
+# The drill's own container filesystem, not the SSD-backed datadir.
+tmpdir                         = /tmp
