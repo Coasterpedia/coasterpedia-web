@@ -1,8 +1,13 @@
 # Coasterpedia DR
 #
-# Bring up:  docker compose --env-file versions.env -f docker-compose.pi.yml up -d
+# Bring up:
+#   docker compose --env-file .env --env-file versions.env -f docker-compose.dr.yml up -d
 # (The drill-profile services stay down; drill.sh brings them up and destroys
 #  them each night.)
+#
+# NETWORK: every service - persistent AND drill - is on `web`, matching the
+# production compose. They MUST share one network or the dr container can't
+# resolve mariadb-drill (that was the drill hang).
 name: coasterpedia-web
 services:
 
@@ -14,6 +19,8 @@ services:
     init: true
     security_opt: [ "no-new-privileges:true" ]
     depends_on: [ dr, binlog-streamer ]
+    networks:
+      - web
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -28,6 +35,8 @@ services:
     user: "dr:dr"
     security_opt: [ "no-new-privileges:true" ]
     command: [ "/opt/dr/stream-binlogs.sh" ]
+    networks:
+      - web
     environment:
       DB_HOST: coasterpedia-01
       BINLOG_DIR: /mnt/ssd/binlogs
@@ -48,6 +57,8 @@ services:
     restart: unless-stopped
     init: true
     security_opt: [ "no-new-privileges:true" ]
+    networks:
+      - web
     environment:
       COMPOSE_FILE: /mnt/ssd/repo/docker-compose.dr.yml
       DUMP_DIR: /mnt/ssd/db-backups
@@ -85,7 +96,7 @@ services:
       MARIADB_ROOT_PASSWORD: drill
     networks:
       web:
-        aliases: [ mariadb ]
+        aliases: [ mariadb ]   # so a hostname of `mariadb` also reaches the drill DB
     volumes:
       - ./config/mariadb/drill.cnf:/etc/mysql/conf.d/drill.cnf:ro
       - drill-mariadb:/var/lib/mysql
@@ -96,22 +107,22 @@ services:
     profiles: [ drill ]
     image: redis:alpine
     init: true
-    # LocalSettings.php hardcodes the hostname `redis` for cache + job queue.
     networks:
       web:
-        aliases: [ redis ]
+        aliases: [ redis ]     # LocalSettings.php hardcodes `redis` for cache + job queue
+      # (drill MediaWiki has no REDIS_* override, so it uses that hardcoded name)
 
   mediawiki-drill:
     profiles: [ drill ]
     image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     init: true
     depends_on: [ mariadb-drill, redis-drill ]
+    networks:
+      - web                    # no alias: nothing connects TO it by a fixed name;
+                               # drill.sh reaches it as http://mediawiki-drill
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
-    networks:
-      web:
-        aliases: [ mariadb ]   # LocalSettings expects MYSQL_SERVER=mariadb
     env_file:
       - ${SECRETS_DIR}/r2-readonly.env
     environment:
