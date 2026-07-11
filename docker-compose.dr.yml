@@ -1,13 +1,5 @@
 # Coasterpedia DR
-#
-# Bring up:
-#   docker compose --env-file .env --env-file versions.env -f docker-compose.dr.yml up -d
-# (The drill-profile services stay down; drill.sh brings them up and destroys
-#  them each night.)
-#
-# NETWORK: every service - persistent AND drill - is on `web`, matching the
-# production compose. They MUST share one network or the dr container can't
-# resolve mariadb-drill (that was the drill hang).
+
 name: coasterpedia-web
 services:
 
@@ -19,15 +11,12 @@ services:
     init: true
     security_opt: [ "no-new-privileges:true" ]
     depends_on: [ dr, binlog-streamer ]
-    networks:
-      - web
+    networks: [ web ]
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/ofelia/ofelia.dr.ini:/etc/ofelia/config.ini:ro
 
-  # Continuous binlog capture. NOT an Ofelia job - it's a long-lived process,
-  # so it gets `restart: always` and supervises itself.
   binlog-streamer:
     image: ghcr.io/coasterpedia/coasterpedia-web/dr@${DR_IMAGE}
     restart: always
@@ -35,58 +24,55 @@ services:
     user: "dr:dr"
     security_opt: [ "no-new-privileges:true" ]
     command: [ "/opt/dr/stream-binlogs.sh" ]
-    networks:
-      - web
+    networks: [ web ]
     environment:
       DB_HOST: coasterpedia-01
-      BINLOG_DIR: /mnt/ssd/binlogs
-      DEFAULTS_FILE: /secrets/backup.cnf
+      BINLOG_DIR: ${DATA_DIR}/binlogs
+      DEFAULTS_FILE: ${SECRETS_DIR}/backup.cnf
       STREAM_SERVER_ID: "99"
     volumes:
-      - ${SECRETS_DIR}:/secrets:ro
-      - ${SSD_ROOT}/binlogs:/mnt/ssd/binlogs
+      - ${SECRETS_DIR}:${SECRETS_DIR}:ro
+      - ${DATA_DIR}/binlogs:${DATA_DIR}/binlogs
 
-  # Toolbox + Ofelia exec target. On the DR host only, it gets the docker socket so
-  # drill.sh can orchestrate the drill-profile containers.
-  #
-  # NOTE: the docker socket is root-equivalent on this host. Acceptable on a
-  # dedicated DR box whose whole job is rehearsing recovery; do NOT copy this
-  # mount to the production compose.
+  # Toolbox + Ofelia exec target + drill orchestrator. Docker socket is
+  # root-equivalent; Pi-only, never on production.
   dr:
     image: ghcr.io/coasterpedia/coasterpedia-web/dr@${DR_IMAGE}
     restart: unless-stopped
     init: true
     security_opt: [ "no-new-privileges:true" ]
-    networks:
-      - web
+    networks: [ web ]
     environment:
-      COMPOSE_FILE: /mnt/ssd/repo/docker-compose.dr.yml
-      DUMP_DIR: /mnt/ssd/db-backups
-      BINLOG_DIR: /mnt/ssd/binlogs
-      AGE_KEY_FILE: /secrets/age-backup.key
-      STATE_FILE: /mnt/ssd/state/drill-last.env
-      RCLONE_CONFIG: /secrets/rclone.conf
+      COMPOSE_FILE: ${REPO_DIR}/docker-compose.dr.yml
+      DUMP_DIR: ${DATA_DIR}/db-backups
+      BINLOG_DIR: ${DATA_DIR}/binlogs
+      AGE_KEY_FILE: ${SECRETS_DIR}/age-backup.key
+      STATE_FILE: ${DATA_DIR}/state/drill-last.env
+      RCLONE_CONFIG: ${SECRETS_DIR}/rclone.conf
+      DEFAULTS_FILE: ${SECRETS_DIR}/backup.cnf
       R2_REMOTE: ${R2_REMOTE}
       R2_IMAGES_REMOTE: ${R2_IMAGES_REMOTE}
-      LOCAL_DIR: /mnt/ssd/db-backups
-      LOCAL_IMAGE_DIR: /mnt/ssd/images
+      LOCAL_DIR: ${DATA_DIR}/db-backups
+      LOCAL_IMAGE_DIR: ${DATA_DIR}/images
       DRILL_MYSQL_ROOT_PASSWORD: drill
       HC_DRILL_URL: ${HC_DRILL_URL}
       HC_MIRROR_URL: ${HC_MIRROR_URL}
       HC_IMAGES_URL: ${HC_IMAGES_URL}
       HC_STALENESS_URL: ${HC_STALENESS_URL}
     volumes:
-      - ${SECRETS_DIR}:/secrets:ro
-      - ${SSD_ROOT}/db-backups:/mnt/ssd/db-backups
-      - ${SSD_ROOT}/binlogs:/mnt/ssd/binlogs:ro
-      - ${SSD_ROOT}/images:/mnt/ssd/images
-      - ${SSD_ROOT}/state:/mnt/ssd/state
-      - .:/mnt/ssd/repo:ro
+      # Same path inside and out, so the daemon and the in-container compose agree.
+      - ${SECRETS_DIR}:${SECRETS_DIR}:ro
+      - ${DATA_DIR}:${DATA_DIR}
+      - ${REPO_DIR}:${REPO_DIR}:ro
       - /var/run/docker.sock:/var/run/docker.sock
     group_add:
       - "986"
 
   # ---- ephemeral: drill only -------------------------------------------------
+  # Created by `docker compose` running INSIDE dr. Their ./config mounts resolve
+  # to ${REPO_DIR}/config/... on the host (valid: dr's cwd is ${REPO_DIR}, which
+  # is mounted at the same path), and env_file resolves inside dr at
+  # ${SECRETS_DIR}/... (also valid, same-path).
 
   mariadb-drill:
     profiles: [ drill ]
@@ -96,7 +82,7 @@ services:
       MARIADB_ROOT_PASSWORD: drill
     networks:
       web:
-        aliases: [ mariadb ]   # so a hostname of `mariadb` also reaches the drill DB
+        aliases: [ mariadb ]
     volumes:
       - ./config/mariadb/drill.cnf:/etc/mysql/conf.d/drill.cnf:ro
       - drill-mariadb:/var/lib/mysql
@@ -109,24 +95,20 @@ services:
     init: true
     networks:
       web:
-        aliases: [ redis ]     # LocalSettings.php hardcodes `redis` for cache + job queue
-      # (drill MediaWiki has no REDIS_* override, so it uses that hardcoded name)
+        aliases: [ redis ]
 
   mediawiki-drill:
     profiles: [ drill ]
     image: ghcr.io/coasterpedia/coasterpedia-web/mediawiki@${MEDIAWIKI_IMAGE}
     init: true
     depends_on: [ mariadb-drill, redis-drill ]
-    networks:
-      - web                    # no alias: nothing connects TO it by a fixed name;
-                               # drill.sh reaches it as http://mediawiki-drill
+    networks: [ web ]
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
     env_file:
       - ${SECRETS_DIR}/r2-readonly.env
     environment:
-      # --- structural guarantee: nothing can write, whatever else we forgot ---
       MW_READ_ONLY: "Disaster recovery drill - read only"
       MW_SERVER: "http://mediawiki-drill"
       MW_DISABLE_SEARCH: "1"
@@ -140,7 +122,6 @@ services:
       CARGO_MYSQL_USER: root
       CARGO_MYSQL_PASSWORD: drill
 
-      # --- deliberately invalid: a missed override must fail LOUDLY, not act ---
       SMTP_HOST: "smtp.invalid"
       SMTP_USER: "drill"
       SMTP_PASSWORD: "drill"
