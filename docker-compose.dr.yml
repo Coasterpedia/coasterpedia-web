@@ -83,7 +83,8 @@ services:
     init: true
     environment:
       MARIADB_ROOT_PASSWORD: drill
-    web:
+    networks:
+      web:
         aliases: [ mariadb ]
     volumes:
       - ./config/mariadb/drill.cnf:/etc/mysql/conf.d/drill.cnf:ro
