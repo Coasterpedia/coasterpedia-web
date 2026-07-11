@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-: "${COMPOSE_FILE:?set COMPOSE_FILE}"       # path to docker-compose.pi.yml (mounted)
+: "${COMPOSE_FILE:?set COMPOSE_FILE}"       # path to docker-compose.dr.yml (mounted)
 : "${DUMP_DIR:?set DUMP_DIR}"               # mirrored encrypted dumps
 : "${BINLOG_DIR:?set BINLOG_DIR}"           # streamed raw binlogs
 : "${AGE_KEY_FILE:?set AGE_KEY_FILE}"       # age PRIVATE key (Pi only)
@@ -34,15 +34,24 @@ STATE_FILE="${STATE_FILE:-/state/drill-last.env}"
 HEARTBEAT_MAX_LAG="${HEARTBEAT_MAX_LAG:-1200}"   # 20 min
 ROOT_PW="${DRILL_MYSQL_ROOT_PASSWORD:-drill}"
 
-COMPOSE=(docker compose --env-file .env --env-file versions.env -f "$COMPOSE_FILE" --profile drill)
+PROJECT="${COMPOSE_PROJECT:-coasterpedia-web}"
+
+COMPOSE=(docker compose -p "$PROJECT" --env-file .env --env-file versions.env -f "$COMPOSE_FILE" --profile drill)
 MYSQL=(mariadb -h "$DRILL_DB_HOST" -u root -p"$ROOT_PW" -N -B)
 
 cd /mnt/ssd/repo
-log()  { echo "[drill $(date -u +%H:%M:%S)] $*"; }
+
+log() { echo "[drill $(date -u +%H:%M:%S)] $*"; }
+
+teardown() {
+  "${COMPOSE[@]}" rm -fsv mariadb-drill redis-drill mediawiki-drill >/dev/null 2>&1 || true
+  docker volume rm -f "${PROJECT}_drill-mariadb" >/dev/null 2>&1 || true
+}
+
 fail() {
   log "FAILED: $1"
   curl -fsS -m 10 --retry 3 "${HC_URL}/fail" -d "$1" >/dev/null 2>&1 || true
-  "${COMPOSE[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
+  teardown
   exit 1
 }
 trap 'fail "unexpected error on line $LINENO"' ERR
@@ -53,7 +62,7 @@ curl -fsS -m 10 --retry 3 "${HC_URL}/start" >/dev/null 2>&1 || true
 # 1. Wipe. From scratch, every time - a drill that reuses state proves nothing.
 # ---------------------------------------------------------------------------
 log "Tearing down any previous drill and removing its volumes"
-"${COMPOSE[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
+teardown
 
 # ---------------------------------------------------------------------------
 # 2. Locate the newest encrypted base dump and extract its binlog coordinate.
@@ -185,7 +194,7 @@ LAST_RUN=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
 
 trap - ERR
-"${COMPOSE[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
+teardown
 
 curl -fsS -m 10 --retry 3 "${HC_URL}" \
   -d "pages=${PAGES} revisions=${REVISIONS} heartbeat_lag=${LAG}s" >/dev/null 2>&1 || true
