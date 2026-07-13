@@ -5,11 +5,14 @@ sync_binlog                    = 0
 skip_log_bin
 
 # 4GB Pi, shared with MediaWiki + Redis during the render phase. Leave room.
-innodb_buffer_pool_size        = 768M
+innodb_buffer_pool_size        = 512M
 innodb_log_file_size           = 256M
 
 # Big single-statement INSERTs come out of mariadb-dump.
-max_allowed_packet             = 256M
+max_allowed_packet = 1G
+wait_timeout       = 28800
+net_read_timeout   = 3600
+net_write_timeout  = 3600
 
 # The drill's own container filesystem, not the SSD-backed datadir.
 tmpdir                         = /tmp

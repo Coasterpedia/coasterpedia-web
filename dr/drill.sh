@@ -50,8 +50,8 @@ teardown() {
 
 fail() {
   log "FAILED: $1"
+  docker logs --tail 100 coasterpedia-web-mariadb-drill-1 > /home/ubuntu/coasterpedia/state/last-fail.log 2>&1 || true
   curl -fsS -m 10 --retry 3 "${HC_URL}/fail" -d "$1" >/dev/null 2>&1 || true
-  teardown
   exit 1
 }
 trap 'fail "unexpected error on line $LINENO"' ERR
@@ -98,13 +98,41 @@ done
 # 4. Restore the base dump.
 # ---------------------------------------------------------------------------
 log "Restoring base dump (this is the slow part; ~2.4GB)"
-{
-  echo "SET SESSION unique_checks=0;"
-  echo "SET SESSION foreign_key_checks=0;"
-  echo "SET SESSION sql_log_bin=0;"
-  age -d -i "$AGE_KEY_FILE" "$LATEST" | gunzip
-} | mariadb -h "$DRILL_DB_HOST" -u root -p"$ROOT_PW" \
-  || fail "base dump failed to restore"
+
+# The restore, as a reusable function so we can call it more than once.
+restore_dump() {
+  {
+    echo "SET SESSION unique_checks=0;"
+    echo "SET SESSION foreign_key_checks=0;"
+    echo "SET SESSION sql_log_bin=0;"
+    age -d -i "$AGE_KEY_FILE" "$LATEST" | gunzip
+  } | mariadb -h "$DRILL_DB_HOST" -u root -p"$ROOT_PW" --max-allowed-packet=1G
+}
+
+# Try up to twice. A transient stall drops the connection mid-restore and one
+# retry rides over it; a real problem (bad dump, dead disk) fails both times and
+# alerts. Re-running is safe: the dump drops and recreates every table it holds.
+restore_ok=false
+for attempt in 1 2; do
+  log "Restore attempt ${attempt} of 2"
+  if restore_dump; then
+    restore_ok=true
+    break
+  fi
+  log "Restore attempt ${attempt} failed"
+  if [ "$attempt" -lt 2 ]; then
+    # Only retry if the DB is actually still alive - retrying against a dead
+    # server is pointless, so wait for it to answer first.
+    log "Checking drill MariaDB is still responsive before retrying..."
+    for i in $(seq 1 30); do
+      "${MYSQL[@]}" -e 'SELECT 1' >/dev/null 2>&1 && break
+      [ "$i" -eq 30 ] && fail "drill MariaDB stopped responding - not retrying"
+      sleep 5
+    done
+  fi
+done
+
+[ "$restore_ok" = "true" ] || fail "base dump failed to restore after 2 attempts"
 
 # ---------------------------------------------------------------------------
 # 5. Replay binlogs from the dump's coordinate to head.
