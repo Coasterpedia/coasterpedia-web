@@ -242,14 +242,15 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: Coasterpedia/coasterpedia-web/opensearch
+      IMAGE_NAME: coasterpedia/coasterpedia-web/opensearch
+      TAG: v1.3.20-12
 
     outputs:
       digest: ${{steps.build-and-push.outputs.digest}}
 
     steps:
       - name: Checkout repository
-        run: git clone https://gitlab.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image.git -b v1.3.20-12 && cd cirrussearch-opensearch-image
+        run: git clone https://gitlab.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image.git -b ${{ env.TAG }} && cd cirrussearch-opensearch-image
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -278,7 +279,7 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        run: DOCKER_BUILDKIT=1 docker build --target production --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.3.20-12 -f .pipeline/blubber.yaml . && docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.3.20-12
+        run: DOCKER_BUILDKIT=1 docker build --target production --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} -f .pipeline/blubber.yaml . && docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
   deploy:
     runs-on: ubuntu-latest
