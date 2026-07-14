@@ -249,7 +249,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        run: git clone git@gitlab.wikimedia.org:repos/search-platform/cirrussearch-opensearch-image.git -b v1.3.20-12 && cd cirrussearch-opensearch-image
+        run: git clone https://gitlab.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image.git -b v1.3.20-12 && cd cirrussearch-opensearch-image
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
