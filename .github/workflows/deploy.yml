@@ -278,7 +278,7 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        run: DOCKER_BUILDKIT=1 docker build --target production --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.labels }}  -f .pipeline/blubber.yaml . && docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.labels }}
+        run: DOCKER_BUILDKIT=1 docker build --target production --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.3.20-12 -f .pipeline/blubber.yaml . && docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.3.20-12
 
   deploy:
     runs-on: ubuntu-latest
@@ -302,7 +302,7 @@ jobs:
           JOBRUNNER_IMAGE=${{needs.jobrunner_build.outputs.digest}}
           MATOMO_IMAGE=${{needs.matomo_build.outputs.digest}}
           DR_IMAGE=${{needs.dr_build.outputs.digest}}
-          OPENSEARCH_IMAGE=${{needs.opensearch_build.outputs.digest}}
+          OPENSEARCH_IMAGE=v1.3.20-12
           EOF
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -344,7 +344,7 @@ jobs:
             export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
             export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
             export DR_IMAGE="${{needs.dr_build.outputs.digest}}" &&
-            export OPENSEARCH_IMAGE="${{needs.opensearch_build.outputs.digest}}" &&
+            export OPENSEARCH_IMAGE="v1.3.20-12" &&
             export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
             export CARGO_MYSQL_PASSWORD="${{secrets.CARGO_MYSQL_PASSWORD}}" &&
             export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
