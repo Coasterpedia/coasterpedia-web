@@ -31,6 +31,7 @@ services:
     depends_on:
       - mariadb
       - redis
+      - opensearch
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf
@@ -60,8 +61,6 @@ services:
       CLOUDFLARE_APITOKEN: ${CLOUDFLARE_APITOKEN}
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
   redis:
     image: redis:alpine
     restart: unless-stopped
@@ -75,7 +74,7 @@ services:
       - redis:/data
       - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
   opensearch:
-    image: opensearchproject/opensearch:1.3.20
+    image: docker-registry.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image:v1.3.20-12
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
