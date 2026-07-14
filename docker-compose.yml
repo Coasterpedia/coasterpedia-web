@@ -74,7 +74,7 @@ services:
       - redis:/data
       - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
   opensearch:
-    image: docker-registry.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image:v1.3.20-12
+    image: ghcr.io/coasterpedia/coasterpedia-web/opensearch@${OPENSEARCH_IMAGE}
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
