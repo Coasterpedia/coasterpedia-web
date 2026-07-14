@@ -285,6 +285,7 @@ jobs:
           context: ./cirrussearch-opensearch-image
           file: ./cirrussearch-opensearch-image/.pipeline/blubber.yaml
           target: production
+          network: host
           platforms: linux/amd64  # Forces Buildx to emulate the target architecture correctly
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
