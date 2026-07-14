@@ -266,65 +266,65 @@ jobs:
             git pull --rebase origin develop
             git push origin HEAD:develop
           fi
-      # - name: Install SSH key
-      #   uses: shimataro/ssh-key-action@v2
-      #   with:
-      #     key: ${{ secrets.DOCKER_SSH_2_PRIVATE_KEY }}
-      #     known_hosts: ${{ secrets.DOCKER_SSH_2_KNOWN_HOSTS }}
-      # - name: Write secret files
-      #   env:
-      #     RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
-      #     BACKUP_CNF: ${{ secrets.BACKUP_CNF }}
-      #   run: |
-      #     mkdir -p secret_files
-      #     printf '%s' "$RCLONE_CONF" > secret_files/rclone.conf
-      #     printf '%s' "$BACKUP_CNF" > secret_files/backup.cnf
-      #     chmod 600 secret_files/*
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DOCKER_SSH_2_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.DOCKER_SSH_2_KNOWN_HOSTS }}
+      - name: Write secret files
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+          BACKUP_CNF: ${{ secrets.BACKUP_CNF }}
+        run: |
+          mkdir -p secret_files
+          printf '%s' "$RCLONE_CONF" > secret_files/rclone.conf
+          printf '%s' "$BACKUP_CNF" > secret_files/backup.cnf
+          chmod 600 secret_files/*
 
-      # - name: Ensure remote secrets dir exists
-      #   run: ssh ${{ secrets.DOCKER_HOST_2 }} 'mkdir -p coasterpedia-secrets'
+      - name: Ensure remote secrets dir exists
+        run: ssh ${{ secrets.DOCKER_HOST_2 }} 'mkdir -p coasterpedia-secrets'
 
-      # - name: Copy secret files to server
-      #   run: |
-      #     scp -p secret_files/rclone.conf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia-secrets/rclone.conf
-      #     scp -p secret_files/backup.cnf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia-secrets/backup.cnf
-      #     ssh ${{ secrets.DOCKER_HOST_2 }} 'setfacl -m u:1000:rw coasterpedia-secrets/*'
-      #     rm -rf secret_files
+      - name: Copy secret files to server
+        run: |
+          scp -p secret_files/rclone.conf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia-secrets/rclone.conf
+          scp -p secret_files/backup.cnf ${{ secrets.DOCKER_HOST_2 }}:coasterpedia-secrets/backup.cnf
+          ssh ${{ secrets.DOCKER_HOST_2 }} 'setfacl -m u:1000:rw coasterpedia-secrets/*'
+          rm -rf secret_files
 
-      # - name: Deploy to server
-      #   run: >
-      #     ssh ${{ secrets.DOCKER_HOST_2 }} '
-      #       export MEDIAWIKI_IMAGE="${{needs.mediawiki_build.outputs.digest}}" &&
-      #       export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
-      #       export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
-      #       export DR_IMAGE="${{needs.dr_build.outputs.digest}}" &&
-      #       export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
-      #       export CARGO_MYSQL_PASSWORD="${{secrets.CARGO_MYSQL_PASSWORD}}" &&
-      #       export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
-      #       export SMTP_USER="${{secrets.SMTP_USER}}" &&
-      #       export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
-      #       export R2_ACCESS_KEY="${{secrets.R2_ACCESS_KEY}}" &&
-      #       export R2_ACCESS_SECRET="${{secrets.R2_ACCESS_SECRET}}" &&
-      #       export R2_BUCKET_NAME="${{secrets.R2_BUCKET_NAME}}" &&
-      #       export R2_ENDPOINT="${{secrets.R2_ENDPOINT}}" &&
-      #       export OAUTH_PRIVATE="${{secrets.OAUTH_PRIVATE}}" &&
-      #       export OAUTH_PUBLIC="${{secrets.OAUTH_PUBLIC}}" &&
-      #       export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
-      #       export MATOMO_API_KEY="${{secrets.MATOMO_API_KEY}}" &&
-      #       export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
-      #       export ES_IP="${{secrets.ES_IP}}" &&
-      #       export CLOUDFLARE_ZONEID="${{secrets.CLOUDFLARE_ZONEID}}" &&
-      #       export CLOUDFLARE_APITOKEN="${{secrets.CLOUDFLARE_APITOKEN}}" &&
-      #       export TURNSTILE_SECRET="${{secrets.TURNSTILE_SECRET}}" &&
-      #       export AGE_RECIPIENT="${{secrets.AGE_RECIPIENT}}" &&
-      #       export R2_REMOTE="${{secrets.BACKUP_R2_REMOTE}}" &&
-      #       export HC_BASE_BACKUP_URL="${{secrets.HC_BASE_BACKUP_URL}}" &&
-      #       export MARIADB_ROOT_PASSWORD="${{secrets.MARIADB_ROOT_PASSWORD}}" &&
-      #       export COASTERPEDIA_TOOLS_MYSQL_PASSWORD="${{secrets.COASTERPEDIA_TOOLS_MYSQL_PASSWORD}}" &&
-      #       export BACKUP_MYSQL_PASSWORD="${{secrets.BACKUP_MYSQL_PASSWORD}}" &&
-      #       if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
-      #       docker compose pull &&
-      #       docker compose up -d -V &&
-      #       docker system prune -f &&
-      #       docker volume prune -f
-      #     '
+      - name: Deploy to server
+        run: >
+          ssh ${{ secrets.DOCKER_HOST_2 }} '
+            export MEDIAWIKI_IMAGE="${{needs.mediawiki_build.outputs.digest}}" &&
+            export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
+            export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
+            export DR_IMAGE="${{needs.dr_build.outputs.digest}}" &&
+            export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
+            export CARGO_MYSQL_PASSWORD="${{secrets.CARGO_MYSQL_PASSWORD}}" &&
+            export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
+            export SMTP_USER="${{secrets.SMTP_USER}}" &&
+            export SMTP_PASSWORD="${{secrets.SMTP_PASSWORD}}" &&
+            export R2_ACCESS_KEY="${{secrets.R2_ACCESS_KEY}}" &&
+            export R2_ACCESS_SECRET="${{secrets.R2_ACCESS_SECRET}}" &&
+            export R2_BUCKET_NAME="${{secrets.R2_BUCKET_NAME}}" &&
+            export R2_ENDPOINT="${{secrets.R2_ENDPOINT}}" &&
+            export OAUTH_PRIVATE="${{secrets.OAUTH_PRIVATE}}" &&
+            export OAUTH_PUBLIC="${{secrets.OAUTH_PUBLIC}}" &&
+            export MATOMO_DATABASE_PASSWORD="${{secrets.MATOMO_DATABASE_PASSWORD}}" &&
+            export MATOMO_API_KEY="${{secrets.MATOMO_API_KEY}}" &&
+            export SECRET_KEY="${{secrets.SECRET_KEY}}" &&
+            export ES_IP="${{secrets.ES_IP}}" &&
+            export CLOUDFLARE_ZONEID="${{secrets.CLOUDFLARE_ZONEID}}" &&
+            export CLOUDFLARE_APITOKEN="${{secrets.CLOUDFLARE_APITOKEN}}" &&
+            export TURNSTILE_SECRET="${{secrets.TURNSTILE_SECRET}}" &&
+            export AGE_RECIPIENT="${{secrets.AGE_RECIPIENT}}" &&
+            export R2_REMOTE="${{secrets.BACKUP_R2_REMOTE}}" &&
+            export HC_BASE_BACKUP_URL="${{secrets.HC_BASE_BACKUP_URL}}" &&
+            export MARIADB_ROOT_PASSWORD="${{secrets.MARIADB_ROOT_PASSWORD}}" &&
+            export COASTERPEDIA_TOOLS_MYSQL_PASSWORD="${{secrets.COASTERPEDIA_TOOLS_MYSQL_PASSWORD}}" &&
+            export BACKUP_MYSQL_PASSWORD="${{secrets.BACKUP_MYSQL_PASSWORD}}" &&
+            if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
+            docker compose pull &&
+            docker compose up -d -V &&
+            docker system prune -f &&
+            docker volume prune -f
+          '
