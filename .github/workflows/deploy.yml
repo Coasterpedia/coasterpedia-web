@@ -278,16 +278,7 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ github.ref_name }}-opensearch
-          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-opensearch
-          platforms: linux/arm64
+        run: DOCKER_BUILDKIT=1 docker build --target production --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}  -f .pipeline/blubber.yaml . && docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}
 
   deploy:
     runs-on: ubuntu-latest
