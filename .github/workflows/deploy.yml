@@ -295,7 +295,7 @@ jobs:
           file: ./cirrussearch-opensearch-image/.pipeline/blubber.yaml
           target: production
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-opensearch
           cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-opensearch
@@ -323,7 +323,7 @@ jobs:
           JOBRUNNER_IMAGE=${{needs.jobrunner_build.outputs.digest}}
           MATOMO_IMAGE=${{needs.matomo_build.outputs.digest}}
           DR_IMAGE=${{needs.dr_build.outputs.digest}}
-          OPENSEARCH_IMAGE=v1.3.20-12
+          OPENSEARCH_IMAGE=${{needs.opensearch_build.outputs.digest}}
           EOF
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -365,7 +365,7 @@ jobs:
             export MATOMO_IMAGE="${{needs.matomo_build.outputs.digest}}" &&
             export JOBRUNNER_IMAGE="${{needs.jobrunner_build.outputs.digest}}" &&
             export DR_IMAGE="${{needs.dr_build.outputs.digest}}" &&
-            export OPENSEARCH_IMAGE="v1.3.20-12" &&
+            export OPENSEARCH_IMAGE="${{needs.opensearch_build.outputs.digest}}" &&
             export MYSQL_PASSWORD="${{secrets.MYSQL_PASSWORD}}" &&
             export CARGO_MYSQL_PASSWORD="${{secrets.CARGO_MYSQL_PASSWORD}}" &&
             export SMTP_HOST="${{secrets.SMTP_HOST}}" &&
