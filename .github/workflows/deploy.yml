@@ -281,7 +281,7 @@ jobs:
         run: |
           cd cirrussearch-opensearch-image
           if [ -f .pipeline/blubber.yaml ]; then
-            sed -i 's|docker-registry.wikimedia.org/bookworm:20241006|debian:bookworm-20241006|g' .pipeline/blubber.yaml
+            sed -i 's|docker-registry.wikimedia.org/bookworm:20241006|debian:bookworm|g' .pipeline/blubber.yaml
           fi
 
 
@@ -294,7 +294,6 @@ jobs:
           context: ./cirrussearch-opensearch-image
           file: ./cirrussearch-opensearch-image/.pipeline/blubber.yaml
           target: production
-          network: host
           platforms: linux/amd64  # Forces Buildx to emulate the target architecture correctly
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
