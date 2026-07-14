@@ -75,7 +75,7 @@ services:
       - redis:/data
       - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
   opensearch:
-    image: opensearchproject/opensearch:1.3
+    image: opensearchproject/opensearch:1.3.20
     environment:
       - discovery.seed_hosts=single-node
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
