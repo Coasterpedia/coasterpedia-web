@@ -5,9 +5,22 @@
         "include": [
           "*"
         ],
+        "exclude": [
+          "replaceText",
+          "refreshLinks"
+        ],
         "low-priority": [
           "cirrusSearchLinksUpdate",
-          "htmlCacheUpdate",
+          "htmlCacheUpdate"
+        ]
+      },
+      "cargoWrites": {
+        "runners": 1,
+        "include": [
+          "replaceText",
+          "refreshLinks"
+        ],
+        "low-priority": [
           "refreshLinks"
         ]
       }
