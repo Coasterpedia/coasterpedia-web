@@ -69,7 +69,7 @@ mw.FlickrChecker.licenseMaps = {
 	'Attribution License': '{{cc-by-2.0}}{{flickrreview}}',
 	'Attribution-NoDerivs License': '{{cc-by-nd-2.0}}{{flickrreview}}',
 	'Attribution-NonCommercial-NoDerivs License': '{{cc-by-nc-nd-2.0}}{{flickrreview}}',
-	'Attribution-NonCommercial License': '{{cc-by-nc-nd-2.0}}{{flickrreview}}',
+	'Attribution-NonCommercial License': '{{cc-by-nc-2.0}}{{flickrreview}}',
 	'Attribution-NonCommercial-ShareAlike License': '{{cc-by-nc-sa-2.0}}{{flickrreview}}',
 	'Attribution-ShareAlike License': '{{cc-by-sa-2.0}}{{flickrreview}}'
 };
