@@ -526,6 +526,7 @@ $wgGroupPermissions['user']['oathauth-enable'] = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['runcargoqueries'] = false;
 $wgGroupPermissions['sysop']['runcargoqueries'] = true;
+$wgGroupPermissions['bot']['runcargoqueries'] = true;
 $wgGroupPermissions['bot']['replacetext'] = true;
 $wgEnableEditRecovery = true;
 $wgFixDoubleRedirects = true;
