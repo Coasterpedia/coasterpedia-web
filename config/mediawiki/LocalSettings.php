@@ -486,7 +486,7 @@ $wgAPIModules['createaccount'] = 'ApiDisabled';
 
 # EventBus
 $wgEventServices = [
-    'eventgate-main'  => ['url' => 'http://coasterpedia-legacy:8080/events']
+    'eventgate-main'  => ['url' => 'http://coasterpedia-services:8080/events']
 ];
 $wgEnableEventBus = "TYPE_EVENT";
 $wgEventStreams = [
