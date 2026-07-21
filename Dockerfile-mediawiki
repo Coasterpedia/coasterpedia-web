@@ -66,7 +66,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.14.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
-RUN git clone --depth 1 -b 3.9.2 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
+RUN git clone --depth 1 -b 3.9.3 "https://github.com/wikimedia/mediawiki-extensions-Cargo.git" extensions/Cargo
 RUN git clone --depth 1 -b 1.2.1 "https://github.com/chariz/mediawiki-extensions-Details.git" extensions/Details
 RUN git clone --depth 1 -b 4.0.6 "https://github.com/Universal-Omega/DynamicPageList4.git" extensions/DynamicPageList4
 RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
@@ -74,12 +74,18 @@ RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-Plausible.git" extensions/Plausible
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
-RUN git clone --depth 1 -b v4.0.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
+RUN git clone --depth 1 -b v4.0.1 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v2.2.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 RUN git clone --depth 1 -b v2.0.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
+# Hotfix: teach Thumbro's libvips-scaled handlers to answer action=imagerotate.
+# Upstream v2.0.1 leaves rotate() to core BitmapHandler, which has no libvips
+# branch, so imagerotate fails with "libvips rotation not implemented". Drop when
+# a fixed Thumbro release lands. See includes/Thumbro/imagerotate-libvips.patch.
+COPY ./includes/Thumbro/imagerotate-libvips.patch /tmp/imagerotate-libvips.patch
+RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.17.1 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.18.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose

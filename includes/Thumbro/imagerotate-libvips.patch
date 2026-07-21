@@ -1,0 +1,149 @@
+diff --git a/includes/MediaHandlers/ThumbroHandlerTrait.php b/includes/MediaHandlers/ThumbroHandlerTrait.php
+index fdd997b..88564fc 100644
+--- a/includes/MediaHandlers/ThumbroHandlerTrait.php
++++ b/includes/MediaHandlers/ThumbroHandlerTrait.php
+@@ -3,7 +3,10 @@ declare( strict_types=1 );
+ 
+ namespace MediaWiki\Extension\Thumbro\MediaHandlers;
+ 
++use MediaTransformError;
+ use MediaWiki\Extension\Thumbro\ThumbroThumbnailImage;
++use MediaWiki\MediaWikiServices;
++use MediaWiki\Shell\Shell;
+ use TransformParameterError;
+ 
+ /**
+@@ -35,6 +38,94 @@ trait ThumbroHandlerTrait {
+ 		return true;
+ 	}
+ 
++	/**
++	 * Rotate the source file with libvips, for action=imagerotate.
++	 *
++	 * Core BitmapHandler::rotate() implements only the ImageMagick scalers ('im',
++	 * 'imext'). getScalerType() here returns 'libvips', so without this override
++	 * rotation falls through to core's default branch and returns
++	 * "libvips rotation not implemented" — action=imagerotate then fails for every
++	 * Thumbro-handled format (PNG, GIF, WebP always; JPEG whenever $wgJpegTran is
++	 * unset). This supplies the missing branch by shelling out to `vips rot`, the
++	 * sibling of the vipsthumbnail binary Thumbro already depends on.
++	 *
++	 * ThumbroJpegHandler overrides rotate() to prefer lossless jpegtran when it is
++	 * configured, delegating here only as its fallback; PNG/GIF/WebP use this
++	 * directly. Contract mirrors TransformationalImageHandler::rotate(): false on
++	 * success, a MediaTransformError on failure.
++	 *
++	 * @param \File $file
++	 * @param array $params rotation (clockwise degrees), srcPath, dstPath
++	 * @return \MediaTransformError|false
++	 */
++	public function rotate( $file, $params ) {
++		return $this->thumbroVipsRotate( $file, $params );
++	}
++
++	/**
++	 * The shared `vips rot` implementation behind rotate().
++	 *
++	 * Angle handling mirrors core's imext branch exactly: core folds the requested
++	 * clockwise rotation together with any EXIF auto-rotation (getRotation()), then
++	 * the ImageMagick scalers apply the complement, 360 - angle. libvips's
++	 * VIPS_ANGLE_D* constants are also clockwise, so passing d(360 - angle) turns
++	 * the image the same direction the 'im'/'imext' scalers would — keeping "rotate
++	 * right" meaning right across scalers.
++	 *
++	 * EXIF caveat, at parity with core's other scalers: `vips rot` rewrites pixels
++	 * but does not clear a file's EXIF Orientation tag, exactly as ImageMagick
++	 * -rotate does not. For the overwhelmingly common no-orientation file this is a
++	 * non-issue; jpegtran (the preferred JPEG path) handles orientation properly.
++	 *
++	 * @param \File $file
++	 * @param array $params
++	 * @return \MediaTransformError|false
++	 */
++	protected function thumbroVipsRotate( $file, $params ) {
++		if ( Shell::isDisabled() ) {
++			return new MediaTransformError( 'thumbnail_error', 0, 0,
++				'Shell access is disabled; cannot rotate.' );
++		}
++
++		// @phan-suppress-next-line PhanUndeclaredMethod getRotation provided by @require-extends parent
++		$rotation = ( $params['rotation'] + $this->getRotation( $file ) ) % 360;
++		$angle = ( 360 - $rotation ) % 360;
++
++		// A net 0° rotation is a no-op — vips_rot only turns in right angles, so just
++		// hand core the source unchanged at the destination path it expects.
++		if ( $angle === 0 ) {
++			if ( !copy( $params['srcPath'], $params['dstPath'] ) ) {
++				return new MediaTransformError( 'thumbnail_error', 0, 0,
++					'Unable to copy image for a zero-degree rotation.' );
++			}
++			return false;
++		}
++
++		$libraries = MediaWikiServices::getInstance()->getConfigFactory()
++			->makeConfig( 'thumbro' )->get( 'ThumbroLibraries' );
++		$vipsthumbnail = $libraries['libvips']['vipsthumbnail'] ?? '';
++		// `vips` ships alongside `vipsthumbnail`; find it as a sibling so a renamed or
++		// wrapped binary is still located, mirroring VipsHeaderOrientationDetector.
++		$vips = $vipsthumbnail !== '' ? dirname( $vipsthumbnail ) . '/vips' : 'vips';
++		if ( $vipsthumbnail !== '' && !is_executable( $vips ) ) {
++			return new MediaTransformError( 'thumbnail_error', 0, 0,
++				"vips binary not found next to $vipsthumbnail" );
++		}
++
++		$result = Shell::command(
++			[ $vips, 'rot', $params['srcPath'], $params['dstPath'], 'd' . $angle ]
++		)->includeStderr()->execute();
++
++		if ( $result->getExitCode() !== 0 ) {
++			// @phan-suppress-next-line PhanUndeclaredMethod logErrorForExternalProcess from parent
++			$this->logErrorForExternalProcess(
++				$result->getExitCode(), $result->getStdout(), 'vips rot'
++			);
++			return new MediaTransformError( 'thumbnail_error', 0, 0, $result->getStdout() );
++		}
++		return false;
++	}
++
+ 	/**
+ 	 * @inheritDoc
+ 	 */
+diff --git a/includes/MediaHandlers/ThumbroJpegHandler.php b/includes/MediaHandlers/ThumbroJpegHandler.php
+index fec668b..497ce92 100644
+--- a/includes/MediaHandlers/ThumbroJpegHandler.php
++++ b/includes/MediaHandlers/ThumbroJpegHandler.php
+@@ -4,7 +4,34 @@ declare( strict_types=1 );
+ namespace MediaWiki\Extension\Thumbro\MediaHandlers;
+ 
+ use JpegHandler;
++use MediaWiki\MainConfigNames;
++use MediaWiki\MediaWikiServices;
+ 
+ class ThumbroJpegHandler extends JpegHandler {
+ 	use ThumbroHandlerTrait;
++
++	/**
++	 * Prefer lossless jpegtran when $wgJpegTran is configured, exactly as core's
++	 * JpegHandler::rotate() does, and otherwise rotate with libvips.
++	 *
++	 * Core's JpegHandler::rotate() also falls back when jpegtran is missing — but it
++	 * falls back to BitmapHandler::rotate(), which for Thumbro's 'libvips' scaler is
++	 * the "libvips rotation not implemented" dead end. So we delegate to the parent
++	 * only when jpegtran is genuinely usable, and route every other case through the
++	 * trait's shared vips implementation instead of the broken inherited fallback.
++	 *
++	 * The trait also defines rotate(); this class method overrides it (a class method
++	 * always wins over a trait method of the same name), while thumbroVipsRotate()
++	 * remains available from the trait.
++	 *
++	 * @inheritDoc
++	 */
++	public function rotate( $file, $params ) {
++		$jpegTran = MediaWikiServices::getInstance()->getMainConfig()
++			->get( MainConfigNames::JpegTran );
++		if ( $jpegTran && is_executable( $jpegTran ) ) {
++			return parent::rotate( $file, $params );
++		}
++		return $this->thumbroVipsRotate( $file, $params );
++	}
+ }
