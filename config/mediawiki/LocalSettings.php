@@ -289,7 +289,7 @@ $wgTurnstileSecretKey= getenv( 'TURNSTILE_SECRET' );
 $wgApiFrameOptions = 'SAMEORIGIN';
 $wgAllowCopyUploads = true;
 $wgGroupPermissions['user']['upload_by_url'] = true; // to allow for all registered users
-$wgUploadNavigationUrl = '/wiki/Special:UploadWizard';
+$wgUploadNavigationUrl = '/wiki/Coasterpedia:Image_Wizard';
 
 $wgUploadDialog = [
 	'fields' => [
