@@ -291,6 +291,34 @@ $wgAllowCopyUploads = true;
 $wgGroupPermissions['user']['upload_by_url'] = true; // to allow for all registered users
 $wgUploadNavigationUrl = '/wiki/Coasterpedia:Image_Wizard';
 
+/**
+ * Point Citizen's sidebar upload link at $wgUploadNavigationUrl.
+ *
+ * Citizen builds its own t-upload entry in SkinHooks::addSiteTools() with a
+ * hardcoded Special:UploadWizard target and drops core's toolbox item, so the
+ * setting above has no effect in this skin. SidebarBeforeOutput runs after
+ * SkinBuildSidebar and is not cached, so it also fixes already-cached sidebars.
+ *
+ * @see https://www.mediawiki.org/wiki/Manual:Hooks/SidebarBeforeOutput
+ */
+$wgHooks['SidebarBeforeOutput'][] = function( $skin, &$sidebar ) {
+	global $wgUploadNavigationUrl;
+	if ( !$wgUploadNavigationUrl ) {
+		return;
+	}
+	foreach ( $sidebar as &$section ) {
+		if ( !is_array( $section ) ) {
+			continue;
+		}
+		foreach ( $section as &$item ) {
+			if ( is_array( $item ) && ( $item['id'] ?? '' ) === 't-upload' ) {
+				$item['href'] = $wgUploadNavigationUrl;
+			}
+		}
+	}
+	unset( $section, $item );
+};
+
 $wgUploadDialog = [
 	'fields' => [
 		'description' => true,
