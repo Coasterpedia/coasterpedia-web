@@ -88,7 +88,7 @@ COPY ./includes/Thumbro/imagerotate-libvips.patch /tmp/imagerotate-libvips.patch
 RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.18.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.19.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
