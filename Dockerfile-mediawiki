@@ -93,6 +93,16 @@ RUN git clone --depth 1 -b v3.19.0 "https://github.com/StarCitizenTools/mediawik
 COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
+# Hotfix: MediaHandlerFactory::getHandler() caches handler instances by mimetype,
+# so the $lang of the *first* caller sticks and every later call gets a handler
+# set to the wrong language. Breaks search result snippets and file page rendering.
+# Merged upstream to REL1_46 as I7749f261 (T425988, T425740, T425782, T431182) but
+# not yet in a 1.46.x tarball, so the base image still ships the bug. Drop this once
+# the mediawiki:1.46-fpm-alpine image carries the fix — the build will fail here
+# when it does, because the patch will no longer apply.
+COPY ./includes/core/mediahandlerfactory-language-cache.patch /tmp/mediahandlerfactory-language-cache.patch
+RUN git apply --verbose /tmp/mediahandlerfactory-language-cache.patch
+
 COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
