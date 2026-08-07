@@ -123,6 +123,7 @@ RUN git clone --depth 1 "https://github.com/wikimedia/mediawiki-services-jobrunn
 RUN set -eux; \
    cd mediawiki-services-jobrunner; \
    /usr/bin/composer config --no-plugins allow-plugins.composer/installers true; \
+   /usr/bin/composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]'; \
    /usr/bin/composer install --no-dev \
      --ignore-platform-reqs \
      --no-ansi \
