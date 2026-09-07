@@ -292,31 +292,28 @@ $wgGroupPermissions['user']['upload_by_url'] = true; // to allow for all registe
 $wgUploadNavigationUrl = '/wiki/Coasterpedia:Image_Wizard';
 
 /**
- * Point Citizen's sidebar upload link at $wgUploadNavigationUrl.
+ * Give the Image Wizard the same title-row help link core puts on category and
+ * special pages, pointing at our own help page rather than mediawiki.org.
  *
- * Citizen builds its own t-upload entry in SkinHooks::addSiteTools() with a
- * hardcoded Special:UploadWizard target and drops core's toolbox item, so the
- * setting above has no effect in this skin. SidebarBeforeOutput runs after
- * SkinBuildSidebar and is not cached, so it also fixes already-cached sidebars.
+ * addHelpLink() is the only way to get the mw-helplink indicator: it loads the
+ * mediawiki.helplink module styles the icon needs, which a wikitext <indicator>
+ * cannot do.
  *
- * @see https://www.mediawiki.org/wiki/Manual:Hooks/SidebarBeforeOutput
+ * @see https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
  */
-$wgHooks['SidebarBeforeOutput'][] = function( $skin, &$sidebar ) {
-	global $wgUploadNavigationUrl;
-	if ( !$wgUploadNavigationUrl ) {
+$wgHooks['BeforePageDisplay'][] = function ( $out, $skin ) {
+	$title = $out->getTitle();
+	if ( !$title || !$title->isSameLinkAs(
+		MediaWiki\Title\Title::newFromText( 'Coasterpedia:Image Wizard' )
+	) ) {
 		return;
 	}
-	foreach ( $sidebar as &$section ) {
-		if ( !is_array( $section ) ) {
-			continue;
-		}
-		foreach ( $section as &$item ) {
-			if ( is_array( $item ) && ( $item['id'] ?? '' ) === 't-upload' ) {
-				$item['href'] = $wgUploadNavigationUrl;
-			}
-		}
-	}
-	unset( $section, $item );
+	// Second arg true = use the URL verbatim, instead of treating the first as
+	// a page name on mediawiki.org.
+	$out->addHelpLink(
+		MediaWiki\Title\Title::newFromText( 'Help:Uploading images' )->getLocalURL(),
+		true
+	);
 };
 
 $wgUploadDialog = [
