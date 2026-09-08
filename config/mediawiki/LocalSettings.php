@@ -743,6 +743,15 @@ $wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$li
  * RequestContext has no title — cannot silently bake the lazy variant into the
  * parser cache.
  *
+ * Deliberately NOT fetchpriority="high". That was tried, and it cost 1.3 s of
+ * FCP: the thumbnail is 181 KB, and promoting it moved that download ahead of
+ * the render-blocking stylesheets and the 123 KB Citizen font on a throttled
+ * link. LCP did not improve, because LCP here is gated on render delay
+ * (~970 ms of it) and not on when the image is discovered. Lighthouse's
+ * lcp-discovery audit will keep asking for the hint; it is a diagnostic with no
+ * score weight, and the hint is only worth taking once this image is small
+ * enough that fetching it early does not push first paint back.
+ *
  * @see https://www.mediawiki.org/wiki/Manual:Hooks/OutputPageBeforeHTML
  */
 $wgHooks['OutputPageBeforeHTML'][] = function ( $out, &$text ) {
@@ -770,7 +779,6 @@ $wgHooks['OutputPageBeforeHTML'][] = function ( $out, &$text ) {
 	$length = $end - $start + 1;
 	$tag = substr( $text, $start, $length );
 	$tag = str_replace( ' loading="lazy"', '', $tag );
-	$tag = str_replace( '<img ', '<img fetchpriority="high" ', $tag );
 	$text = substr_replace( $text, $tag, $start, $length );
 
 	return true;
