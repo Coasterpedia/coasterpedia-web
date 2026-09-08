@@ -173,7 +173,7 @@ $wgEnableUploads = true;
 $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 $wgMaxImageArea = "3e7";
-$wgIgnoreImageErrors = true;
+$wgIgnoreImageErrors = false;
 
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
 $wgUseInstantCommons = false;
