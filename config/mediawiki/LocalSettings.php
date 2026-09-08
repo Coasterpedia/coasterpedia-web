@@ -679,13 +679,35 @@ wfLoadExtension( 'Variables' );
 wfLoadExtension( 'VisualEditor' );
 wfLoadExtension( 'WikiEditor' );
 
-$wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$linkAttribs ) {
+/**
+ * Tracks whether the current parse has already claimed its eager image.
+ *
+ * Reset per parse rather than held in a closure static: a static would live for
+ * the whole PHP process, so the long-running jobrunner would hand the hint to
+ * the first page it parsed and to nothing afterwards.
+ *
+ * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserClearState
+ */
+$cpEagerImageSet = false;
+
+$wgHooks['ParserClearState'][] = function ( $parser ) use ( &$cpEagerImageSet ) {
+	$cpEagerImageSet = false;
+	return true;
+};
+
+$wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$linkAttribs ) use ( &$cpEagerImageSet ) {
 	/**
 	 * Eager load the first image on the page
 	 * Currently we don't have a reliable way to set which image,
 	 * so we will just grab the first image with 400px as width,
 	 * since it is used by infoboxes usually.
+	 *
+	 * Genuinely the FIRST such image: fetchpriority=high says nothing if it is
+	 * on every 400px image an article happens to contain.
 	 */
+	if ( $cpEagerImageSet ) {
+		return true;
+	}
 
 	/**
 	 * Check if the image is a LCP image
@@ -697,8 +719,60 @@ $wgHooks['ThumbnailBeforeProduceHTML'][] = function( $thumbnail, &$attribs, &$li
 	if ( $isLCPImage ) {
 		unset( $attribs['loading'] );
 		$attribs['fetchpriority'] = 'high';
-		$sctHasSetImageEager = true;
+		$cpEagerImageSet = true;
 	}
+	return true;
+};
+
+/**
+ * Eager load the main page's featured card image.
+ *
+ * $wgNativeImageLazyLoading marks every image loading="lazy", the featured card
+ * included — and that card is the main page's LCP element. Lighthouse mobile
+ * measured LCP 8.1 s, 361 ms of which was the browser not yet having asked for
+ * the image at all.
+ *
+ * ThumbnailBeforeProduceHTML above cannot reach it. That hook matches infobox
+ * images by a 400px width and by the mw-file-description class, which an anchor
+ * only carries when the image links to its own file page; the featured card is
+ * 500px and its link= points at the attraction. Marking the image in wikitext
+ * does not help either: the class= media option lands on the wrapper <span>,
+ * not on the <img>, so the thumbnail hook never sees it.
+ *
+ * Done here rather than at parse time so that a job-queue reparse — where
+ * RequestContext has no title — cannot silently bake the lazy variant into the
+ * parser cache.
+ *
+ * @see https://www.mediawiki.org/wiki/Manual:Hooks/OutputPageBeforeHTML
+ */
+$wgHooks['OutputPageBeforeHTML'][] = function ( $out, &$text ) {
+	$title = $out->getTitle();
+	if ( !$title || !$title->isMainPage() ) {
+		return true;
+	}
+
+	$card = strpos( $text, 'id="home-featured"' );
+	if ( $card === false ) {
+		return true;
+	}
+	// The card wraps <picture><source ...><img ...>, so the first <img after
+	// the card marker is the one that paints.
+	$start = strpos( $text, '<img ', $card );
+	if ( $start === false ) {
+		return true;
+	}
+	$end = strpos( $text, '>', $start );
+	if ( $end === false ) {
+		return true;
+	}
+
+	// Safe against a > inside an attribute: MediaWiki encodes those as &gt;.
+	$length = $end - $start + 1;
+	$tag = substr( $text, $start, $length );
+	$tag = str_replace( ' loading="lazy"', '', $tag );
+	$tag = str_replace( '<img ', '<img fetchpriority="high" ', $tag );
+	$text = substr_replace( $text, $tag, $start, $length );
+
 	return true;
 };
 
