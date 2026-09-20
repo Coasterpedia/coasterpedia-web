@@ -1,0 +1,38 @@
+name: Run MediaWiki update.php
+
+# Manually-triggered DB schema migration. Extensions that add tables register
+# them via LoadExtensionSchemaUpdates, but nothing in deploy.yml runs update.php
+# -- so on a plain image bump the table never gets created and the extension's
+# special pages throw DBQueryError. Run this after deploying an extension that
+# changes the schema. update.php is idempotent: a no-op when already current.
+#
+# Deliberately not wired into deploy.yml. Schema changes can be slow and take
+# locks, and the deploy path is also the rollback path -- an image revert should
+# not drag a migration along with it.
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DOCKER_SSH_2_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.DOCKER_SSH_2_KNOWN_HOSTS }}
+
+      # docker exec, not docker compose exec: compose would re-parse
+      # docker-compose.yml and interpolate ${MEDIAWIKI_IMAGE} et al, which are
+      # only exported inside deploy.yml's ssh session. The container name is the
+      # same one config/ofelia/ofelia.ini already targets.
+      - name: Run update.php
+        run: >
+          ssh ${{ secrets.DOCKER_HOST_2 }} '
+            docker exec -u www-data coasterpedia-mediawiki-1
+            php /var/www/html/w/maintenance/run.php update --quick
+          '

@@ -192,7 +192,16 @@ $wgLocaltimezone = "UTC";
 ## Set $wgCacheDirectory to a writable directory on the web server
 ## to make your wiki go slightly faster. The directory should not
 ## be publicly accessible from the web.
-#$wgCacheDirectory = "$IP/cache";
+##
+## This also moves the localisation cache off LCStoreDB and onto local CDB
+## files. With no cache directory, $wgLocalisationCacheConf['store'] resolves
+## to 'db', so after every deploy the first concurrent web requests each rebuild
+## the whole l10n cache with DELETE FROM l10n_cache + bulk INSERT. Under
+## MariaDB 11.8 (innodb_snapshot_isolation defaults on) those racing rewrites
+## abort with error 1020 instead of serialising, and LCStoreDB::finishWrite
+## rethrows, so page views 500. Per-container CDB files keep the rebuild out of
+## the database entirely. Deliberately not $IP/cache: nginx serves /w/ as static.
+$wgCacheDirectory = "/tmp/mediawiki-cache";
 
 $wgSecretKey = getenv( 'SECRET_KEY' );
 
@@ -274,10 +283,6 @@ $wgMatomoAnalyticsServerURL = "https://analytics.coasterpedia.net/";
 $wgMatomoAnalyticsTokenAuth = getenv( 'MATOMO_API_KEY' );
 $wgMatomoAnalyticsSiteID = 2;
 $wgMatomoAnalyticsDisableCookie = true;
-
-#### PLAUSIBLE ####
-$wgPlausibleDomain = "https://analytics2.coasterpedia.net";  
-$wgPlausibleDomainKey = "coasterpedia.net"; 
 
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
@@ -655,7 +660,6 @@ wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
-wfLoadExtension( 'Plausible' );
 wfLoadExtension( 'Popups' );
 wfLoadExtension( 'RelatedArticles' );
 wfLoadExtension( 'ReplaceText' );
