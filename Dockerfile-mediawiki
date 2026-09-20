@@ -76,8 +76,9 @@ RUN git clone --depth 1 -b v4.2.0 "https://github.com/StarCitizenWiki/mediawiki-
 RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git" extensions/MatomoAnalytics
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-Plausible.git" extensions/Plausible
+RUN git clone --depth 1 -b main "https://github.com/weirdgloop/mediawiki-extensions-SearchDigest.git" extensions/SearchDigest
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
-RUN git clone --depth 1 -b v4.0.2 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
+RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 RUN git clone --depth 1 -b v2.0.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 # Hotfix: teach Thumbro's libvips-scaled handlers to answer action=imagerotate.

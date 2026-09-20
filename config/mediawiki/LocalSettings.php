@@ -173,7 +173,7 @@ $wgEnableUploads = true;
 $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 $wgMaxImageArea = "3e7";
-$wgIgnoreImageErrors = false;
+$wgIgnoreImageErrors = true;
 
 # InstantCommons allows wiki to use images from https://commons.wikimedia.org
 $wgUseInstantCommons = false;
@@ -662,6 +662,7 @@ wfLoadExtension( 'ReplaceText' );
 wfLoadExtension( 'RevisionSlider' );
 wfLoadExtension( 'SandboxLink' );
 wfLoadExtension( 'Scribunto' );
+wfLoadExtension( 'SearchDigest' );
 wfLoadExtension( 'ShortDescription' );
 wfLoadExtension( 'SpamBlacklist' );
 wfLoadExtension( 'SyntaxHighlight_GeSHi' );
