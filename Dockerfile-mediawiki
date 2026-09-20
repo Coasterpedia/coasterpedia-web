@@ -77,6 +77,14 @@ RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-Plausible.git" extensions/Plausible
 RUN git clone --depth 1 -b main "https://github.com/weirdgloop/mediawiki-extensions-SearchDigest.git" extensions/SearchDigest
+# Hotfix: SearchDigest's schema files hardcode bare table names, so on a wiki with
+# $wgDBprefix the updater creates `searchdigest`/`searchdigest_blocks` while every
+# runtime query asks for `mw_searchdigest`. Rewrite them to the /*_*/ placeholder
+# that Database::sourceFile() expands to the prefix. Drop when upstream fixes it.
+# See includes/SearchDigest/db-table-prefix.patch.
+COPY ./includes/SearchDigest/db-table-prefix.patch /tmp/searchdigest-db-table-prefix.patch
+RUN git -C extensions/SearchDigest apply /tmp/searchdigest-db-table-prefix.patch
+
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender

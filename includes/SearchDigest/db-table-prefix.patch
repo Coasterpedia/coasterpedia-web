@@ -1,0 +1,27 @@
+diff --git a/sql/patch_searchdigest_sd_misses_touched.sql b/sql/patch_searchdigest_sd_misses_touched.sql
+index 7e99cf7..6aee26e 100644
+--- a/sql/patch_searchdigest_sd_misses_touched.sql
++++ b/sql/patch_searchdigest_sd_misses_touched.sql
+@@ -1 +1 @@
+-CREATE INDEX sd_misses_touched ON searchdigest (sd_misses, sd_touched);
++CREATE INDEX /*i*/sd_misses_touched ON /*_*/searchdigest (sd_misses, sd_touched);
+diff --git a/sql/searchdigest.sql b/sql/searchdigest.sql
+index 258841a..2794c69 100644
+--- a/sql/searchdigest.sql
++++ b/sql/searchdigest.sql
+@@ -1,4 +1,4 @@
+-CREATE TABLE IF NOT EXISTS `searchdigest` (
++CREATE TABLE IF NOT EXISTS /*_*/searchdigest (
+   `sd_query` VARBINARY(255) NOT NULL,
+   `sd_misses` INT(9) UNSIGNED NOT NULL,
+   `sd_touched` DATETIME,
+diff --git a/sql/searchdigest_blocks.sql b/sql/searchdigest_blocks.sql
+index 1389987..2b082cb 100644
+--- a/sql/searchdigest_blocks.sql
++++ b/sql/searchdigest_blocks.sql
+@@ -1,4 +1,4 @@
+-CREATE TABLE IF NOT EXISTS `searchdigest_blocks` (
++CREATE TABLE IF NOT EXISTS /*_*/searchdigest_blocks (
+ 	`sd_blocks_query` VARBINARY(255) NOT NULL,
+ 	`sd_blocks_added` DATETIME,
+ 	`sd_blocks_actor` bigint unsigned NOT NULL,
