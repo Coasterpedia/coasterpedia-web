@@ -221,10 +221,14 @@ services:
       - no-new-privileges:true
     environment:
       DB_HOST: mariadb
-      DB_NAME: coasterpedia coasterpedia_analytics cargo_db coasterpedia_tools
+      # Split: the wiki set is dumped daily and is what binlog replay can roll
+      # forward; Matomo is dumped weekly by its own job. See dr/backup.sh.
+      DB_NAME: coasterpedia cargo_db coasterpedia_tools
+      DB_NAME_ANALYTICS: coasterpedia_analytics
       AGE_RECIPIENT: ${AGE_RECIPIENT}
       R2_REMOTE: ${R2_REMOTE}
       HC_URL: ${HC_BASE_BACKUP_URL}
+      HC_ANALYTICS_URL: ${HC_ANALYTICS_BACKUP_URL}
       RCLONE_CONFIG: /secrets/rclone.conf
       DEFAULTS_FILE: /secrets/backup.cnf
       WORKDIR: /work

@@ -68,8 +68,11 @@ teardown
 # 2. Locate the newest encrypted base dump and extract its binlog coordinate.
 #    --master-data=2 wrote it as a commented CHANGE MASTER line in the header.
 # ---------------------------------------------------------------------------
-LATEST="$(ls -1t "${DUMP_DIR}"/daily/*.sql.gz.age 2>/dev/null | head -1 || true)"
-[ -n "$LATEST" ] || fail "No encrypted dump found in ${DUMP_DIR}/daily"
+# Pinned to the wiki prefix: since the Matomo split, daily/ is wiki-only but
+# weekly/ and monthly/ hold both artifacts, and an analytics dump carries no
+# CHANGE MASTER coordinate and none of the tables the drill asserts on.
+LATEST="$(ls -1t "${DUMP_DIR}"/daily/coasterpedia-db-*.sql.gz.age 2>/dev/null | head -1 || true)"
+[ -n "$LATEST" ] || fail "No encrypted wiki dump found in ${DUMP_DIR}/daily"
 log "Using base dump: $(basename "$LATEST")"
 
 # Decrypt only the header to read the coordinate. SIGPIPE from `head` closing
