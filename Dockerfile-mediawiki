@@ -75,7 +75,6 @@ RUN git clone --depth 1 -b 4.0.6 "https://github.com/Universal-Omega/DynamicPage
 RUN git clone --depth 1 -b v4.2.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git" extensions/MatomoAnalytics
 RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
-RUN git clone --depth 1 -b v1.4.0 "https://github.com/octfx/mediawiki-extension-Plausible.git" extensions/Plausible
 RUN git clone --depth 1 -b main "https://github.com/weirdgloop/mediawiki-extensions-SearchDigest.git" extensions/SearchDigest
 # Hotfix: SearchDigest's schema files hardcode bare table names, so on a wiki with
 # $wgDBprefix the updater creates `searchdigest`/`searchdigest_blocks` while every
@@ -97,7 +96,7 @@ COPY ./includes/Thumbro/imagerotate-libvips.patch /tmp/imagerotate-libvips.patch
 RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.22.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.23.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
