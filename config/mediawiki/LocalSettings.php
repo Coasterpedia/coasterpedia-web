@@ -391,6 +391,7 @@ $wgFileExtensions = [ 'png', 'jpg', 'jpeg', 'svg', 'webp']; // remove GIF from u
 $wgMaxUploadSize = 1024*1024*32;
 $wgAllowTitlesInSVG = true;
 $wgSVGNativeRendering = true;
+$wgSVGConverter = 'rsvg'; // renders at target size; ImageMagick upscales a bitmap of the declared size
 
 $wgWikiEditorRealtimePreview = true;
 
