@@ -234,6 +234,13 @@ $wgCirrusSearchCompletionSuggesterSubphrases = [
 	'type' => 'anywords',
 	'limit' => 5,
 ];
+// Score title, text, etc. as separate fields. The default builder weights the
+// title by copying it into one `all` field 20 times, which BM25 saturates, so an
+// exact title barely beat a park page that mentions it, and incoming links
+// (country and Status pages have thousands, from infoboxes) decided the order.
+// Query-time only; no reindex needed. Try alternatives per request with
+// &cirrusFTQBProfile=<name> on Special:Search.
+$wgCirrusSearchFullTextQueryBuilderProfile = 'perfield_builder';
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, e.g. 'vector' or 'monobook':
