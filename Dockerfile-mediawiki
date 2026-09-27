@@ -98,11 +98,14 @@ RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 RUN git clone --depth 1 -b v3.23.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
-# Composer refuses packages with known security advisories, and a dev-only
-# dependency tripped that even under --no-dev. Ignore that one package, as the
-# jobrunner stage does, rather than switching the check off for everything. If
-# the build names a different package, add it to this list.
-RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
+# Composer refuses packages with known security advisories; keep that on.
+# - Guzzle: the base image's 1.46 tarball pins 7.12.3, which has open advisories
+#   (CVE-2026-69246 and others). REL1_46 upstream already pins 7.15.2, so match
+#   it. Drop this once the mediawiki:1.46-fpm-alpine image ships 7.15.2 or later.
+# - PHP_CodeSniffer: dev-only, never installed, but still resolved; ignored as
+#   in the jobrunner stage.
+RUN composer require --no-update --no-interaction guzzlehttp/guzzle:7.15.2 && \
+    composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
     composer update --no-dev --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
 # Hotfix: MediaHandlerFactory::getHandler() caches handler instances by mimetype,
