@@ -514,14 +514,6 @@ $wgGroupPermissions['patroller']['patrol'] = true;
 // Block creating accounts using the API
 $wgAPIModules['createaccount'] = 'ApiDisabled';
 
-# External Data
-// $wgExternalDataSources['api'] = [
-// 	'url' => 'http://coasterpedia-api-coasterpediaapi-1:8080/$path$',
-// 	'params' => [ 'path' ],
-// 	'param filters' => [ 'path' => '/^([A-Za-z\/]*)/' ],
-// 	'format' => 'JSON',
-// ];
-
 # EventBus
 $wgEventServices = [
     'eventgate-main'  => ['url' => 'http://coasterpedia-services:8080/events']
@@ -646,7 +638,6 @@ wfLoadExtension( 'DynamicPageList4' );
 wfLoadExtension( 'Echo' );
 wfLoadExtension( 'Elastica' );
 wfLoadExtension( 'EventBus' );
-wfLoadExtension( 'ExternalData' );
 wfLoadExtension( 'EmbedVideo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'GeoData' );

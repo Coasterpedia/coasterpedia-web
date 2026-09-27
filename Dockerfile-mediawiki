@@ -51,7 +51,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-DismissableSiteNotice.git" extensions/DismissableSiteNotice
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Elastica.git" extensions/Elastica
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-EventBus.git" extensions/EventBus
-RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-ExternalData.git" extensions/ExternalData
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-GeoData.git" extensions/GeoData
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-LabeledSectionTransclusion.git" extensions/LabeledSectionTransclusion
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Loops.git" extensions/Loops
@@ -115,6 +114,11 @@ COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resourc
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
 
+USER root
+RUN chown -R root:root /var/www/html && \
+    chmod -R u=rwX,go=rX /var/www/html
+USER www-data
+
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
 
 FROM mediawiki AS jobrunner
@@ -123,22 +127,25 @@ USER root
 RUN docker-php-ext-configure pcntl --enable-pcntl \
   && docker-php-ext-install pcntl
 
-USER www-data
 WORKDIR /var/www/html/w/
 
 RUN git clone --depth 1 "https://github.com/wikimedia/mediawiki-services-jobrunner.git" mediawiki-services-jobrunner
 
 RUN set -eux; \
    cd mediawiki-services-jobrunner; \
+   export COMPOSER_ALLOW_SUPERUSER=1; \
    /usr/bin/composer config --no-plugins allow-plugins.composer/installers true; \
    /usr/bin/composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]'; \
    /usr/bin/composer install --no-dev \
      --ignore-platform-reqs \
      --no-ansi \
      --no-interaction \
-     --no-scripts
+     --no-scripts; \
+   chmod -R u=rwX,go=rX /var/www/html/w/mediawiki-services-jobrunner
 
-COPY --chown=www-data:www-data ./config/jobrunner/jobrunner-conf.json /var/www/html/w/mediawiki-services-jobrunner
-COPY --chown=www-data:www-data --chmod=770 ./config/jobrunner/entrypoint.sh /var/www/html/w/mediawiki-services-jobrunner
+COPY --chmod=644 ./config/jobrunner/jobrunner-conf.json /var/www/html/w/mediawiki-services-jobrunner
+COPY --chmod=755 ./config/jobrunner/entrypoint.sh /var/www/html/w/mediawiki-services-jobrunner
+
+USER www-data
 
 ENTRYPOINT [ "/var/www/html/w/mediawiki-services-jobrunner/entrypoint.sh" ]

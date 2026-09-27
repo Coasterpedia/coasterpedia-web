@@ -33,8 +33,8 @@ services:
       - redis
       - opensearch
     volumes:
-      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
-      - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf
+      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
+      - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
     ports:
       -  127.0.0.1:9001:80
     environment:
@@ -105,7 +105,7 @@ services:
       - mariadb
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
+      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
     networks:
       - web
     environment:
@@ -147,7 +147,7 @@ services:
       - mariadb
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php
+      - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
     networks:
       - web
     environment:
