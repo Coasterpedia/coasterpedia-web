@@ -98,7 +98,12 @@ RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 RUN git clone --depth 1 -b v3.23.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
-RUN composer update --no-dev --no-security-blocking --no-interaction --no-scripts --ignore-platform-reqs --verbose
+# Composer refuses packages with known security advisories, and a dev-only
+# dependency tripped that even under --no-dev. Ignore that one package, as the
+# jobrunner stage does, rather than switching the check off for everything. If
+# the build names a different package, add it to this list.
+RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
+    composer update --no-dev --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
 # Hotfix: MediaHandlerFactory::getHandler() caches handler instances by mimetype,
 # so the $lang of the *first* caller sticks and every later call gets a handler

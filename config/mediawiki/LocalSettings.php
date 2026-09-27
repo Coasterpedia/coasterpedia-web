@@ -301,6 +301,16 @@ $wgTurnstileSecretKey= getenv( 'TURNSTILE_SECRET' );
 $wgApiFrameOptions = 'SAMEORIGIN';
 $wgAllowCopyUploads = true;
 $wgGroupPermissions['user']['upload_by_url'] = true; // to allow for all registered users
+// Upload-by-URL makes the server fetch the URL itself, so without a list any
+// user could point it at internal services. Only the sources ImageFetch
+// handles, plus the hosts that serve their image files.
+$wgCopyUploadsDomains = [
+	'flickr.com', 'www.flickr.com', '*.staticflickr.com',
+	'commons.wikimedia.org', 'upload.wikimedia.org',
+	'wikimapia.org', '*.wikimapia.org',
+	'www.geograph.org.uk', '*.geograph.org.uk',
+	'geo.hlipp.de', 'geo-en.hlipp.de', '*.hlipp.de',
+];
 $wgUploadNavigationUrl = '/wiki/Coasterpedia:Image_Wizard';
 
 /**

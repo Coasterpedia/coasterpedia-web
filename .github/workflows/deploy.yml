@@ -1,7 +1,13 @@
 name: Docker
 on:
+  # Weekly rebuild so upstream security fixes (the base image and every
+  # REL1_46 branch clone) reach production without waiting for a code change.
+  # GitHub runs schedules from the DEFAULT branch's copy of this file, so the
+  # default branch must be develop for this to build the right code.
   schedule:
-    - cron: '23 4 * * *'
+    - cron: '23 4 * * 1'
+  # Manual rebuild, e.g. after a security announcement.
+  workflow_dispatch:
   push:
     branches: [ "main", "develop" ]
     # Publish semver tags as releases.
@@ -62,6 +68,8 @@ jobs:
           context: .
           file: ./Dockerfile-mediawiki
           push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki-v2
@@ -118,6 +126,8 @@ jobs:
           context: .
           file: ./Dockerfile-matomo
           push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-matomo
@@ -173,6 +183,8 @@ jobs:
           context: .
           file: ./Dockerfile-mediawiki
           push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-mediawiki-v2
@@ -229,6 +241,8 @@ jobs:
           context: .
           file: ./Dockerfile-dr
           push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-dr
@@ -295,6 +309,8 @@ jobs:
           file: ./cirrussearch-opensearch-image/.pipeline/blubber.yaml
           target: production
           push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.ref_name }}-opensearch
@@ -304,6 +320,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [mediawiki_build, matomo_build, jobrunner_build, dr_build, opensearch_build]
+    # Production runs develop. Images built from any other branch (main is far
+    # behind and would roll back security fixes) or from a PR are never deployed.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
     permissions:
       contents: write
     concurrency:
