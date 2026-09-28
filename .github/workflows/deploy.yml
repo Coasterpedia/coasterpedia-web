@@ -263,18 +263,10 @@ jobs:
       TAG: v1.3.20-12
 
     outputs:
-      digest: ${{steps.build-and-push.outputs.digest}}
+      # The image already built for this TAG when there is one, else the new build.
+      digest: ${{ steps.existing.outputs.digest || steps.build-and-push.outputs.digest }}
 
     steps:
-      - name: Checkout repository
-        run: git clone https://gitlab.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image.git -b ${{ env.TAG }}
-
-      # Set up BuildKit Docker container builder to be able to build
-      # multi-platform images and export cache
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
@@ -285,16 +277,51 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Every build gets a new digest, even from unchanged inputs (the metadata
+      # labels carry the build time and commit), and compose restarts a service
+      # whenever its digest changes, so rebuilding here on each push restarted
+      # OpenSearch on every deploy. Pushes reuse the image already built for
+      # this TAG instead. The weekly and manual runs still rebuild it from
+      # scratch for base image fixes, and restart search when they deploy.
+      - name: Look up image for this tag
+        id: existing
+        if: github.event_name == 'push'
+        run: |
+          digest=$(docker buildx imagetools inspect "$REGISTRY/$IMAGE_NAME:$TAG" --format '{{.Manifest.Digest}}' 2>/dev/null) || digest=
+          echo "Existing image for $TAG: ${digest:-none, building}"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.existing.outputs.digest == ''
+        run: git clone https://gitlab.wikimedia.org/repos/search-platform/cirrussearch-opensearch-image.git -b ${{ env.TAG }}
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        if: steps.existing.outputs.digest == ''
+        uses: docker/setup-buildx-action@v3
+
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
+      # The defaults, plus TAG itself from develop for the lookup above. Not
+      # from main, which is stale and must not replace production's image.
       - name: Extract Docker metadata
         id: meta
+        if: steps.existing.outputs.digest == ''
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=raw,value=${{ env.TAG }},enable=${{ github.ref == 'refs/heads/develop' }}
 
       # Swap private Wikimedia mirrors for public Debian mirrors
       - name: Patch apt repositories
+        if: steps.existing.outputs.digest == ''
         run: |
           cd cirrussearch-opensearch-image
           if [ -f .pipeline/blubber.yaml ]; then
@@ -306,6 +333,7 @@ jobs:
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
+        if: steps.existing.outputs.digest == ''
         uses: docker/build-push-action@v6
         with:
           context: ./cirrussearch-opensearch-image
@@ -437,7 +465,8 @@ jobs:
             export FALCO_PAGERDUTY_REGION="${{secrets.FALCO_PAGERDUTY_REGION}}" &&
             if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
             docker compose pull &&
-            docker compose up -d -V &&
+            docker compose up -d -V --wait --wait-timeout 300 &&
+            docker compose exec -T -u www-data mediawiki php maintenance/run.php purgeMessageBlobStore &&
             docker system prune -f &&
             docker volume prune -f
           '

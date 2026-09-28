@@ -203,7 +203,8 @@ $wgLocaltimezone = "UTC";
 ## the database entirely. Deliberately not $IP/cache: nginx serves /w/ as static.
 ## Not under /tmp either: the containers are read-only with /tmp in RAM (tmpfs),
 ## and the CDB files run to hundreds of MB. This path is a disk-backed anonymous
-## volume, recreated on every deploy (docker compose up -V).
+## volume, recreated on every deploy (docker compose up -V) and seeded with the
+## English cache that Dockerfile-mediawiki builds into the image.
 $wgCacheDirectory = "/var/cache/mediawiki";
 
 $wgSecretKey = getenv( 'SECRET_KEY' );

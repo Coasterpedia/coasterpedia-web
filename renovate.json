@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), and the Falco images. Other images stay managed by hand.",
+  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), the Falco images, and MariaDB and Redis, which are pinned by digest so a deploy only restarts them when a bump is merged. Other images stay managed by hand.",
   "extends": ["config:recommended"],
   "enabledManagers": ["custom.regex", "docker-compose"],
   "labels": ["dependencies"],
@@ -22,7 +22,7 @@
     },
     {
       "matchManagers": ["docker-compose"],
-      "matchPackageNames": ["falcosecurity/falco", "falcosecurity/falcosidekick"],
+      "matchPackageNames": ["falcosecurity/falco", "falcosecurity/falcosidekick", "mariadb", "redis"],
       "enabled": true
     }
   ]

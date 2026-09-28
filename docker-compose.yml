@@ -1,6 +1,8 @@
 services:
   mariadb:
-    image: mariadb:11.8
+    # Pinned by digest (Renovate raises the bumps), so a deploy only restarts
+    # the database when an upgrade is merged, not whenever the tag has moved.
+    image: mariadb:11.8.9@sha256:79d59758afc91b89b120b0a8904d637f5a3b3e1c4900f29b740d6d46c72fef68
     restart: always
     init: true
     security_opt:
@@ -47,6 +49,19 @@ services:
       - mariadb
       - redis
       - opensearch
+    # Ready once MediaWiki answers an API request, which also reaches the
+    # database; deploy.yml waits on this. X-Forwarded-Proto stops the
+    # $wgForceHTTPS redirect. No client IP header, so the rate limits skip it.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "-H", "X-Forwarded-Proto: https",
+             "http://127.0.0.1/w/api.php?action=query&meta=siteinfo&format=json"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      start_interval: 2s
+    # Room for the graceful stop in config/supervisord/supervisord.conf.
+    stop_grace_period: 30s
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
@@ -78,7 +93,8 @@ services:
       TURNSTILE_SECRET: ${TURNSTILE_SECRET}
       MATOMO_API_KEY: ${MATOMO_API_KEY}
   redis:
-    image: redis:alpine
+    # Pinned by digest, as for mariadb.
+    image: redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
     restart: unless-stopped
     init: true
     security_opt:

@@ -141,7 +141,21 @@ RUN chown -R root:root /var/www/html && \
     install -d -o www-data -g www-data /var/cache/mediawiki
 USER www-data
 
-ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
+# Prebuild the English localisation cache into $wgCacheDirectory. Docker seeds a
+# new volume from the image's contents, so each deploy's fresh cache volume
+# (compose up -V) starts with English ready, instead of every PHP worker
+# rebuilding it at once on the first page views. Other languages still build on
+# first use. Built from the LocalSettings.php the containers mount, which needs
+# neither the database nor any secret to load, only the database name for the
+# wiki ID it works out at load time (as in docker-compose.yml). No message purge
+# here, as there is no cache to purge: deploy.yml runs purgeMessageBlobStore
+# once the new containers are up.
+RUN --mount=type=bind,source=config/mediawiki/LocalSettings.php,target=/var/www/html/w/LocalSettings.php \
+    MYSQL_DATABASE=coasterpedia \
+    php maintenance/run.php rebuildLocalisationCache --lang=en --no-database --skip-message-purge --no-progress
+
+# Exec form, so supervisord gets the stop signal itself rather than through a shell.
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 FROM mediawiki AS jobrunner
 USER root
