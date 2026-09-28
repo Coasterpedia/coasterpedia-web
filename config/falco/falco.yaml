@@ -1,11 +1,6 @@
 # Overrides for the image's /etc/falco/falco.yaml, loaded from config.d.
 # Only keys that differ from upstream are set here.
 
-# Container metadata (container.name etc.) comes from this plugin, which the
-# rules below and upstream's rely on. It reads the Docker socket mounted at
-# /host/var/run/docker.sock.
-load_plugins: [container]
-
 # Drop informational/debug events; notice and above still reach stdout
 # (`docker compose logs falco`). Falcosidekick decides what is emailed or paged.
 priority: notice
