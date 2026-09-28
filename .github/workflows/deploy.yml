@@ -283,12 +283,21 @@ jobs:
       # OpenSearch on every deploy. Pushes reuse the image already built for
       # this TAG instead. The weekly and manual runs still rebuild it from
       # scratch for base image fixes, and restart search when they deploy.
+      # The tag carries an -arm64 suffix because a plain $TAG already exists in
+      # GHCR as an old amd64-only build, and reusing it broke the deploy
+      # ("no matching manifest for linux/arm64"). An image without an arm64
+      # entry is never reused, whatever its tag.
       - name: Look up image for this tag
         id: existing
         if: github.event_name == 'push'
         run: |
-          digest=$(docker buildx imagetools inspect "$REGISTRY/$IMAGE_NAME:$TAG" --format '{{.Manifest.Digest}}' 2>/dev/null) || digest=
-          echo "Existing image for $TAG: ${digest:-none, building}"
+          ref="$REGISTRY/$IMAGE_NAME:$TAG-arm64"
+          digest=
+          if index=$(docker buildx imagetools inspect "$ref" --raw 2>/dev/null) &&
+             jq -e '.manifests[]? | select(.platform.os == "linux" and .platform.architecture == "arm64")' <<<"$index" >/dev/null; then
+            digest=$(docker buildx imagetools inspect "$ref" --format '{{.Manifest.Digest}}')
+          fi
+          echo "Existing arm64 image for $TAG: ${digest:-none, building}"
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
@@ -317,7 +326,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-            type=raw,value=${{ env.TAG }},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=${{ env.TAG }}-arm64,enable=${{ github.ref == 'refs/heads/develop' }}
 
       # Swap private Wikimedia mirrors for public Debian mirrors
       - name: Patch apt repositories
