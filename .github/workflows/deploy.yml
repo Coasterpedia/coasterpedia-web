@@ -437,6 +437,13 @@ jobs:
           ssh ${{ secrets.DOCKER_HOST_2 }} 'setfacl -m u:1000:rw coasterpedia-secrets/*'
           rm -rf secret_files
 
+      # -V renews the anonymous cache volumes, which have to start fresh from
+      # the new image (it seeds the localisation cache). But -V also forces
+      # every service it applies to to be recreated, changed or not, which
+      # restarted the database, Redis and OpenSearch on every deploy. So it only
+      # applies to the services that own those volumes, which get a new image
+      # on every deploy anyway. The second up then recreates anything else only
+      # if its image or config changed.
       - name: Deploy to server
         run: >
           ssh ${{ secrets.DOCKER_HOST_2 }} '
@@ -474,7 +481,8 @@ jobs:
             export FALCO_PAGERDUTY_REGION="${{secrets.FALCO_PAGERDUTY_REGION}}" &&
             if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
             docker compose pull &&
-            docker compose up -d -V --wait --wait-timeout 300 &&
+            docker compose up -d -V --wait --wait-timeout 300 mediawiki jobrunner jobrunner-chron matomo &&
+            docker compose up -d --wait --wait-timeout 300 &&
             docker compose exec -T -u www-data mediawiki php maintenance/run.php purgeMessageBlobStore &&
             docker system prune -f &&
             docker volume prune -f
