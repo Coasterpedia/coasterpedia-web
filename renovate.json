@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), and the Falco images. Other images stay managed by hand.",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["custom.regex", "docker-compose"],
+  "labels": ["dependencies"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "RUN git clone --depth 1 -b <tag> \"https://github.com/<owner>/<repo>.git\"",
+      "managerFilePatterns": ["/^Dockerfile-mediawiki$/"],
+      "matchStrings": [
+        "git clone --depth 1 -b (?<currentValue>v?\\d+(?:\\.\\d+){1,2}) \"https://github\\.com/(?<depName>[^/\"]+/[^/\"]+?)\\.git\""
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["docker-compose"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["docker-compose"],
+      "matchPackageNames": ["falcosecurity/falco", "falcosecurity/falcosidekick"],
+      "enabled": true
+    }
+  ]
+}

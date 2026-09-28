@@ -12,8 +12,11 @@ on:
     branches: [ "main", "develop" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
+  # PRs into develop (Renovate's extension bumps among them) are built but never
+  # pushed or deployed, so a bump that breaks the build or a hotfix patch fails
+  # here rather than on merge.
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 env:
   REGISTRY: ghcr.io
@@ -317,9 +320,29 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-opensearch
           platforms: linux/arm64
 
+  falco_rules:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # A rule that fails to compile stops Falco from starting, which would
+      # silently leave the server unmonitored, so check before deploying.
+      - name: Validate Falco rules
+        run: |
+          image=$(sed -n 's/^ *image: \(falcosecurity\/falco:.*\)$/\1/p' docker-compose.yml)
+          docker run --rm --entrypoint falco \
+            -v "$PWD/config/falco/falco.yaml:/etc/falco/config.d/coasterpedia.yaml:ro" \
+            -v "$PWD/config/falco/coasterpedia_rules.yaml:/etc/falco/rules.d/coasterpedia_rules.yaml:ro" \
+            "$image" \
+            -V /etc/falco/falco_rules.yaml -V /etc/falco/rules.d/coasterpedia_rules.yaml
+
   deploy:
     runs-on: ubuntu-latest
-    needs: [mediawiki_build, matomo_build, jobrunner_build, dr_build, opensearch_build]
+    needs: [mediawiki_build, matomo_build, jobrunner_build, dr_build, opensearch_build, falco_rules]
     # Production runs develop. Images built from any other branch (main is far
     # behind and would roll back security fixes) or from a PR are never deployed.
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
@@ -409,6 +432,9 @@ jobs:
             export MARIADB_ROOT_PASSWORD="${{secrets.MARIADB_ROOT_PASSWORD}}" &&
             export COASTERPEDIA_TOOLS_MYSQL_PASSWORD="${{secrets.COASTERPEDIA_TOOLS_MYSQL_PASSWORD}}" &&
             export BACKUP_MYSQL_PASSWORD="${{secrets.BACKUP_MYSQL_PASSWORD}}" &&
+            export SECURITY_ALERT_EMAIL="${{secrets.SECURITY_ALERT_EMAIL}}" &&
+            export FALCO_PAGERDUTY_ROUTINGKEY="${{secrets.FALCO_PAGERDUTY_ROUTINGKEY}}" &&
+            export FALCO_PAGERDUTY_REGION="${{secrets.FALCO_PAGERDUTY_REGION}}" &&
             if [ -d coasterpedia/.git ]; then cd coasterpedia && git pull; else git clone --depth 1 -b develop https://github.com/${{ github.repository }} coasterpedia && cd coasterpedia; fi &&
             docker compose pull &&
             docker compose up -d -V &&

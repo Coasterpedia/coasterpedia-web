@@ -281,6 +281,61 @@ services:
       - dr-work:/work
     networks:
       - backup
+  # Runtime detection: watches syscalls on the host through eBPF and flags what
+  # an attacker does once in (commands run by PHP, dropped files, secrets read).
+  # Rules: config/falco/coasterpedia_rules.yaml. Alerts go to falcosidekick.
+  falco:
+    image: falcosecurity/falco:0.45.0
+    restart: always
+    # The documented least-privilege set for the modern eBPF driver. SYS_ADMIN
+    # stands in for BPF + PERFMON, which Docker can't grant separately yet.
+    cap_drop:
+      - ALL
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+      - no-new-privileges:true
+    networks:
+      - falco
+    depends_on:
+      - falcosidekick
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      # For container names in alerts. :ro only stops the socket file being
+      # replaced, not API calls: Falco is trusted with the Docker API, like ofelia.
+      - /var/run/docker.sock:/host/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /etc:/host/etc:ro
+      - ./config/falco/falco.yaml:/etc/falco/config.d/coasterpedia.yaml:ro
+      - ./config/falco/coasterpedia_rules.yaml:/etc/falco/rules.d/coasterpedia_rules.yaml:ro
+  # Routes Falco's alerts by priority: ALERT pages through PagerDuty, WARNING
+  # and above are emailed. PagerDuty is off while FALCO_PAGERDUTY_ROUTINGKEY is
+  # unset, which is how the learning period runs.
+  falcosidekick:
+    image: falcosecurity/falcosidekick:2.35.0
+    restart: always
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - falco
+      - alerts
+    environment:
+      PAGERDUTY_ROUTINGKEY: ${FALCO_PAGERDUTY_ROUTINGKEY:-}
+      PAGERDUTY_REGION: ${FALCO_PAGERDUTY_REGION:-us}
+      PAGERDUTY_MINIMUMPRIORITY: alert
+      SMTP_HOSTPORT: ${SMTP_HOST}:587
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: wiki@coasterpedia.net
+      SMTP_TO: ${SECURITY_ALERT_EMAIL}
+      SMTP_MINIMUMPRIORITY: warning
 networks:
   # Split so a compromised container reaches only what it needs (see the
   # 2026-09-27 incident). `web` keeps its name: CoasterpediaServices joins it
@@ -292,6 +347,9 @@ networks:
               # publishes a port on the Tailscale address
   analytics:  # matomo and its database
   backup:     # dr and the database it dumps
+  falco:      # falco to falcosidekick only; Falco needs no internet access
+    internal: true
+  alerts:     # falcosidekick's way out to PagerDuty and SMTP
 volumes:
   redis:
   dr-work:

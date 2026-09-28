@@ -1,0 +1,146 @@
+# Coasterpedia rules, loaded after upstream's falco_rules.yaml (so its macros,
+# e.g. spawned_process and open_write, are available here).
+#
+# These look for what an attacker does after getting in (running commands,
+# dropping files, reading secrets), not for any one exploit.
+#
+# Priorities route the alerts (see falcosidekick in docker-compose.yml):
+#   ALERT     paged via PagerDuty and emailed. Upstream rules top out at
+#             CRITICAL, so only the rules in this file can page.
+#   CRITICAL  emailed
+#   WARNING   emailed (upstream's rules mostly sit here)
+#   NOTICE    logged only (`docker compose logs falco`)
+
+- list: cp_web_containers
+  items: [coasterpedia-mediawiki-1, coasterpedia-matomo-1]
+
+- list: cp_php_containers
+  items: [coasterpedia-mediawiki-1, coasterpedia-matomo-1,
+          coasterpedia-jobrunner-1, coasterpedia-jobrunner-chron-1]
+
+- macro: cp_web_container
+  condition: (container.name in (cp_web_containers))
+
+- macro: cp_php_container
+  condition: (container.name in (cp_php_containers))
+
+# Programs PHP legitimately starts in the web containers: the shell proc_open()
+# runs commands through, and the tools MediaWiki shells out to for thumbnails,
+# SVGs, PDFs and syntax highlighting. php-fpm and nginx are listed in case an
+# ancestor match ever includes the process itself.
+# Tune this from the learning period's emails; keep it to real binaries.
+- list: cp_php_allowed_programs
+  items: [php-fpm, nginx, sh, ash,
+          convert, magick, identify, rsvg-convert, vips, vipsthumbnail,
+          gs, pdfinfo, pdftotext, pdftoppm, pygmentize, git]
+
+- rule: CP unexpected program started by web server
+  desc: >
+    A program started under php-fpm or nginx in the wiki or Matomo containers
+    that isn't one of the tools MediaWiki shells out to. Web shells run their
+    commands this way (on 2026-09-27, every command the attackers ran).
+  condition: >
+    spawned_process and cp_web_container
+    and (proc.aname = php-fpm or proc.aname = nginx)
+    and not proc.name in (cp_php_allowed_programs)
+  output: >
+    Unexpected program run by the web server in %container.name
+    (command=%proc.cmdline parent=%proc.pcmdline
+    grandparent=%proc.aname[2] exe=%proc.exepath user=%user.name)
+  priority: ALERT
+  tags: [coasterpedia, execution, webshell]
+
+- rule: CP PHP file written at runtime
+  desc: >
+    A PHP-executable file created or renamed into place inside an app
+    container. The code tree is read-only, so this can only land in the
+    writable paths (tmpfs, cache volumes). The 2026-09-27 attackers dropped
+    copies of their shell into cache/ and images/. Matomo's own tmp/ is
+    excluded: it caches compiled templates and config as .php there, and
+    nginx refuses to serve anything from it.
+  condition: >
+    cp_php_container
+    and ((open_write
+          and (fd.name endswith .php or fd.name endswith .phtml
+               or fd.name endswith .phar or fd.name endswith .pht
+               or fd.name endswith .php5 or fd.name endswith .php7))
+         or (evt.type in (rename, renameat, renameat2) and evt.res = SUCCESS
+             and (fs.path.target endswith .php or fs.path.target endswith .phtml
+                  or fs.path.target endswith .phar or fs.path.target endswith .pht
+                  or fs.path.target endswith .php5 or fs.path.target endswith .php7)))
+    and not (container.name = coasterpedia-matomo-1
+             and (fd.name startswith /usr/src/matomo/tmp/
+                  or fs.path.target startswith /usr/src/matomo/tmp/))
+  output: >
+    PHP file written in %container.name
+    (file=%fd.name target=%fs.path.target syscall=%evt.type
+    command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+  priority: ALERT
+  tags: [coasterpedia, persistence, webshell]
+
+- rule: CP program run from a writable directory
+  desc: >
+    A binary executed from tmpfs or a cache volume in an app container.
+    Legitimate programs all live in the read-only image; something run from
+    here was dropped at runtime (a miner, a reverse shell, a scanner).
+  condition: >
+    spawned_process and cp_php_container
+    and (proc.exepath startswith /tmp/ or proc.exepath startswith /dev/shm/
+         or proc.exepath startswith /run/ or proc.exepath startswith /home/
+         or proc.exepath startswith /var/cache/ or proc.exepath startswith /var/lib/nginx/
+         or proc.exepath startswith /usr/src/matomo/tmp/
+         or proc.exepath startswith /usr/src/matomo/misc/)
+  output: >
+    Program run from a writable directory in %container.name
+    (exe=%proc.exepath command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+  priority: ALERT
+  tags: [coasterpedia, execution]
+
+- rule: CP process environment read
+  desc: >
+    A /proc/<pid>/environ read inside an app container. Every secret the wiki
+    has (database passwords, R2 keys, the Cloudflare token) is in its
+    environment, and PHP's getenv() never reads this file, so this is someone
+    dumping them.
+  condition: >
+    open_read and cp_php_container and fd.name glob "/proc/*/environ"
+  output: >
+    Process environment read in %container.name
+    (file=%fd.name command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+  priority: ALERT
+  tags: [coasterpedia, credential_access]
+
+- rule: CP write refused under the code tree
+  desc: >
+    A write to the application code that failed because the filesystem is
+    read-only or root-owned. Overwriting an entry point (rest.php on
+    2026-09-27) is how an attacker would try to persist; it now fails, and
+    this reports the attempt. Emailed rather than paged until the learning
+    period shows whether anything legitimate does this.
+  condition: >
+    cp_php_container
+    and ((evt.type in (open, openat, openat2) and evt.is_open_write = true)
+         or evt.type in (mkdir, mkdirat, rename, renameat, renameat2, unlink, unlinkat))
+    and evt.res in (EROFS, EACCES, EPERM)
+    and (fs.path.name startswith /var/www/html/ or fs.path.name startswith /usr/src/matomo/
+         or fs.path.target startswith /var/www/html/ or fs.path.target startswith /usr/src/matomo/)
+  output: >
+    Refused write under the code tree in %container.name
+    (path=%fs.path.name target=%fs.path.target syscall=%evt.type error=%evt.res
+    command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+  priority: CRITICAL
+  tags: [coasterpedia, persistence]
+
+# Learning data for a possible egress allowlist later: logged only. Once a
+# week or two of `docker compose logs falco | grep "CP outbound"` shows what
+# normal looks like, this can be narrowed to unexpected destinations and
+# raised to WARNING.
+- rule: CP outbound connection from PHP
+  desc: PHP in an app container connected to a public address.
+  condition: >
+    outbound and cp_php_container and proc.name in (php-fpm, php)
+  output: >
+    Outbound connection from %container.name
+    (connection=%fd.name command=%proc.cmdline)
+  priority: NOTICE
+  tags: [coasterpedia, network]
