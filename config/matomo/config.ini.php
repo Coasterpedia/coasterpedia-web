@@ -154,6 +154,7 @@ PluginsInstalled[] = "DBStats"
 PluginsInstalled[] = "TrackingSpamPrevention"
 PluginsInstalled[] = "JsTrackerInstallCheck"
 PluginsInstalled[] = "EnvironmentVariables"
+PluginsInstalled[] = "FeatureFlags"
 
 [TrackingSpamPrevention]
 block_cloud_sync_throw_exception_on_error = 0
