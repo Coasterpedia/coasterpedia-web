@@ -98,7 +98,7 @@ RUN git -C extensions/SearchDigest apply /tmp/searchdigest-db-table-prefix.patch
 RUN git clone --depth 1 -b main "https://github.com/StarCitizenTools/mediawiki-extensions-ShortDescription.git" extensions/ShortDescription
 RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenTools/mediawiki-extensions-TabberNeue.git" extensions/TabberNeue
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
-RUN git clone --depth 1 -b v2.0.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
+RUN git clone --depth 1 -b v2.1.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 # Hotfix: teach Thumbro's libvips-scaled handlers to answer action=imagerotate.
 # Upstream v2.0.1 leaves rotate() to core BitmapHandler, which has no libvips
 # branch, so imagerotate fails with "libvips rotation not implemented". Drop when
