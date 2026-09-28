@@ -25,16 +25,40 @@ RUN curl -o DataExport.zip \
     && rm DataExport.zip \
     && mv DataExport /usr/src/matomo/plugins
 
-RUN rm -r /var/www/html && ln -s /usr/src/matomo /var/www/html
+# GeoIP: DB-IP's free city database (CC BY 4.0, https://db-ip.com), the same
+# file Matomo's own updater fetches, under a name its GeoIp2 provider looks for.
+# Built in because misc/ is a volume recreated on every deploy, which wiped the
+# runtime download. The weekly rebuild (uncached) keeps it current. Falls back to
+# last month's file in the hours before a new month's is published; if neither
+# downloads, gunzip fails and so does the build.
+RUN set -eux; \
+    base=https://download.db-ip.com/free/dbip-city-lite; \
+    y=$(date -u +%Y); m=$(date -u +%m); m=${m#0}; \
+    if [ "$m" -eq 1 ]; then py=$((y - 1)); pm=12; else py=$y; pm=$((m - 1)); fi; \
+    for month in "$(printf '%04d-%02d' "$y" "$m")" "$(printf '%04d-%02d' "$py" "$pm")"; do \
+        curl -fsSL -o /tmp/dbip.mmdb.gz "$base-$month.mmdb.gz" && break; \
+    done; \
+    gunzip -c /tmp/dbip.mmdb.gz > /usr/src/matomo/misc/DBIP-City-Lite.mmdb; \
+    rm /tmp/dbip.mmdb.gz
+
+# Serve straight from /usr/src/matomo. The base image declares
+# VOLUME /var/www/html, and with the old /var/www/html -> /usr/src/matomo symlink
+# Docker followed it and mounted a writable volume over the whole install.
+# /var/www/html is now an empty directory the volume can land on harmlessly.
+RUN rm -r /var/www/html && mkdir /var/www/html
 
 COPY ./config/matomo/supervisord.conf /etc/
 COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
 
-RUN chown -R www-data:www-data /usr/src/matomo && \
+# The code belongs to root and is read-only to PHP, as in Dockerfile-mediawiki.
+# Only tmp/ (caches) and misc/ (the GeoIP database it downloads) stay writable;
+# both are volumes in docker-compose.yml, and nginx runs no PHP from either.
+RUN chown -R root:root /usr/src/matomo && \
+    chmod -R u=rwX,go=rX /usr/src/matomo && \
+    chown -R www-data:www-data /usr/src/matomo/tmp /usr/src/matomo/misc && \
     chown -R www-data:www-data /run && \
     chown -R www-data:www-data /var/lib/nginx && \
-    chown -R www-data:www-data /var/log/nginx && \
-    chmod -R 755 /usr/src/matomo/tmp
+    chown -R www-data:www-data /var/log/nginx
 
 USER www-data
 

@@ -201,7 +201,10 @@ $wgLocaltimezone = "UTC";
 ## abort with error 1020 instead of serialising, and LCStoreDB::finishWrite
 ## rethrows, so page views 500. Per-container CDB files keep the rebuild out of
 ## the database entirely. Deliberately not $IP/cache: nginx serves /w/ as static.
-$wgCacheDirectory = "/tmp/mediawiki-cache";
+## Not under /tmp either: the containers are read-only with /tmp in RAM (tmpfs),
+## and the CDB files run to hundreds of MB. This path is a disk-backed anonymous
+## volume, recreated on every deploy (docker compose up -V).
+$wgCacheDirectory = "/var/cache/mediawiki";
 
 $wgSecretKey = getenv( 'SECRET_KEY' );
 

@@ -28,6 +28,17 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # Read-only root filesystem: the code, config and binaries can't be changed at
+    # runtime. Writable paths are the ones a docker diff showed in normal use.
+    # www-data is uid/gid 82 in the Alpine image.
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=512m               # PHP uploads and temp files, supervisord
+      - /run:uid=82,gid=82,mode=0755,size=16m  # php-fpm socket
+      - /run/nginx:uid=82,gid=82,size=1m       # nginx pid
+      - /var/lib/nginx/tmp:uid=82,gid=82,size=512m  # upload bodies and buffered responses
+      - /var/log/nginx:uid=82,gid=82,size=16m
+      - /home/www-data:uid=82,gid=82,size=16m
     networks:
       - web
       - db
@@ -39,6 +50,7 @@ services:
     volumes:
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
       - ./config/nginx/coasterpedia.conf:/etc/nginx/http.d/default.conf:ro
+      - /var/cache/mediawiki   # $wgCacheDirectory; anonymous, renewed on each deploy
     ports:
       -  127.0.0.1:9001:80
     environment:
@@ -103,6 +115,11 @@ services:
     user: "www-data:www-data"
     security_opt:
       - no-new-privileges:true
+    # Read-only root filesystem, as for mediawiki.
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=512m
+      - /home/www-data:uid=82,gid=82,size=16m
     depends_on:
       - mediawiki
       - redis
@@ -110,6 +127,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
+      - /var/cache/mediawiki   # $wgCacheDirectory; anonymous, renewed on each deploy
     networks:
       - web
       - db
@@ -147,6 +165,11 @@ services:
     cpu_shares: 256
     security_opt:
       - no-new-privileges:true
+    # Read-only root filesystem, as for mediawiki.
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=512m
+      - /home/www-data:uid=82,gid=82,size=16m
     depends_on:
       - mediawiki
       - redis
@@ -154,6 +177,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/mediawiki/LocalSettings.php:/var/www/html/w/LocalSettings.php:ro
+      - /var/cache/mediawiki   # $wgCacheDirectory; anonymous, renewed on each deploy
     networks:
       - web
       - db
@@ -188,12 +212,23 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # Read-only root filesystem; writable paths from a docker diff of the running
+    # container, plus Matomo's own tmp/ and misc/ volumes below.
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=64m                # supervisord
+      - /run:uid=82,gid=82,mode=0755,size=16m
+      - /run/nginx:uid=82,gid=82,size=1m       # nginx pid
+      - /var/lib/nginx/tmp:uid=82,gid=82,size=128m
+      - /var/log/nginx:uid=82,gid=82,size=16m
     networks:
       - analytics
     depends_on:
       - mariadb
     volumes:
-      - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf
+      - ./config/nginx/matomo.conf:/etc/nginx/http.d/matomo.conf:ro
+      - /usr/src/matomo/tmp    # caches; anonymous, renewed on each deploy
+      - /usr/src/matomo/misc   # GeoIP database downloads; same
     ports:
       - 127.0.0.1:9002:80
     environment:

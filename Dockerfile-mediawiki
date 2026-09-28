@@ -65,6 +65,18 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-UploadWizard.git" extensions/UploadWizard
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
+# Thanks is bundled in the tarball, which is still 1.46.0, so swap in REL1_46 for
+# CVE-2026-100237 (stored XSS, fixed in 1.46.1). Harmless to keep once the base
+# image moves on: it then tracks the branch like the extensions above.
+RUN rm -rf extensions/Thanks && \
+    git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Thanks.git" extensions/Thanks
+
+# Hotfix: CVE-2026-96873, reflected XSS in CirrusSearch's ExplainPrinter
+# (T435234). Fixed on master only, not yet backported to REL1_46. Drop when it
+# is: the build will fail here once the patch no longer applies.
+# See includes/CirrusSearch/explainprinter-xss.patch.
+COPY ./includes/CirrusSearch/explainprinter-xss.patch /tmp/explainprinter-xss.patch
+RUN git -C extensions/CirrusSearch apply /tmp/explainprinter-xss.patch
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.14.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
@@ -124,7 +136,9 @@ COPY ./includes/robots.txt /var/www/html/robots.txt
 
 USER root
 RUN chown -R root:root /var/www/html && \
-    chmod -R u=rwX,go=rX /var/www/html
+    chmod -R u=rwX,go=rX /var/www/html && \
+    # $wgCacheDirectory. Mounted as a volume, which takes this owner on creation.
+    install -d -o www-data -g www-data /var/cache/mediawiki
 USER www-data
 
 ENTRYPOINT /usr/bin/supervisord -c /etc/supervisord.conf
