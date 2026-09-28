@@ -5,6 +5,14 @@
 # (`docker compose logs falco`). Falcosidekick decides what is emailed or paged.
 priority: notice
 
+# Also append alerts to a file on the falco-events volume: container logs are
+# lost whenever a deploy recreates the container. Unrotated, so it grows with
+# the outbound-connection learning rule; fine for weeks, not forever.
+file_output:
+  enabled: true
+  keep_alive: false
+  filename: /var/log/falco/events.json
+
 json_output: true
 json_include_output_property: true
 json_include_tags_property: true

@@ -29,11 +29,26 @@
 # SVGs, PDFs and syntax highlighting. php-fpm and nginx are listed in case an
 # ancestor match ever includes the process itself.
 # Tune this from the learning period's emails; keep it to real binaries.
+# Names not yet seen in the learning period; once each is, move it into
+# cp_expected_web_exec below with its exact arguments.
 - list: cp_php_allowed_programs
   items: [php-fpm, nginx, sh, ash,
           convert, magick, identify, rsvg-convert, vips, vipsthumbnail,
-          gs, pdfinfo, pdftotext, pdftoppm, pygmentize, git]
+          gs, pdfinfo, pdftotext, pdftoppm, git]
 
+# Commands seen in the learning period, matched on their exact shape rather
+# than name alone, so an allowed tool with an attacker's arguments still alerts.
+- macro: cp_expected_web_exec
+  condition: >
+    (proc.name = ifconfig and proc.args = "-a")
+    or (proc.name = python3
+        and proc.args startswith "/var/www/html/w/extensions/SyntaxHighlight_GeSHi/includes/../pygments/pygmentize ")
+# - ifconfig -a: core's GlobalIdGenerator reads a MAC address for its node ID,
+#   once per container start (the cached ID lives in /tmp, which is tmpfs).
+# - pygmentize: SyntaxHighlight renders code blocks through Python.
+
+# Outputs name the parent rather than printing its command line: php-fpm
+# rewrites its own as "php-fpm: pool www" padded with kilobytes of spaces.
 - rule: CP unexpected program started by web server
   desc: >
     A program started under php-fpm or nginx in the wiki or Matomo containers
@@ -43,9 +58,10 @@
     spawned_process and cp_web_container
     and (proc.aname = php-fpm or proc.aname = nginx)
     and not proc.name in (cp_php_allowed_programs)
+    and not cp_expected_web_exec
   output: >
     Unexpected program run by the web server in %container.name
-    (command=%proc.cmdline parent=%proc.pcmdline
+    (command=%proc.cmdline parent=%proc.pname
     grandparent=%proc.aname[2] exe=%proc.exepath user=%user.name)
   priority: ALERT
   tags: [coasterpedia, execution, webshell]
@@ -74,7 +90,7 @@
   output: >
     PHP file written in %container.name
     (file=%fd.name target=%fs.path.target syscall=%evt.type
-    command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+    process=%proc.name exe=%proc.exepath parent=%proc.pname user=%user.name)
   priority: ALERT
   tags: [coasterpedia, persistence, webshell]
 
@@ -92,7 +108,7 @@
          or proc.exepath startswith /usr/src/matomo/misc/)
   output: >
     Program run from a writable directory in %container.name
-    (exe=%proc.exepath command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+    (exe=%proc.exepath command=%proc.cmdline parent=%proc.pname user=%user.name)
   priority: ALERT
   tags: [coasterpedia, execution]
 
@@ -106,7 +122,7 @@
     open_read and cp_php_container and fd.name glob "/proc/*/environ"
   output: >
     Process environment read in %container.name
-    (file=%fd.name command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+    (file=%fd.name process=%proc.name exe=%proc.exepath parent=%proc.pname user=%user.name)
   priority: ALERT
   tags: [coasterpedia, credential_access]
 
@@ -127,7 +143,7 @@
   output: >
     Refused write under the code tree in %container.name
     (path=%fs.path.name target=%fs.path.target syscall=%evt.type error=%evt.res
-    command=%proc.cmdline parent=%proc.pcmdline user=%user.name)
+    process=%proc.name exe=%proc.exepath parent=%proc.pname user=%user.name)
   priority: CRITICAL
   tags: [coasterpedia, persistence]
 
@@ -141,6 +157,6 @@
     outbound and cp_php_container and proc.name in (php-fpm, php)
   output: >
     Outbound connection from %container.name
-    (connection=%fd.name command=%proc.cmdline)
+    (connection=%fd.name process=%proc.name)
   priority: NOTICE
   tags: [coasterpedia, network]

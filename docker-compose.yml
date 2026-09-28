@@ -311,6 +311,7 @@ services:
       - /etc:/host/etc:ro
       - ./config/falco/falco.yaml:/etc/falco/config.d/coasterpedia.yaml:ro
       - ./config/falco/coasterpedia_rules.yaml:/etc/falco/rules.d/coasterpedia_rules.yaml:ro
+      - falco-events:/var/log/falco   # alert history that survives redeploys
   # Routes Falco's alerts by priority: ALERT pages through PagerDuty, WARNING
   # and above are emailed. PagerDuty is off while FALCO_PAGERDUTY_ROUTINGKEY is
   # unset, which is how the learning period runs.
@@ -355,3 +356,4 @@ volumes:
   dr-work:
   mariadb:
   opensearch:
+  falco-events:
