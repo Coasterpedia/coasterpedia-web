@@ -43,9 +43,14 @@
     (proc.name = ifconfig and proc.args = "-a")
     or (proc.name = python3
         and proc.args startswith "/var/www/html/w/extensions/SyntaxHighlight_GeSHi/includes/../pygments/pygmentize ")
+    or (proc.exepath = /usr/bin/vipsheader
+        and (proc.args glob "-f orientation /tmp/*" or proc.args glob "-f bands /tmp/*"))
 # - ifconfig -a: core's GlobalIdGenerator reads a MAC address for its node ID,
 #   once per container start (the cached ID lives in /tmp, which is tmpfs).
 # - pygmentize: SyntaxHighlight renders code blocks through Python.
+# - vipsheader: Thumbro reads each source image's orientation and alpha bands
+#   (Image/VipsHeader*Detector.php); the source is PHP's upload temp file or a
+#   local copy fetched from R2, both under /tmp.
 
 # Outputs name the parent rather than printing its command line: php-fpm
 # rewrites its own as "php-fpm: pool www" padded with kilobytes of spaces.
