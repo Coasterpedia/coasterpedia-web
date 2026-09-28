@@ -84,6 +84,7 @@ Plugins[] = "DBStats"
 Plugins[] = "BotTracker"
 Plugins[] = "TrackingSpamPrevention"
 Plugins[] = "EnvironmentVariables"
+Plugins[] = "FeatureFlags"
 
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"
