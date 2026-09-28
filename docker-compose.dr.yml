@@ -76,7 +76,7 @@ services:
 
   mariadb-drill:
     profiles: [ drill ]
-    image: mariadb:11.8
+    image: mariadb:13.0
     init: true
     environment:
       MARIADB_ROOT_PASSWORD: drill
