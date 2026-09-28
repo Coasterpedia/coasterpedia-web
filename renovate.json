@@ -24,6 +24,12 @@
       "matchManagers": ["docker-compose"],
       "matchPackageNames": ["falcosecurity/falco", "falcosecurity/falcosidekick", "mariadb", "redis"],
       "enabled": true
+    },
+    {
+      "description": "Stay on the MariaDB 11.8 LTS series. A move to a newer series is a database upgrade to plan, not a routine bump.",
+      "matchManagers": ["docker-compose"],
+      "matchPackageNames": ["mariadb"],
+      "allowedVersions": "/^11\\.8\\.\\d+$/"
     }
   ]
 }
