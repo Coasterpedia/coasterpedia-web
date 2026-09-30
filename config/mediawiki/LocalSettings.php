@@ -470,15 +470,15 @@ $wgRelatedArticlesOnlyUseCirrusSearch = true;
 $wgRelatedArticlesCardLimit = 6;
 
 # OAuth
-$wgOAuth2PrivateKey = getenv( 'OAUTH_PRIVATE' );
-$wgOAuth2PublicKey = getenv( 'OAUTH_PUBLIC' );
-$wgMWOAuthSessionCacheType = CACHE_DB;
-$wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
-$wgGroupPermissions['sysop']['mwoauthsuppress'] = true;
-$wgGroupPermissions['sysop']['mwoauthviewsuppressed'] = true;
-$wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
+// $wgOAuth2PrivateKey = getenv( 'OAUTH_PRIVATE' );
+// $wgOAuth2PublicKey = getenv( 'OAUTH_PUBLIC' );
+// $wgMWOAuthSessionCacheType = CACHE_DB;
+// $wgGroupPermissions['sysop']['mwoauthproposeconsumer'] = true;
+// $wgGroupPermissions['sysop']['mwoauthupdateownconsumer'] = true;
+// $wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
+// $wgGroupPermissions['sysop']['mwoauthsuppress'] = true;
+// $wgGroupPermissions['sysop']['mwoauthviewsuppressed'] = true;
+// $wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 
 # WikiDiff2
 $isWikiDiff2Enabled = extension_loaded( 'wikidiff2' );
@@ -664,7 +664,7 @@ wfLoadExtension( 'MultiPurge' );
 wfLoadExtension( 'NearbyPages' );
 wfLoadExtension( 'Nuke' );
 wfLoadExtension( 'OATHAuth' );
-wfLoadExtension( 'OAuth' );
+// wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'PdfHandler' );
