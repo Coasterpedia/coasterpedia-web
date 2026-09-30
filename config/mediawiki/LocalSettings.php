@@ -622,11 +622,6 @@ $wgCdnServersNoPurge = [
 
 # Enabled skins.
 wfLoadSkin( 'Citizen' );
-wfLoadSkin( 'MinervaNeue' );
-wfLoadSkin( 'MonoBook' );
-wfLoadSkin( 'Refreshed' );
-wfLoadSkin( 'Timeless' );
-wfLoadSkin( 'Vector' );
 
 # Extensions
 wfLoadExtension( 'AbuseFilter' );
@@ -692,7 +687,6 @@ wfLoadExtension( 'Thanks' );
 wfLoadExtension( 'Thumbro' );
 wfLoadExtension( 'TitleBlacklist' );
 wfLoadExtension( 'TwoColConflict' );
-wfLoadExtension( 'UploadWizard' );
 wfLoadExtension( 'Variables' );
 wfLoadExtension( 'VisualEditor' );
 wfLoadExtension( 'WikiEditor' );
