@@ -126,7 +126,6 @@ RUN composer require --no-update --no-interaction guzzlehttp/guzzle:7.15.2 && \
 COPY ./includes/core/mediahandlerfactory-language-cache.patch /tmp/mediahandlerfactory-language-cache.patch
 RUN git apply --verbose /tmp/mediahandlerfactory-language-cache.patch
 
-COPY ./includes/UploadWizard/mw.FlickrChecker.js extensions/UploadWizard/resources/
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
 
