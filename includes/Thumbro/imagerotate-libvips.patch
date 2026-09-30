@@ -1,5 +1,5 @@
 diff --git a/includes/MediaHandlers/ThumbroHandlerTrait.php b/includes/MediaHandlers/ThumbroHandlerTrait.php
-index fdd997b..016eec3 100644
+index fdd997b..8832768 100644
 --- a/includes/MediaHandlers/ThumbroHandlerTrait.php
 +++ b/includes/MediaHandlers/ThumbroHandlerTrait.php
 @@ -3,7 +3,10 @@ declare( strict_types=1 );
@@ -13,7 +13,7 @@ index fdd997b..016eec3 100644
  use TransformParameterError;
  
  /**
-@@ -35,6 +38,94 @@ trait ThumbroHandlerTrait {
+@@ -35,6 +38,89 @@ trait ThumbroHandlerTrait {
  		return true;
  	}
  
@@ -49,13 +49,15 @@ index fdd997b..016eec3 100644
 +	 * passes straight through as d<angle> — "rotate 90 right" turns the pixels 90
 +	 * clockwise. (Do NOT take core's imext-style 360 - angle complement here: the
 +	 * ImageMagick scalers use the opposite angular sign, and mirroring their maths
-+	 * against vips_rot's clockwise constants rotates the image the wrong way.) EXIF
-+	 * auto-rotation from getRotation() is folded in as an additional clockwise turn.
++	 * against vips_rot's clockwise constants rotates the image the wrong way.)
 +	 *
-+	 * EXIF caveat, at parity with core's other scalers: `vips rot` rewrites pixels
-+	 * but does not clear a file's EXIF Orientation tag, exactly as ImageMagick
-+	 * -rotate does not. For the overwhelmingly common no-orientation file this is a
-+	 * non-issue; jpegtran (the preferred JPEG path) handles orientation properly.
++	 * EXIF: `vips rot` keeps the Orientation tag, so the output is displayed through
++	 * the same tag as the input and getRotation() must NOT be folded in — it would
++	 * be applied twice (and core's value is counter-clockwise besides: Orientation 6
++	 * gives a 90 right turn of 270). Rotations commute, so turning the stored pixels
++	 * by the requested angle turns the displayed image by it too. A mirrored tag
++	 * (2, 4, 5, 7) reverses the direction, since a reflection flips the sense of
++	 * any rotation seen through it.
 +	 *
 +	 * @param \File $file
 +	 * @param array $params
@@ -67,17 +69,10 @@ index fdd997b..016eec3 100644
 +				'Shell access is disabled; cannot rotate.' );
 +		}
 +
-+		// @phan-suppress-next-line PhanUndeclaredMethod getRotation provided by @require-extends parent
-+		$angle = ( $params['rotation'] + $this->getRotation( $file ) ) % 360;
-+
-+		// A net 0° rotation is a no-op — vips_rot only turns in right angles, so just
-+		// hand core the source unchanged at the destination path it expects.
-+		if ( $angle === 0 ) {
-+			if ( !copy( $params['srcPath'], $params['dstPath'] ) ) {
-+				return new MediaTransformError( 'thumbnail_error', 0, 0,
-+					'Unable to copy image for a zero-degree rotation.' );
-+			}
-+			return false;
++		// imagerotate only accepts 90, 180 or 270, so this is never a zero turn.
++		$angle = (int)$params['rotation'] % 360;
++		if ( $this->getMirrored( $file ) !== '' ) {
++			$angle = ( 360 - $angle ) % 360;
 +		}
 +
 +		$libraries = MediaWikiServices::getInstance()->getConfigFactory()
@@ -109,10 +104,10 @@ index fdd997b..016eec3 100644
  	 * @inheritDoc
  	 */
 diff --git a/includes/MediaHandlers/ThumbroJpegHandler.php b/includes/MediaHandlers/ThumbroJpegHandler.php
-index fec668b..497ce92 100644
+index fec668b..bc19ffb 100644
 --- a/includes/MediaHandlers/ThumbroJpegHandler.php
 +++ b/includes/MediaHandlers/ThumbroJpegHandler.php
-@@ -4,7 +4,34 @@ declare( strict_types=1 );
+@@ -4,7 +4,38 @@ declare( strict_types=1 );
  namespace MediaWiki\Extension\Thumbro\MediaHandlers;
  
  use JpegHandler;
@@ -135,6 +130,10 @@ index fec668b..497ce92 100644
 +	 * The trait also defines rotate(); this class method overrides it (a class method
 +	 * always wins over a trait method of the same name), while thumbroVipsRotate()
 +	 * remains available from the trait.
++	 *
++	 * Keep $wgJpegTran unset: core's jpegtran branch adds getRotation() (counter-
++	 * clockwise) to jpegtran's clockwise angle and then drops the EXIF, so any file
++	 * with an Orientation tag of 6 or 8 comes out 180° from what was asked.
 +	 *
 +	 * @inheritDoc
 +	 */
