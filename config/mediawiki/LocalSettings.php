@@ -525,6 +525,7 @@ $wgMultiPurgeRunInQueue = true;
 # User rights
 $wgGroupPermissions['autopatrolled']['autopatrol'] = true;
 $wgGroupPermissions['patroller']['patrol'] = true;
+$wgGroupPermissions['patroller']['runcargoqueries'] = true;
 // Block creating accounts using the API
 $wgAPIModules['createaccount'] = 'ApiDisabled';
 
