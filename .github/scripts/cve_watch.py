@@ -54,9 +54,7 @@ ALIASES = {
 
 # CVEs fixed by something the checks below can't see: a hotfix patch or a file
 # we override. Drop an entry once the upstream fix is deployed.
-MITIGATED = {
-    "CVE-2026-96873": "hotfixed by includes/CirrusSearch/explainprinter-xss.patch",
-}
+MITIGATED: dict[str, str] = {}
 
 MENTIONS_EXTENSION = re.compile(r"\b(?:extension|skin)s?\b", re.IGNORECASE)
 CLONE = re.compile(r'git clone .*?-b (\S+) "https://github\.com/([^/"]+/[^/"]+?)\.git" (?:extensions|skins)/(\S+)')
@@ -290,7 +288,7 @@ def triage(cve_id: str, fixes: set, record: dict | None, comp: Component) -> tup
     if commits:
         branches = ", ".join(sorted({b for r, b, _ in fixes if r == comp.repo.lower() and b}))
         todo = {
-            "branch": f"It isn't on {comp.branch} yet. Apply it as a hotfix patch, as done for CirrusSearch.",
+            "branch": f"It isn't on {comp.branch} yet. Apply it as a hotfix patch in Dockerfile-mediawiki.",
             "tag": "Bump to a release that has it (Renovate opens a PR once one is tagged) or apply it as a hotfix patch.",
             "core": f"Apply it as a patch until a mediawiki:{comp.version} image or newer ships it.",
             "bundled": f"It's on {comp.branch}, so swap in a {comp.branch} clone, as done for Thanks." if on_branch

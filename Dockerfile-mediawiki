@@ -54,7 +54,7 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MediaSearch.git" extensions/MediaSearch
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-MyVariables.git" extensions/MyVariables
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-NearbyPages.git" extensions/NearbyPages
-# RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
+RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-OAuth.git" extensions/OAuth
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Popups.git" extensions/Popups
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RelatedArticles.git" extensions/RelatedArticles
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-RevisionSlider.git" extensions/RevisionSlider
@@ -66,13 +66,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 # image moves on: it then tracks the branch like the extensions above.
 RUN rm -rf extensions/Thanks && \
     git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Thanks.git" extensions/Thanks
-
-# Hotfix: CVE-2026-96873, reflected XSS in CirrusSearch's ExplainPrinter
-# (T435234). Fixed on master only, not yet backported to REL1_46. Drop when it
-# is: the build will fail here once the patch no longer applies.
-# See includes/CirrusSearch/explainprinter-xss.patch.
-COPY ./includes/CirrusSearch/explainprinter-xss.patch /tmp/explainprinter-xss.patch
-RUN git -C extensions/CirrusSearch apply /tmp/explainprinter-xss.patch
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.14.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
