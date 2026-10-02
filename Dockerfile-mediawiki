@@ -96,7 +96,7 @@ COPY ./includes/Thumbro/imagerotate-libvips.patch /tmp/imagerotate-libvips.patch
 RUN git -C extensions/Thumbro apply /tmp/imagerotate-libvips.patch
 
 # Separate version skins
-RUN git clone --depth 1 -b v3.23.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
+RUN git clone --depth 1 -b v3.24.0 "https://github.com/StarCitizenTools/mediawiki-skins-Citizen.git" skins/Citizen
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 # Composer refuses packages with known security advisories; keep that on.
