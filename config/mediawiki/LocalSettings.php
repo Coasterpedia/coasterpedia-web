@@ -565,7 +565,6 @@ $wgGroupPermissions['sysop']['interwiki'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
 $wgGroupPermissions['sysop']['thumbro-test'] = true;
-$wgGroupPermissions['autoconfirmed']['upload'] = true;
 $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 $wgGroupPermissions['user']['sendemail'] = false;
 $wgGroupPermissions['autoconfirmed']['sendemail'] = true;
@@ -827,6 +826,14 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		],
 		$sk->msg('cookiestatement')->escaped()
 	);
+	$contactMsg = $sk->msg('contactuspage')->inContentLanguage();
+	$contactTitle = $contactMsg->isDisabled() ? null : MediaWiki\Title\Title::newFromText( $contactMsg->text() );
+	if ( $contactTitle ) {
+		$footerlinks['contactus'] = MediaWiki\Html\Html::rawElement( 'a',
+			[ 'href' => $contactTitle->getFullURL() ],
+			$sk->msg('contactus')->escaped()
+		);
+	}
 	$footerlinks['statuspage'] = MediaWiki\Html\Html::rawElement(
 		'a',
 		[
