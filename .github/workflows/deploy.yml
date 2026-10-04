@@ -343,7 +343,7 @@ jobs:
       - name: Build and push Docker image
         id: build-and-push
         if: steps.existing.outputs.digest == ''
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./cirrussearch-opensearch-image
           file: ./cirrussearch-opensearch-image/.pipeline/blubber.yaml
