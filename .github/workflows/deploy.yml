@@ -444,6 +444,9 @@ jobs:
       # applies to the services that own those volumes, which get a new image
       # on every deploy anyway. The second up then recreates anything else only
       # if its image or config changed.
+      # Prune with -a: images pulled by digest (image@sha256) have no tag but
+      # keep a RepoDigest, so they never count as dangling and a plain prune
+      # leaves every past deploy on disk.
       - name: Deploy to server
         run: >
           ssh ${{ secrets.DOCKER_HOST_2 }} '
@@ -484,6 +487,6 @@ jobs:
             docker compose up -d -V --wait --wait-timeout 300 mediawiki jobrunner jobrunner-chron matomo &&
             docker compose up -d --wait --wait-timeout 300 &&
             docker compose exec -T -u www-data mediawiki php maintenance/run.php purgeMessageBlobStore &&
-            docker system prune -f &&
+            docker system prune -af &&
             docker volume prune -f
           '
