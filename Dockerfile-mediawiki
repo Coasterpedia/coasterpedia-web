@@ -61,11 +61,6 @@ RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/media
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-SandboxLink.git" extensions/SandboxLink
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-TwoColConflict.git" extensions/TwoColConflict
 RUN git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Variables.git" extensions/Variables
-# Thanks is bundled in the tarball, which is still 1.46.0, so swap in REL1_46 for
-# CVE-2026-100237 (stored XSS, fixed in 1.46.1). Harmless to keep once the base
-# image moves on: it then tracks the branch like the extensions above.
-RUN rm -rf extensions/Thanks && \
-    git clone --depth 1 -b $MEDIAWIKI_BRANCH "https://github.com/wikimedia/mediawiki-extensions-Thanks.git" extensions/Thanks
 
 # Separate version extensions
 RUN git clone --depth 1 -b v0.14.0 "https://github.com/edwardspec/mediawiki-aws-s3.git" extensions/AWS
@@ -89,7 +84,7 @@ RUN git clone --depth 1 -b v4.1.0 "https://github.com/StarCitizenTools/mediawiki
 RUN git clone --depth 1 -b v3.0.0 "https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git" extensions/TemplateStylesExtender
 RUN git clone --depth 1 -b v2.1.1 "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro.git" extensions/Thumbro
 # Hotfix: teach Thumbro's libvips-scaled handlers to answer action=imagerotate.
-# Upstream v2.0.1 leaves rotate() to core BitmapHandler, which has no libvips
+# Upstream v2.1.1 leaves rotate() to core BitmapHandler, which has no libvips
 # branch, so imagerotate fails with "libvips rotation not implemented". Drop when
 # a fixed Thumbro release lands. See includes/Thumbro/imagerotate-libvips.patch.
 COPY ./includes/Thumbro/imagerotate-libvips.patch /tmp/imagerotate-libvips.patch
@@ -100,24 +95,10 @@ RUN git clone --depth 1 -b v3.24.0 "https://github.com/StarCitizenTools/mediawik
 
 COPY ./composer.json /var/www/html/w/composer.local.json
 # Composer refuses packages with known security advisories; keep that on.
-# - Guzzle: the base image's 1.46 tarball pins 7.12.3, which has open advisories
-#   (CVE-2026-69246 and others). REL1_46 upstream already pins 7.15.2, so match
-#   it. Drop this once the mediawiki:1.46-fpm-alpine image ships 7.15.2 or later.
-# - PHP_CodeSniffer: dev-only, never installed, but still resolved; ignored as
-#   in the jobrunner stage.
-RUN composer require --no-update --no-interaction guzzlehttp/guzzle:7.15.2 && \
-    composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
+# PHP_CodeSniffer is dev-only, never installed, but still resolved; ignored as
+# in the jobrunner stage.
+RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
     composer update --no-dev --no-interaction --no-scripts --ignore-platform-reqs --verbose
-
-# Hotfix: MediaHandlerFactory::getHandler() caches handler instances by mimetype,
-# so the $lang of the *first* caller sticks and every later call gets a handler
-# set to the wrong language. Breaks search result snippets and file page rendering.
-# Merged upstream to REL1_46 as I7749f261 (T425988, T425740, T425782, T431182) but
-# not yet in a 1.46.x tarball, so the base image still ships the bug. Drop this once
-# the mediawiki:1.46-fpm-alpine image carries the fix — the build will fail here
-# when it does, because the patch will no longer apply.
-COPY ./includes/core/mediahandlerfactory-language-cache.patch /tmp/mediahandlerfactory-language-cache.patch
-RUN git apply --verbose /tmp/mediahandlerfactory-language-cache.patch
 
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
