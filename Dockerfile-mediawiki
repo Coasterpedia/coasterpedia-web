@@ -100,6 +100,9 @@ COPY ./composer.json /var/www/html/w/composer.local.json
 RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
     composer update --no-dev --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
+# Resumable Cargo table rebuild (see the script's header). Runs as
+# php maintenance/run.php cpCargoRebuild --table=…; scripts/cargo-rebuild.sh drives it.
+COPY ./includes/maintenance/cpCargoRebuild.php /var/www/html/w/maintenance/cpCargoRebuild.php
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
 
