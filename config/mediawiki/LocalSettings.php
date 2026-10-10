@@ -952,14 +952,33 @@ $cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpAp
 	} );
 };
 
+/**
+ * Anonymous users may not have the server parse wikitext they supply (parse,
+ * expandtemplates, stashedit, previews, compare with text, VisualEditor,
+ * Parsoid's transform) or run Lua (the Scribunto console). Each was a way to run
+ * any Cargo query (runcargoqueries only gates Special:CargoQuery and
+ * action=cargoquery) or DPL. The exception is the readers'
+ * gadgets' own parse: exactly one #invoke of a listed module, with no braces or
+ * tags in its arguments, so nothing can be nested inside it. Logged-in users are
+ * unaffected. Refused calls are still counted, with "denied" appended.
+ */
+$cpAnonParseModules = [ 'AttractionBrowser', 'MapData' ];
+$cpAnonDeniedModules = [
+	'expandtemplates', 'stashedit', 'discussiontoolspreview', 'scribunto-console',
+	'visualeditor', 'visualeditoredit',
+];
+
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/ApiCheckCanExecute */
-$wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message ) use ( $cpApiUsageRecord ) {
+$wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message ) use (
+	$cpApiUsageRecord, $cpAnonParseModules, $cpAnonDeniedModules
+) {
 	$main = $module->getMain();
 	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) !== 'api' || $main->isInternalMode() ) {
 		return true;
 	}
 	$request = $main->getRequest();
 	$call = $module->getModuleName();
+	$invoked = null;
 	$manager = $call === 'query' ? $module->getModuleManager() : null;
 	if ( $manager ) {
 		// Submodules validated against the manager, so junk values can't grow the hash.
@@ -990,19 +1009,45 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 		) {
 			$call .= ' rvprop=content';
 		}
+	} elseif ( $call === 'parse' && $request->getCheck( 'text' ) ) {
+		// Gadgets parse text (the Lua data transport). Named by the module invoked,
+		// so a refused gadget call can be told from an attempt to run a query.
+		$invoked = preg_match( '/^\{\{#invoke:([A-Za-z0-9_\/-]{1,40})\|[^{}<>]*\}\}$/',
+			trim( (string)$request->getVal( 'text' ) ), $m ) ? $m[1] : '';
+		$call .= ' text' . ( $invoked !== '' ? ":$invoked" : '' );
 	} elseif ( $call === 'parse' ) {
-		// Gadgets parse text (the Lua data transport); harvesters parse pages.
-		$call .= $request->getCheck( 'text' ) ? ' text' : ' page';
+		$call .= ' page';
 	}
-	$cpApiUsageRecord( 'api', $call );
+
+	// compare runs the pre-save transform on supplied text, so {{subst:#cargo_query:…}} executes.
+	$comparesText = $call === 'compare' && preg_grep( '/^(from|to)text/', array_keys( $request->getValues() ) );
+	$denied = !$user->isRegistered() && (
+		in_array( $module->getModuleName(), $cpAnonDeniedModules, true )
+		|| ( $invoked !== null && !in_array( $invoked, $cpAnonParseModules, true ) )
+		|| $comparesText
+	);
+	$cpApiUsageRecord( 'api', $denied ? "$call denied" : $call );
+	if ( $denied ) {
+		$message = MediaWiki\Api\ApiMessage::create( 'apierror-mustbeloggedin-generic', 'login-required' );
+		return false;
+	}
 	return true;
 };
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/RestCheckCanExecute */
 $wgHooks['RestCheckCanExecute'][] = static function ( $module, $handler, $path, $request, &$error ) use ( $cpApiUsageRecord ) {
-	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) === 'rest' ) {
-		// The route template, e.g. /v1/page/{title}, not the title asked for.
-		$cpApiUsageRecord( 'rest', $request->getMethod() . ' ' . $handler->getRoutePath() );
+	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) !== 'rest' ) {
+		return true;
+	}
+	// The route template, e.g. /v1/page/{title}, not the title asked for.
+	$route = $handler->getRoutePath();
+	// Parsoid's transform parses supplied wikitext: the same Cargo door as action=parse.
+	$denied = str_starts_with( $route, '/v1/transform/' )
+		&& !MediaWiki\Context\RequestContext::getMain()->getUser()->isRegistered();
+	$cpApiUsageRecord( 'rest', $request->getMethod() . " $route" . ( $denied ? ' denied' : '' ) );
+	if ( $denied ) {
+		$error = new MediaWiki\Rest\HttpException( 'You must be logged in.', 403 );
+		return false;
 	}
 	return true;
 };
