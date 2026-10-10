@@ -859,3 +859,165 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		$sk->msg('footer-kofi')->escaped()
 	);
 };
+
+/**
+ * Counts programmatic reads (api.php, rest.php, action=raw, Special:Export) by
+ * who asks and for what
+ *
+ * Aggregate counts only: one Redis hash per UTC day in db 2, kept 100 days.
+ * Field = entry, tier, source, client, call. No IPs or usernames are stored, so
+ * the privacy policy is unaffected. scripts/api-usage-report.sh reads it.
+ * Only what reaches origin is counted; anything Cloudflare serves from cache is not.
+ */
+$cpApiUsageCounted = false;
+$cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpApiUsageCounted ) {
+	// One count per request: internal API calls re-enter the hooks.
+	if ( $cpApiUsageCounted ) {
+		return;
+	}
+	$cpApiUsageCounted = true;
+	// The container healthcheck polls siteinfo every minute.
+	$remote = $_SERVER['REMOTE_ADDR'] ?? '';
+	if ( $remote === '127.0.0.1' || $remote === '::1' ) {
+		return;
+	}
+
+	$context = MediaWiki\Context\RequestContext::getMain();
+	$request = $context->getRequest();
+	$user = $context->getUser();
+
+	$tier = 'anon';
+	if ( $user->isRegistered() ) {
+		$groups = MediaWiki\MediaWikiServices::getInstance()
+			->getUserGroupManager()->getUserEffectiveGroups( $user );
+		$tier = 'user';
+		foreach ( [ 'bot', 'sysop', 'patroller', 'autopatrolled', 'autoconfirmed' ] as $group ) {
+			if ( in_array( $group, $groups, true ) ) {
+				$tier = $group;
+				break;
+			}
+		}
+	}
+
+	// Source: our own pages, another website via its visitors' browsers (named
+	// by its host), a URL typed into a browser, or a script with no browser.
+	// Headers are forgeable: good enough to measure, never to gate on.
+	$hostOf = static function ( $url ) {
+		$host = strtolower( (string)parse_url( (string)$url, PHP_URL_HOST ) );
+		return preg_replace( '/[^a-z0-9.-]/', '', substr( $host, 0, 64 ) );
+	};
+	$fetchSite = (string)$request->getHeader( 'Sec-Fetch-Site' );
+	$elsewhere = $hostOf( $request->getHeader( 'Origin' ) )
+		?: $hostOf( $request->getVal( 'origin' ) )
+		?: $hostOf( $request->getHeader( 'Referer' ) );
+	$isOurs = static fn ( $host ) => $host === 'coasterpedia.net'
+		|| str_ends_with( $host, '.coasterpedia.net' );
+	if ( $request->getHeader( 'Authorization' ) !== false ) {
+		$source = 'oauth';
+	} elseif ( $fetchSite === 'same-origin' || $fetchSite === 'same-site'
+		|| ( $fetchSite === '' && $elsewhere !== '' && $isOurs( $elsewhere ) )
+	) {
+		$source = 'site';
+	} elseif ( $fetchSite === 'none' ) {
+		$source = 'browser';
+	} elseif ( $elsewhere !== '' && !$isOurs( $elsewhere ) ) {
+		$source = 'web:' . $elsewhere;
+	} elseif ( $fetchSite === 'cross-site' ) {
+		$source = 'web:unknown';
+	} else {
+		$source = 'script';
+	}
+
+	// Client: the user agent's product name only. Browsers and the crawlers
+	// posing as them all say "mozilla"; tools usually name themselves.
+	// Everything after the product name is dropped, since it can hold an email address.
+	$client = 'none';
+	if ( preg_match( '/^[A-Za-z][A-Za-z0-9._-]{0,31}/', (string)$request->getHeader( 'User-Agent' ), $m ) ) {
+		$client = strtolower( $m[0] );
+	}
+
+	$field = implode( "\t", [ $entry, $tier, $source, $client, $call ] );
+	MediaWiki\Deferred\DeferredUpdates::addCallableUpdate( static function () use ( $field ) {
+		try {
+			// Own persistent id: never shares, or re-selects, the cache's connection.
+			$redis = new Redis();
+			$redis->pconnect( 'redis', 6379, 0.25, 'cp-apiusage' );
+			$redis->select( 2 );
+			$key = 'cp:apiusage:' . gmdate( 'Y-m-d' );
+			$redis->hIncrBy( $key, $field, 1 );
+			$redis->expire( $key, 86400 * 100 );
+		} catch ( Throwable $e ) {
+			// Counting must never cost a request.
+		}
+	} );
+};
+
+/** @see https://www.mediawiki.org/wiki/Manual:Hooks/ApiCheckCanExecute */
+$wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message ) use ( $cpApiUsageRecord ) {
+	$main = $module->getMain();
+	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) !== 'api' || $main->isInternalMode() ) {
+		return true;
+	}
+	$request = $main->getRequest();
+	$call = $module->getModuleName();
+	$manager = $call === 'query' ? $module->getModuleManager() : null;
+	if ( $manager ) {
+		// Submodules validated against the manager, so junk values can't grow the hash.
+		$props = [];
+		foreach ( [ 'prop', 'list', 'meta' ] as $group ) {
+			$raw = (string)$request->getVal( $group );
+			$names = str_starts_with( $raw, "\x1f" )
+				? explode( "\x1f", substr( $raw, 1 ) )
+				: explode( '|', $raw );
+			$names = array_values( array_filter( $names,
+				static fn ( $name ) => $manager->isDefined( $name, $group ) ) );
+			sort( $names );
+			if ( $names ) {
+				$call .= " $group=" . implode( ',', $names );
+			}
+			if ( $group === 'prop' ) {
+				$props = $names;
+			}
+		}
+		$generator = (string)$request->getVal( 'generator' );
+		if ( $generator !== '' && $manager->isDefined( $generator ) ) {
+			$call .= " generator=$generator";
+		}
+		// Wikitext harvesting looks like this.
+		if ( in_array( 'revisions', $props, true )
+			&& preg_match( '/(^|[|\x1f])content($|[|\x1f])/', (string)$request->getVal( 'rvprop' ) )
+		) {
+			$call .= ' rvprop=content';
+		}
+	} elseif ( $call === 'parse' ) {
+		// Gadgets parse text (the Lua data transport); harvesters parse pages.
+		$call .= $request->getCheck( 'text' ) ? ' text' : ' page';
+	}
+	$cpApiUsageRecord( 'api', $call );
+	return true;
+};
+
+/** @see https://www.mediawiki.org/wiki/Manual:Hooks/RestCheckCanExecute */
+$wgHooks['RestCheckCanExecute'][] = static function ( $module, $handler, $path, $request, &$error ) use ( $cpApiUsageRecord ) {
+	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) === 'rest' ) {
+		// The route template, e.g. /v1/page/{title}, not the title asked for.
+		$cpApiUsageRecord( 'rest', $request->getMethod() . ' ' . $handler->getRoutePath() );
+	}
+	return true;
+};
+
+/** @see https://www.mediawiki.org/wiki/Manual:Hooks/RawPageViewBeforeOutput */
+$wgHooks['RawPageViewBeforeOutput'][] = static function ( $rawAction, &$text ) use ( $cpApiUsageRecord ) {
+	// javascript/css is gadgets and user scripts loading; wikitext is the page source leaving.
+	$cpApiUsageRecord( 'raw', $rawAction->getTitle()->getContentModel() );
+	return true;
+};
+
+/** @see https://www.mediawiki.org/wiki/Manual:Hooks/SpecialPageBeforeExecute */
+$wgHooks['SpecialPageBeforeExecute'][] = static function ( $special, $subPage ) use ( $cpApiUsageRecord ) {
+	if ( $special->getName() === 'Export' ) {
+		$exporting = $subPage !== null || $special->getRequest()->getCheck( 'pages' );
+		$cpApiUsageRecord( 'export', $exporting ? 'pages' : 'form' );
+	}
+	return true;
+};
