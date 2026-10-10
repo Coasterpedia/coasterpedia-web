@@ -35,6 +35,7 @@ require_once __DIR__ . '/Maintenance.php';
 use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\Title\Title;
 use Wikimedia\ObjectCache\BagOStuff;
+use Wikimedia\Timestamp\TimestampFormat as TS;
 use Wikimedia\Rdbms\DBError;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\IMaintainableDatabase;
@@ -42,6 +43,10 @@ use Wikimedia\Rdbms\IMaintainableDatabase;
 class CpCargoRebuild extends Maintenance {
 
 	private const EXIT_RESUME = 75;
+	/** Another populate holds this table and shard; the wrapper waits and tries again. */
+	private const EXIT_BUSY = 73;
+	/** Seconds a populate's claim outlives its last page. */
+	private const LEASE_TTL = 120;
 	private const BATCH = 200;
 
 	private string $table;
@@ -107,6 +112,17 @@ class CpCargoRebuild extends Maintenance {
 		}
 		$this->output( "Templates: " . implode( ', ', $this->templates ) . "\n" );
 		$this->output( "Pages to parse: " . $this->countPages() . "\n" );
+		// What the replacement will be built from: the declaring template's
+		// declaration as it stands now. After flipping Module:SchemaState, check
+		// the new columns are here; if not, purge the template and look again.
+		$schemaString = CargoUtils::getPageProp( CargoUtils::getTemplateIDForDBTable( $this->table ), 'CargoFields' );
+		if ( $schemaString !== null ) {
+			$fields = [];
+			foreach ( CargoTableSchema::newFromDBString( $schemaString )->mFieldDescriptions as $name => $fd ) {
+				$fields[] = $name . ' (' . ( $fd->mIsList ? 'list of ' : '' ) . $fd->mType . ')';
+			}
+			$this->output( "Declares: " . implode( ', ', $fields ) . "\n" );
+		}
 		if ( $this->hasOption( 'dry-run' ) ) {
 			$this->output( "Dry run: $next not created.\n" );
 			return;
@@ -144,6 +160,9 @@ class CpCargoRebuild extends Maintenance {
 		}
 
 		$dryRun = $this->hasOption( 'dry-run' );
+		if ( !$dryRun ) {
+			$this->claim( $scope );
+		}
 		$deadline = $this->hasOption( 'max-seconds' ) ? time() + (int)$this->getOption( 'max-seconds' ) : null;
 		$pause = (int)$this->getOption( 'sleep', 0 );
 
@@ -154,12 +173,16 @@ class CpCargoRebuild extends Maintenance {
 			foreach ( $queue as $id ) {
 				$this->processPage( (int)$id, $next, $state, $dryRun );
 				$this->saveState( $state, $scope );
+				$this->renew( $scope, $dryRun );
 			}
+			$this->release( $scope, $dryRun );
 			$this->report( $state );
 			return;
 		}
 
-		$this->output( "Populating $next ($scope) from page ID {$state['last']}.\n" );
+		$doneBefore = $state['done'];
+		$this->output( sprintf( "%s Populating %s (%s) from page ID %d (%d done so far).\n",
+			wfTimestamp( TS::ISO_8601 ), $next, $scope, $state['last'], $state['done'] ) );
 		while ( true ) {
 			$ids = $this->pageIds( $state['last'], self::BATCH, $shard, $shards );
 			if ( !$ids ) {
@@ -168,24 +191,35 @@ class CpCargoRebuild extends Maintenance {
 			foreach ( $ids as $id ) {
 				$this->processPage( $id, $next, $state, $dryRun );
 				$state['last'] = $id;
+				$this->renew( $scope, $dryRun );
 				if ( $pause ) {
 					usleep( $pause * 1000 );
 				}
 				if ( $this->mustStop( $deadline ) ) {
 					$this->saveState( $state, $scope );
+					$this->release( $scope, $dryRun );
 					$this->output( "Stopping cleanly at page ID $id; run again to continue.\n" );
 					$this->report( $state );
 					exit( self::EXIT_RESUME );
 				}
 			}
 			$this->saveState( $state, $scope );
-			$this->output( sprintf( "…page ID %d, %d done, %d failed\n",
-				$state['last'], $state['done'], count( $state['failed'] ) ) );
+			$this->output( sprintf( "%s …page ID %d, %d done, %d failed\n",
+				wfTimestamp( TS::ISO_8601 ), $state['last'], $state['done'], count( $state['failed'] ) ) );
 			$this->getServiceContainer()->getLinkCache()->clear();
 		}
-		$state['finished'] = wfTimestampNow();
+		// A rerun that found nothing left keeps the real finish time.
+		if ( $state['done'] > $doneBefore || !isset( $state['finished'] ) ) {
+			$state['finished'] = wfTimestampNow();
+		}
 		$this->saveState( $state, $scope );
+		$this->release( $scope, $dryRun );
 		$this->report( $state );
+		$started = $this->loadState( 'run' )['started'] ?? null;
+		if ( $started ) {
+			$secs = (int)wfTimestamp( TS::UNIX, $state['finished'] ) - (int)wfTimestamp( TS::UNIX, $started );
+			$this->output( sprintf( "Since --create: %dh %02dm.\n", intdiv( $secs, 3600 ), intdiv( $secs % 3600, 60 ) ) );
+		}
 		$this->output( $state['failed']
 			? "Then --retry-failed, then --compare.\n"
 			: "Next: --compare, then Special:SwitchCargoTable.\n" );
@@ -483,6 +517,35 @@ class CpCargoRebuild extends Maintenance {
 		return array_map( 'intval', $this->cdb->newSelectQueryBuilder()
 			->select( $this->q( '_pageID' ) )->distinct()->from( $table )
 			->caller( __METHOD__ )->fetchFieldValues() );
+	}
+
+	// ---- One populate per table and shard ----------------------------------
+
+	/**
+	 * Refuse to run beside another populate of the same table and shard: two
+	 * would do the same pages twice and fight over the same locks. The claim
+	 * expires LEASE_TTL seconds after the holder's last page, so a crashed run
+	 * frees it on its own.
+	 */
+	private function claim( string $scope ): void {
+		$holder = gethostname() . ':' . getmypid();
+		if ( !$this->stash()->add( $this->stateKey( "lease-$scope" ), $holder, self::LEASE_TTL ) ) {
+			$this->output( "Another populate of {$this->table} ($scope) is running: "
+				. $this->stash()->get( $this->stateKey( "lease-$scope" ) ) . ". Waiting is safe.\n" );
+			exit( self::EXIT_BUSY );
+		}
+	}
+
+	private function renew( string $scope, bool $dryRun ): void {
+		if ( !$dryRun ) {
+			$this->stash()->set( $this->stateKey( "lease-$scope" ), gethostname() . ':' . getmypid(), self::LEASE_TTL );
+		}
+	}
+
+	private function release( string $scope, bool $dryRun ): void {
+		if ( !$dryRun ) {
+			$this->stash()->delete( $this->stateKey( "lease-$scope" ) );
+		}
 	}
 
 	// ---- State -------------------------------------------------------------

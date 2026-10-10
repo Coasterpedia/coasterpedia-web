@@ -4,7 +4,11 @@
 #
 #   scripts/cargo-rebuild.sh Water_Slides                 # populate, resuming
 #   scripts/cargo-rebuild.sh Water_Slides --sleep=200     # gentler on the DB
-#   nohup scripts/cargo-rebuild.sh Rides > rides.log 2>&1 &
+#   nohup scripts/cargo-rebuild.sh Rides >> rides.log 2>&1 &
+#
+# Append (>>), never truncate: a second launch must not wipe the first's log.
+# Only one populate per table runs at a time; a second launch waits (exit 73)
+# until the first is done, then finds nothing left and finishes.
 #
 # Resumes on exit 75 (the script stopped cleanly) and when the MediaWiki
 # container was replaced mid-run (a deploy). Anything else stops it: read the
@@ -32,6 +36,10 @@ while true; do
 	fi
 	if [ "$code" -eq 75 ]; then
 		echo "Stopped cleanly; resuming."
+		continue
+	fi
+	if [ "$code" -eq 73 ]; then
+		sleep 60
 		continue
 	fi
 	# Container gone or restarted under us (a deploy): wait for it, then resume.
