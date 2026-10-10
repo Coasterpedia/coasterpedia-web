@@ -16,6 +16,7 @@
  *   --compare    row and page counts, live vs replacement, before switching
  *   --resync     after abandoning a run (replacement deleted): re-store every
  *                page changed since the run began into the live table
+ *   --audit      pages whose next save would duplicate their rows (read-only)
  *   --status     where a run is up to
  *
  * Switching is still Special:SwitchCargoTable. Storage goes through Cargo's own
@@ -59,6 +60,7 @@ class CpCargoRebuild extends Maintenance {
 		$this->addOption( 'compare', 'Compare the live table with its replacement' );
 		$this->addOption( 'resync', 'Re-store pages changed since a run began into the live table (no replacement may exist)' );
 		$this->addOption( 'status', 'Show progress' );
+		$this->addOption( 'audit', 'List pages with rows in the live table but no cargo_pages record (read-only)' );
 		$this->addOption( 'since', 'For --resync: YYYYMMDDHHMMSS (default: when --create ran)', false, true );
 		$this->addOption( 'restart', 'For --populate: forget saved progress and start from the first page' );
 		$this->addOption( 'from', 'For --populate: start after this page ID', false, true );
@@ -80,10 +82,10 @@ class CpCargoRebuild extends Maintenance {
 			$this->fatalError( "No template declares or attaches \"{$this->table}\"." );
 		}
 
-		$modes = array_filter( [ 'create', 'populate', 'retry-failed', 'compare', 'resync', 'status' ],
+		$modes = array_filter( [ 'create', 'populate', 'retry-failed', 'compare', 'resync', 'status', 'audit' ],
 			fn ( $m ) => $this->hasOption( $m ) );
 		if ( count( $modes ) !== 1 ) {
-			$this->fatalError( 'Choose exactly one of --create, --populate, --retry-failed, --compare, --resync, --status.' );
+			$this->fatalError( 'Choose exactly one of --create, --populate, --retry-failed, --compare, --resync, --status, --audit.' );
 		}
 		match ( reset( $modes ) ) {
 			'create' => $this->create(),
@@ -92,6 +94,7 @@ class CpCargoRebuild extends Maintenance {
 			'compare' => $this->compare(),
 			'resync' => $this->resync(),
 			'status' => $this->status(),
+			'audit' => $this->audit(),
 		};
 	}
 
@@ -233,14 +236,20 @@ class CpCargoRebuild extends Maintenance {
 			->caller( __METHOD__ )->fetchFieldValues() );
 		$inScope = array_flip( $this->pagesAmong( $changed ) );
 		$live = $this->distinctPages( $this->table );
+		// A null edit fires Cargo's save hook but never reaches recentchanges, so
+		// also take every page whose live rows lost their cargo_pages record: that
+		// is what any save during the run left behind, whatever made it.
+		$unregistered = $this->unregisteredPages( $live );
 		// Changed pages that still use the table, plus any that held rows here
 		// (a page that dropped the template, or was deleted, keeps a stale row).
 		$targets = array_values( array_unique( array_merge(
 			array_keys( $inScope ),
-			array_values( array_intersect( $changed, $live ) )
+			array_values( array_intersect( $changed, $live ) ),
+			$unregistered
 		) ) );
 		sort( $targets );
-		$this->output( count( $targets ) . " page(s) changed since $since to resync into {$this->table}.\n" );
+		$this->output( sprintf( "%d page(s) to resync into %s: %d changed since %s, %d with rows but no cargo_pages record.\n",
+			count( $targets ), $this->table, count( $inScope ), $since, count( $unregistered ) ) );
 
 		$state = [ 'done' => 0, 'failed' => [] ];
 		foreach ( $targets as $id ) {
@@ -256,6 +265,41 @@ class CpCargoRebuild extends Maintenance {
 			}
 		}
 		$this->report( $state );
+	}
+
+	/**
+	 * Read-only. Pages with rows in the live table but no cargo_pages record
+	 * for it: their next ordinary save will not delete those rows and will add
+	 * a second set. A save during any rebuild that was later abandoned leaves
+	 * exactly this. Fix with --resync (any --since; the gap is found regardless).
+	 */
+	private function audit(): void {
+		if ( $this->cdb->tableExists( $this->next(), __METHOD__ ) ) {
+			$this->output( "{$this->next()} exists, so saves are skipping the live table: a gap now is expected.\n" );
+		}
+		$live = $this->distinctPages( $this->table );
+		$gap = $this->unregisteredPages( $live );
+		$this->output( count( $live ) . " page(s) hold rows in {$this->table}.\n" );
+		$this->listDiff( 'Rows with no cargo_pages record (next save duplicates them)', $gap );
+		$dupes = $this->cdb->newSelectQueryBuilder()
+			->select( [ 'page' => $this->q( '_pageID' ), 'n' => 'COUNT(*)' ] )
+			->from( $this->table )
+			->groupBy( $this->q( '_pageID' ) )
+			->having( 'COUNT(*) > 1' )
+			->caller( __METHOD__ )->fetchResultSet();
+		$this->output( $dupes->numRows() . " page(s) hold more than one row (expected only where one page stores several, as past locations do).\n" );
+	}
+
+	/** Of $pageIds, those with no cargo_pages record for the live table. */
+	private function unregisteredPages( array $pageIds ): array {
+		if ( !$pageIds ) {
+			return [];
+		}
+		$registered = array_map( 'intval', CargoUtils::getMainDBForRead()->newSelectQueryBuilder()
+			->select( 'page_id' )->from( 'cargo_pages' )
+			->where( [ 'table_name' => $this->table ] )
+			->caller( __METHOD__ )->fetchFieldValues() );
+		return array_values( array_diff( $pageIds, $registered ) );
 	}
 
 	private function status(): void {
