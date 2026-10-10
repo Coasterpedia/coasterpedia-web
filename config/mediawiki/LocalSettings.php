@@ -969,8 +969,9 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 			$names = str_starts_with( $raw, "\x1f" )
 				? explode( "\x1f", substr( $raw, 1 ) )
 				: explode( '|', $raw );
-			$names = array_values( array_filter( $names,
-				static fn ( $name ) => $manager->isDefined( $name, $group ) ) );
+			// Unique: page previews (Popups) ask for prop=info twice.
+			$names = array_values( array_unique( array_filter( $names,
+				static fn ( $name ) => $manager->isDefined( $name, $group ) ) ) );
 			sort( $names );
 			if ( $names ) {
 				$call .= " $group=" . implode( ',', $names );
