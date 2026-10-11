@@ -864,7 +864,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
  * Counts programmatic reads (api.php, rest.php, action=raw, Special:Export) by
  * who asks and for what
  *
- * Aggregate counts only: one Redis hash per UTC day in db 2, kept 100 days.
+ * Aggregate counts only: one Redis hash per UTC day in db 0, kept 100 days.
  * Field = entry, tier, source, client, call. No IPs or usernames are stored, so
  * the privacy policy is unaffected. scripts/api-usage-report.sh reads it.
  * Only what reaches origin is counted; anything Cloudflare serves from cache is not.
@@ -939,10 +939,12 @@ $cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpAp
 	$field = implode( "\t", [ $entry, $tier, $source, $client, $call ] );
 	MediaWiki\Deferred\DeferredUpdates::addCallableUpdate( static function () use ( $field ) {
 		try {
-			// Own persistent id: never shares, or re-selects, the cache's connection.
+			// Database 0, as MediaWiki, and never select(): phpredis pools persistent
+			// connections by host and port whatever the persistent id, so a selected
+			// database leaks into MediaWiki's next use of the socket. A select( 2 ) here
+			// put sessions and caches in db 2 and lost logins (2026-10-10/11).
 			$redis = new Redis();
-			$redis->pconnect( 'redis', 6379, 0.25, 'cp-apiusage' );
-			$redis->select( 2 );
+			$redis->pconnect( 'redis', 6379, 0.25 );
 			$key = 'cp:apiusage:' . gmdate( 'Y-m-d' );
 			$redis->hIncrBy( $key, $field, 1 );
 			$redis->expire( $key, 86400 * 100 );
@@ -966,6 +968,20 @@ $cpAnonParseModules = [ 'AttractionBrowser', 'MapData' ];
 $cpAnonDeniedModules = [
 	'expandtemplates', 'stashedit', 'discussiontoolspreview', 'scribunto-console',
 	'visualeditor', 'visualeditoredit',
+];
+
+/**
+ * API requests per minute by who is asking, checked in the hook below. nginx
+ * only sees cookies, so its tiers are a per-IP ceiling (1000/min logged in);
+ * these are the limits that know the account. A user in several groups gets the
+ * most generous; 'ip' covers anons and non-autoconfirmed accounts. Sysops and
+ * bureaucrats are exempt (noratelimit). Refused calls answer `ratelimited`.
+ */
+$wgRateLimits['cp-api'] = [
+	'ip' => [ 100, 60 ],
+	'newbie' => [ 100, 60 ],
+	'user' => [ 300, 60 ],
+	'bot' => [ 1000, 60 ],
 ];
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/ApiCheckCanExecute */
@@ -1026,9 +1042,16 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 		|| ( $invoked !== null && !in_array( $invoked, $cpAnonParseModules, true ) )
 		|| $comparesText
 	);
-	$cpApiUsageRecord( 'api', $denied ? "$call denied" : $call );
+	// A refused call never spends the caller's allowance.
+	$limited = !$denied && $user->pingLimiter( 'cp-api' );
+	$cpApiUsageRecord( 'api', $call . ( $denied ? ' denied' : ( $limited ? ' limited' : '' ) ) );
 	if ( $denied ) {
 		$message = MediaWiki\Api\ApiMessage::create( 'apierror-mustbeloggedin-generic', 'login-required' );
+		return false;
+	}
+	if ( $limited ) {
+		$request->response()->header( 'Retry-After: 60' );
+		$message = MediaWiki\Api\ApiMessage::create( 'apierror-ratelimited', 'ratelimited' );
 		return false;
 	}
 	return true;

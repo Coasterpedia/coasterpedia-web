@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sums the API usage counts LocalSettings.php writes to Redis (db 2, one hash
+# Sums the API usage counts LocalSettings.php writes to Redis (db 0, one hash
 # per UTC day) into a TSV, busiest first. Run on the docker host.
 #
 #   scripts/api-usage-report.sh                # every day still held
@@ -9,7 +9,7 @@
 set -euo pipefail
 
 days="${1:-*}"
-redis=(docker exec coasterpedia-redis-1 redis-cli -n 2 --raw)
+redis=(docker exec coasterpedia-redis-1 redis-cli -n 0 --raw)
 
 printf 'count\tentry\ttier\tsource\tclient\tcall\n'
 "${redis[@]}" --scan --pattern "cp:apiusage:${days}" |

@@ -37,12 +37,26 @@ use MediaWiki\Title\Title;
 use Wikimedia\ObjectCache\BagOStuff;
 use Wikimedia\Timestamp\TimestampFormat as TS;
 use Wikimedia\Rdbms\DBError;
+use Wikimedia\Rdbms\DBQueryError;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\IMaintainableDatabase;
 
 class CpCargoRebuild extends Maintenance {
 
 	private const EXIT_RESUME = 75;
+	/**
+	 * MySQL errors that clear by themselves: lock wait timeout, deadlock, a
+	 * snapshot conflict, a duplicate _ID from two writers racing for the max,
+	 * a dropped connection. Anything else (a value too long, a bad value) fails
+	 * the same way every time, so it is not retried.
+	 */
+	private const TRANSIENT = [ 1205, 1213, 1020, 1062, 2006, 2013 ];
+	/** What to do about the permanent ones an article can cause. */
+	private const HINTS = [
+		1406 => 'a value is longer than its Cargo column holds (300 characters for a String)',
+		1366 => 'a value is not valid for its column type',
+		1264 => 'a number is out of range for its column',
+	];
 	/** Another populate holds this table and shard; the wrapper waits and tries again. */
 	private const EXIT_BUSY = 73;
 	/** Seconds a populate's claim outlives its last page. */
@@ -315,6 +329,11 @@ class CpCargoRebuild extends Maintenance {
 		$gap = $this->unregisteredPages( $live );
 		$this->output( count( $live ) . " page(s) hold rows in {$this->table}.\n" );
 		$this->listDiff( 'Rows with no cargo_pages record (next save duplicates them)', $gap );
+		// An article using the template with no row: its store failed, every
+		// save, silently (a value too long for its column, say). It is missing
+		// from every count and map until the article is fixed.
+		$this->listDiff( 'Articles using the template with no row (their store fails)',
+			array_diff( $this->articleIds(), $live ) );
 		$dupes = $this->cdb->newSelectQueryBuilder()
 			->select( [ 'page' => $this->q( '_pageID' ), 'n' => 'COUNT(*)' ] )
 			->from( $this->table )
@@ -322,6 +341,18 @@ class CpCargoRebuild extends Maintenance {
 			->having( 'COUNT(*) > 1' )
 			->caller( __METHOD__ )->fetchResultSet();
 		$this->output( $dupes->numRows() . " page(s) hold more than one row (expected only where one page stores several, as past locations do).\n" );
+	}
+
+	/** Main-namespace pages transcluding the table's templates. */
+	private function articleIds(): array {
+		$dbr = $this->getReplicaDB();
+		return array_map( 'intval', $dbr->newSelectQueryBuilder()
+			->select( 'tl_from' )->distinct()
+			->from( 'templatelinks' )
+			->join( 'linktarget', null, 'lt_id = tl_target_id' )
+			->join( 'page', null, 'page_id = tl_from' )
+			->where( [ 'lt_namespace' => NS_TEMPLATE, 'lt_title' => $this->templates, 'page_namespace' => NS_MAIN ] )
+			->caller( __METHOD__ )->fetchFieldValues() );
 	}
 
 	/** Of $pageIds, those with no cargo_pages record for the live table. */
@@ -397,8 +428,13 @@ class CpCargoRebuild extends Maintenance {
 				return;
 			} catch ( DBError $e ) {
 				$this->rollbackAll();
-				if ( $attempt === $attempts ) {
-					$this->fail( $id, $title, $e, $state );
+				$errno = $e instanceof DBQueryError ? (int)$e->errno : 0;
+				// A query error not on the transient list is the page's data:
+				// retrying cannot help. Connection errors carry no errno; retry.
+				$permanent = $errno !== 0 && !in_array( $errno, self::TRANSIENT, true );
+				if ( $permanent || $attempt === $attempts ) {
+					$this->fail( $id, $title, $e, $state,
+						isset( self::HINTS[$errno] ) ? self::HINTS[$errno] . '; fix the article, then --retry-failed' : null );
 					return;
 				}
 				// Lock waits and deadlocks clear; back off and try again.
@@ -432,11 +468,11 @@ class CpCargoRebuild extends Maintenance {
 		$cdb->delete( $table, $pageCond, __METHOD__ );
 	}
 
-	private function fail( int $id, Title $title, Throwable $e, array &$state ): void {
+	private function fail( int $id, Title $title, Throwable $e, array &$state, ?string $hint = null ): void {
 		$state['failed'][] = $id;
 		$state['failed'] = array_values( array_unique( $state['failed'] ) );
 		$this->output( sprintf( "  FAILED %s (page ID %d): %s\n",
-			$title->getPrefixedText(), $id, $this->shortError( $e ) ) );
+			$title->getPrefixedText(), $id, $hint ?? $this->shortError( $e ) ) );
 	}
 
 	private function rollbackAll(): void {
