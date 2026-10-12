@@ -103,6 +103,8 @@ RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/ph
 # Resumable Cargo table rebuild (see the script's header). Runs as
 # php maintenance/run.php cpCargoRebuild --table=…; scripts/cargo-rebuild.sh drives it.
 COPY ./includes/maintenance/cpCargoRebuild.php /var/www/html/w/maintenance/cpCargoRebuild.php
+# In-place _pageData repair; Cargo's setCargoPageData.php writes wrong categories on MW 1.45+.
+COPY ./includes/maintenance/cpPageDataRepair.php /var/www/html/w/maintenance/cpPageDataRepair.php
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
 
