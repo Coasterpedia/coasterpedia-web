@@ -41,13 +41,18 @@
 - macro: cp_expected_web_exec
   condition: >
     (proc.name = ifconfig and proc.args = "-a")
+    or (proc.name = pygmentize and proc.exepath = /bin/busybox
+        and proc.args startswith "python3 /var/www/html/w/extensions/SyntaxHighlight_GeSHi/includes/../pygments/pygmentize ")
     or (proc.name = python3
         and proc.args startswith "/var/www/html/w/extensions/SyntaxHighlight_GeSHi/includes/../pygments/pygmentize ")
     or (proc.exepath = /usr/bin/vipsheader
         and (proc.args glob "-f orientation /tmp/*" or proc.args glob "-f bands /tmp/*"))
 # - ifconfig -a: core's GlobalIdGenerator reads a MAC address for its node ID,
 #   once per container start (the cached ID lives in /tmp, which is tmpfs).
-# - pygmentize: SyntaxHighlight renders code blocks through Python.
+# - pygmentize: SyntaxHighlight renders code blocks through Python. It runs
+#   the bundled script directly, so each render is two execs: its
+#   "#!/usr/bin/env python3" shebang first runs busybox's env (named after the
+#   script, with "python3 <script> ..." as its args), which then runs python3.
 # - vipsheader: Thumbro reads each source image's orientation and alpha bands
 #   (Image/VipsHeader*Detector.php); the source is PHP's upload temp file or a
 #   local copy fetched from R2, both under /tmp.
