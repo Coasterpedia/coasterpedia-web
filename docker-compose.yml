@@ -301,7 +301,7 @@ services:
   # an attacker does once in (commands run by PHP, dropped files, secrets read).
   # Rules: config/falco/coasterpedia_rules.yaml. Alerts go to falcosidekick.
   falco:
-    image: falcosecurity/falco:0.45.0
+    image: falcosecurity/falco:0.45.1
     restart: always
     # The documented least-privilege set for the modern eBPF driver. SYS_ADMIN
     # stands in for BPF + PERFMON, which Docker can't grant separately yet.
