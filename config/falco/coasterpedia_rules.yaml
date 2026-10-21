@@ -47,6 +47,9 @@
         and proc.args startswith "/var/www/html/w/extensions/SyntaxHighlight_GeSHi/includes/../pygments/pygmentize ")
     or (proc.exepath = /usr/bin/vipsheader
         and (proc.args glob "-f orientation /tmp/*" or proc.args glob "-f bands /tmp/*"))
+    or (proc.exepath = /usr/bin/gif2webp and proc.args = "-version")
+    or (proc.exepath = /usr/bin/cwebp
+        and proc.args regex "^-q 80 -m 6 /tmp/thumbro_[0-9a-f]+[.][a-z]+ -o /tmp/transform_[0-9a-f]+[.]webp$")
 # - ifconfig -a: core's GlobalIdGenerator reads a MAC address for its node ID,
 #   once per container start (the cached ID lives in /tmp, which is tmpfs).
 # - pygmentize: SyntaxHighlight renders code blocks through Python. It runs
@@ -56,6 +59,11 @@
 # - vipsheader: Thumbro reads each source image's orientation and alpha bands
 #   (Image/VipsHeader*Detector.php); the source is PHP's upload temp file or a
 #   local copy fetched from R2, both under /tmp.
+# - gif2webp -version: Thumbro's SoftwareInfo hook, on every Special:Version view.
+# - cwebp: Thumbro's static-WebP encoder with its default options, reading and
+#   writing its own temp files. Matched by regex, not glob: a glob's * also
+#   matches spaces, so it would let extra arguments through. Both tools arrived
+#   with libwebp-tools on 2026-09-30, after the learning period.
 
 # Outputs name the parent rather than printing its command line: php-fpm
 # rewrites its own as "php-fpm: pool www" padded with kilobytes of spaces.
