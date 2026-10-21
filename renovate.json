@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), the Falco images, and MariaDB and Redis, which are pinned by digest so a deploy only restarts them when a bump is merged. Other images stay managed by hand.",
+  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), phpredis, which is built from a GitHub tag because PECL went down during an urgent rebuild, the Falco images, and MariaDB and Redis, which are pinned by digest so a deploy only restarts them when a bump is merged. Other images stay managed by hand.",
   "extends": ["config:recommended"],
   "enabledManagers": ["custom.regex", "docker-compose", "github-actions"],
   "labels": ["dependencies"],
@@ -13,6 +13,14 @@
         "git clone --depth 1 -b (?<currentValue>v?\\d+(?:\\.\\d+){1,2}) \"https://github\\.com/(?<depName>[^/\"]+/[^/\"]+?)\\.git\""
       ],
       "datasourceTemplate": "github-tags"
+    },
+    {
+      "customType": "regex",
+      "description": "# renovate: datasource=<datasource> depName=<name> on the line above ARG <NAME>_VERSION=<version>",
+      "managerFilePatterns": ["/^Dockerfile-mediawiki$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG \\w+_VERSION=(?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
@@ -30,6 +38,11 @@
       "matchManagers": ["docker-compose"],
       "matchPackageNames": ["mariadb"],
       "allowedVersions": "/^11\\.8\\.\\d+$/"
+    },
+    {
+      "description": "phpredis tags its release candidates 6.3.0RC1 and so on. Only offer final releases.",
+      "matchPackageNames": ["phpredis/phpredis"],
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/"
     },
     {
       "description": "Batch non-major GitHub Actions updates into one PR",

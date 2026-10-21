@@ -12,6 +12,7 @@ COPY ./config/php/zzz-pool-overrides.conf /usr/local/etc/php-fpm.d/zzz-pool-over
 # phpredis comes from GitHub, not PECL: pecl.php.net returned 500/504 for
 # every build during the 2026-10-21 PHP security release. luasandbox is
 # already installed in the base image.
+# renovate: datasource=github-tags depName=phpredis/phpredis
 ARG PHPREDIS_VERSION=6.3.0
 RUN apk add --no-cache diffutils pcre-dev ghostscript imagemagick imagemagick-dev poppler-utils nodejs npm nginx supervisor lua5.1 lua5.1-dev vips-dev vips-tools libwebp-tools rsvg-convert gmp-dev $PHPIZE_DEPS \
     && curl -fsSL --retry 5 "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" | tar -xz -C /tmp \
