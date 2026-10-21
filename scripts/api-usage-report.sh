@@ -6,10 +6,12 @@
 #   scripts/api-usage-report.sh '2026-10-1*'   # a glob over the dates
 #
 # docker exec, not docker compose exec: compose would need deploy.yml's env.
+# It logs in as the "coasterpedia" user with the password the container has.
 set -euo pipefail
 
 days="${1:-*}"
-redis=(docker exec coasterpedia-redis-1 redis-cli -n 0 --raw)
+redis=(docker exec coasterpedia-redis-1 sh -c \
+	'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli --user coasterpedia --no-auth-warning "$@"' sh -n 0 --raw)
 
 printf 'count\tentry\ttier\tsource\tclient\tcall\n'
 "${redis[@]}" --scan --pattern "cp:apiusage:${days}" |

@@ -125,10 +125,15 @@ $wgImagePreconnect = true;
 $wgNativeImageLazyLoading = true;
 
 ## Shared memory settings
+## Every client logs in to Redis as the "coasterpedia" user (docker-compose.yml
+## creates it). Without REDIS_PASSWORD, as in the DR drill, they use the default
+## user, which only works while config/redis/redis.conf leaves it on.
+$cpRedisAuth = getenv( 'REDIS_PASSWORD' ) ? [ 'coasterpedia', getenv( 'REDIS_PASSWORD' ) ] : null;
 $wgObjectCaches['redis'] = [
     'class' => 'RedisBagOStuff',
     'servers' => [ 'redis:6379' ],
     'persistent' => true,
+    'password' => $cpRedisAuth,
 ];
 
 $wgJobTypeConf['default'] = [
@@ -137,6 +142,7 @@ $wgJobTypeConf['default'] = [
     'redisConfig' => [
         'connectTimeout' => 2,
         'compression' => 'gzip',
+        'password' => $cpRedisAuth,
     ],
 	'checkDelay' => true,
     'claimTTL' => 3600,
@@ -208,6 +214,11 @@ $wgLocaltimezone = "UTC";
 $wgCacheDirectory = "/var/cache/mediawiki";
 
 $wgSecretKey = getenv( 'SECRET_KEY' );
+
+# Encrypts 2FA secrets and recovery codes in the database. Never change or lose
+# it: every enrolled 2FA device would stop working. Unset (the DR drill), new
+# secrets are stored unencrypted and encrypted ones can't be read.
+$wgOATHSecretKey = getenv( 'OATH_SECRET_KEY' ) ?: false;
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = "1";
@@ -870,7 +881,7 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
  * Only what reaches origin is counted; anything Cloudflare serves from cache is not.
  */
 $cpApiUsageCounted = false;
-$cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpApiUsageCounted ) {
+$cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpApiUsageCounted, $cpRedisAuth ) {
 	// One count per request: internal API calls re-enter the hooks.
 	if ( $cpApiUsageCounted ) {
 		return;
@@ -937,7 +948,7 @@ $cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpAp
 	}
 
 	$field = implode( "\t", [ $entry, $tier, $source, $client, $call ] );
-	MediaWiki\Deferred\DeferredUpdates::addCallableUpdate( static function () use ( $field ) {
+	MediaWiki\Deferred\DeferredUpdates::addCallableUpdate( static function () use ( $field, $cpRedisAuth ) {
 		try {
 			// Database 0, as MediaWiki, and never select(): phpredis pools persistent
 			// connections by host and port whatever the persistent id, so a selected
@@ -945,6 +956,9 @@ $cpApiUsageRecord = static function ( string $entry, string $call ) use ( &$cpAp
 			// put sessions and caches in db 2 and lost logins (2026-10-10/11).
 			$redis = new Redis();
 			$redis->pconnect( 'redis', 6379, 0.25 );
+			if ( $cpRedisAuth ) {
+				$redis->auth( $cpRedisAuth );
+			}
 			$key = 'cp:apiusage:' . gmdate( 'Y-m-d' );
 			$redis->hIncrBy( $key, $field, 1 );
 			$redis->expire( $key, 86400 * 100 );

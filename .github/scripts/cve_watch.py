@@ -16,6 +16,12 @@ Where the fix commits don't settle it, the CNA's affected-version ranges from
 CVE.org do. Only CVEs that are still open, waiting on a rebuild, or couldn't be
 checked are emailed. The rest are cleared silently and listed in the job log.
 
+PHP isn't in NVD's MediaWiki results, so it's checked separately: when the live
+wiki runs a PHP older than php.net's newest security release for its branch,
+the email says whether the arm64 base image has that release yet. Production is
+arm64, and Docker Hub publishes each architecture of the base image separately,
+so a rebuild only helps once the arm64 variant carries the fix.
+
 IDs already handled are kept in a small JSON state file between runs (the
 workflow keeps it in the Actions cache), so each CVE is looked at once. The repo
 is public, so the log names only CVEs that were cleared; anything still open
@@ -42,6 +48,13 @@ CVE_ORG_URL = "https://cveawg.mitre.org/api/cve/"
 GERRIT_URL = "https://gerrit.wikimedia.org/r/"
 GITHUB_API = "https://api.github.com/"
 WIKI_API = "https://coasterpedia.net/w/api.php"
+PHP_RELEASES_URL = "https://www.php.net/releases/index.php"
+DOCKER_AUTH_URL = "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/{}:pull"
+DOCKER_REGISTRY = "https://registry-1.docker.io/v2/library/"
+# deploy.yml builds for linux/arm64 only. On 2026-10-21 the amd64 base image had
+# PHP 8.3.36 at 16:38 UTC and the arm64 one only at 17:39; a rebuild in between
+# deployed 8.3.35 again.
+BASE_ARCH = "arm64"
 USER_AGENT = "coasterpedia-cve-watch (https://github.com/Coasterpedia/coasterpedia-web)"
 
 # Other names CVEs use for things we load, mapped to the name we load them by.
@@ -370,6 +383,84 @@ def check(cve: dict, hits: list[str], setup: Setup) -> list[tuple[str, str, str]
     return results
 
 
+@dataclass
+class PhpCheck:
+    live: str          # PHP the wiki runs
+    fix: str           # newest security release on that branch
+    tag: str           # base image tag in Dockerfile-mediawiki
+    base: str | None   # PHP in that tag's arm64 variant, if the registry answered
+
+    @property
+    def verdict(self) -> str:
+        if self.base is None:
+            return "unverified"
+        return "pending" if parse_version(self.base) >= parse_version(self.fix) else "waiting"
+
+    def explain(self) -> str:
+        image = f"mediawiki:{self.tag} for {BASE_ARCH}"
+        return {
+            "pending": f"{image} has PHP {self.base}. Run the Docker workflow to deploy it. "
+                       "If you don't, Monday's rebuild deploys it.",
+            "waiting": f"{image} still has PHP {self.base}, so a rebuild now would deploy {self.base} again. "
+                       "This watcher emails again once the image has the fix.",
+            "unverified": f"Couldn't read the PHP version in {image}. Check it before rebuilding: "
+                          "a rebuild before the image has the fix deploys the old PHP again.",
+        }[self.verdict]
+
+
+def base_image_php(image: str, tag: str) -> str | None:
+    """PHP_VERSION in the BASE_ARCH variant of a Docker Hub library image."""
+    auth = {"Authorization": "Bearer " + get_json(DOCKER_AUTH_URL.format(image))["token"]}
+    index = get_json(f"{DOCKER_REGISTRY}{image}/manifests/{tag}", auth | {"Accept": (
+        "application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json")})
+    digest = next(m["digest"] for m in index["manifests"]
+                  if m.get("platform", {}).get("architecture") == BASE_ARCH)
+    manifest = get_json(f"{DOCKER_REGISTRY}{image}/manifests/{digest}", auth | {"Accept": (
+        "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json")})
+    config = get_json(f"{DOCKER_REGISTRY}{image}/blobs/{manifest['config']['digest']}", auth)
+    return next((e.split("=", 1)[1] for e in config["config"]["Env"] if e.startswith("PHP_VERSION=")), None)
+
+
+def check_php(wiki_api: str, dockerfile: Path) -> PhpCheck | None:
+    """What's left to do when the wiki's PHP misses a security release; None if it doesn't."""
+    live = get_json(f"{wiki_api}?action=query&meta=siteinfo&siprop=general"
+                    "&format=json&formatversion=2")["query"]["general"]["phpversion"]
+    branch = ".".join(live.split(".")[:2])
+    releases = get_json(f"{PHP_RELEASES_URL}?json&version={branch}&max=10")
+    security = [v for v, release in releases.items() if "security" in release.get("tags", [])]
+    if not security:
+        return None
+    fix = max(security, key=parse_version)
+    if parse_version(live) >= parse_version(fix):
+        return None
+    tag = re.search(r"^FROM mediawiki:(\S+)", dockerfile.read_text(), re.MULTILINE).group(1)
+    try:
+        base = base_image_php("mediawiki", tag)
+    except (OSError, KeyError, ValueError, StopIteration) as e:
+        print(f"Couldn't read the base image's PHP version ({e})", file=sys.stderr)
+        base = None
+    return PhpCheck(live, fix, tag, base)
+
+
+def php_email(php: PhpCheck, sender: str, recipient: str) -> EmailMessage:
+    subject = {
+        "pending": "rebuild to deploy it",
+        "waiting": "waiting for the arm64 base image",
+        "unverified": "check the base image",
+    }[php.verdict]
+    msg = EmailMessage()
+    msg["Subject"] = f"[Coasterpedia] PHP {php.fix} security release: {subject}"
+    msg["From"] = sender
+    msg["To"] = recipient
+    major = php.fix.split(".")[0]
+    msg.set_content(
+        f"The wiki runs PHP {php.live}. PHP {php.fix} is a security release for that branch.\n\n"
+        f"{php.explain()}\n\n"
+        f"https://www.php.net/ChangeLog-{major}.php#{php.fix}\n"
+    )
+    return msg
+
+
 def build_email(to_act: list, cleared: list, sender: str, recipient: str) -> EmailMessage:
     parts = []
     for cve, results in to_act:
@@ -441,17 +532,35 @@ def main() -> int:
     for cve, results in cleared:  # safe to name: fixed, mitigated or not affected
         print(f"  cleared {cve['id']}: " + "; ".join(f"{n} {v}, {why}" for n, v, why in results))
 
+    try:
+        php = check_php(args.wiki_api, args.dockerfile)
+    except (OSError, KeyError, ValueError) as e:
+        print(f"Couldn't check PHP ({e})", file=sys.stderr)
+        php = None
+    else:
+        # PHP versions are public, so the log can name them.
+        print(f"PHP: {php.live} live, security release {php.fix}, {BASE_ARCH} base image "
+              f"{php.base or 'unknown'}: {php.verdict}" if php else "PHP: the newest security release is live")
+    # One email per release and verdict, so "waiting" is followed by one "pending".
+    php_key = f"php:{php.fix}:{php.verdict}" if php else None
+
     if args.dry_run:
         for cve, results in to_act:
             print(f"  ACTION  {cve['id']}: " + "; ".join(f"{n} {v}, {why}" for n, v, why in results))
+        if php:
+            print(f"  ACTION  {php_key}: {php.explain()}")
         return 0
 
     if to_act:
         send(build_email(to_act, cleared, "wiki@coasterpedia.net", os.environ["SECURITY_ALERT_EMAIL"]))
+    if php_key and php_key not in seen:
+        send(php_email(php, "wiki@coasterpedia.net", os.environ["SECURITY_ALERT_EMAIL"]))
 
     # Only after the email went out, so a failed send is retried next run.
     today = now.date().isoformat()
     seen.update({c["id"]: today for c in new})
+    if php_key:
+        seen[php_key] = today
     cutoff = (now - dt.timedelta(days=args.days + 30)).date().isoformat()
     args.state.write_text(json.dumps({k: v for k, v in seen.items() if v >= cutoff}, indent=0))
     return 0

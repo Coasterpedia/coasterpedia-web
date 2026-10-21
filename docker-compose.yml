@@ -85,6 +85,8 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME}
       R2_ENDPOINT: ${R2_ENDPOINT}
       SECRET_KEY: ${SECRET_KEY}
+      OATH_SECRET_KEY: ${OATH_SECRET_KEY}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       ES_IP: opensearch
       OAUTH_PUBLIC: ${OAUTH_PUBLIC}
       OAUTH_PRIVATE: ${OAUTH_PRIVATE}
@@ -105,6 +107,24 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - redis:/data
       - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # Adds the "coasterpedia" user with REDIS_PASSWORD. The config goes in on
+    # stdin so the password isn't in the command line that ps shows, and "-" has
+    # to be the first argument: the image's entrypoint appends --loadmodule
+    # options, and Redis refuses a "-" anywhere but first or last. Going through
+    # docker-entrypoint.sh keeps its switch to the redis user. With no password,
+    # as in the DR drill, Redis reads the file alone.
+    command:
+      - sh
+      - -c
+      - |
+        conf=/usr/local/etc/redis/redis.conf
+        if [ -z "$$REDIS_PASSWORD" ]; then exec docker-entrypoint.sh redis-server "$$conf"; fi
+        exec docker-entrypoint.sh redis-server - <<EOF
+        $$(cat "$$conf")
+        user coasterpedia on >$$REDIS_PASSWORD ~* &* +@all
+        EOF
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
   opensearch:
     image: ghcr.io/coasterpedia/coasterpedia-web/opensearch@${OPENSEARCH_IMAGE}
     restart: unless-stopped
@@ -166,6 +186,8 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME}
       R2_ENDPOINT: ${R2_ENDPOINT}
       SECRET_KEY: ${SECRET_KEY}
+      OATH_SECRET_KEY: ${OATH_SECRET_KEY}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       ES_IP: opensearch
       OAUTH_PUBLIC: ${OAUTH_PUBLIC}
       OAUTH_PRIVATE: ${OAUTH_PRIVATE}
@@ -215,6 +237,8 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME}
       R2_ENDPOINT: ${R2_ENDPOINT}
       SECRET_KEY: ${SECRET_KEY}
+      OATH_SECRET_KEY: ${OATH_SECRET_KEY}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       ES_IP: opensearch
       OAUTH_PUBLIC: ${OAUTH_PUBLIC}
       OAUTH_PRIVATE: ${OAUTH_PRIVATE}
