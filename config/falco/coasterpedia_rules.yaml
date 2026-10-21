@@ -11,18 +11,24 @@
 #   WARNING   emailed (upstream's rules mostly sit here)
 #   NOTICE    logged only (`docker compose logs falco`)
 
-- list: cp_web_containers
-  items: [coasterpedia-mediawiki-1, coasterpedia-matomo-1]
+# Matched by image, not container name. Compose creates a replacement container
+# under a temporary name ("<id>_coasterpedia-mediawiki-1") and renames it, and
+# Falco keeps the first name, so name matching went blind after every deploy
+# (found 2026-10-21, after a month of it).
+- list: cp_web_images
+  items: [ghcr.io/coasterpedia/coasterpedia-web/mediawiki,
+          ghcr.io/coasterpedia/coasterpedia-web/matomo]
 
-- list: cp_php_containers
-  items: [coasterpedia-mediawiki-1, coasterpedia-matomo-1,
-          coasterpedia-jobrunner-1, coasterpedia-jobrunner-chron-1]
+- list: cp_php_images
+  items: [ghcr.io/coasterpedia/coasterpedia-web/mediawiki,
+          ghcr.io/coasterpedia/coasterpedia-web/matomo,
+          ghcr.io/coasterpedia/coasterpedia-web/jobrunner]
 
 - macro: cp_web_container
-  condition: (container.name in (cp_web_containers))
+  condition: (container.image.repository in (cp_web_images))
 
 - macro: cp_php_container
-  condition: (container.name in (cp_php_containers))
+  condition: (container.image.repository in (cp_php_images))
 
 # Programs PHP legitimately starts in the web containers: the shell proc_open()
 # runs commands through, and the tools MediaWiki shells out to for thumbnails,
@@ -102,7 +108,7 @@
              and (fs.path.target endswith .php or fs.path.target endswith .phtml
                   or fs.path.target endswith .phar or fs.path.target endswith .pht
                   or fs.path.target endswith .php5 or fs.path.target endswith .php7)))
-    and not (container.name = coasterpedia-matomo-1
+    and not (container.image.repository = ghcr.io/coasterpedia/coasterpedia-web/matomo
              and (fd.name startswith /usr/src/matomo/tmp/
                   or fs.path.target startswith /usr/src/matomo/tmp/))
   output: >

@@ -447,6 +447,9 @@ jobs:
       # Prune with -a: images pulled by digest (image@sha256) have no tag but
       # keep a RepoDigest, so they never count as dangling and a plain prune
       # leaves every past deploy on disk.
+      # Falco restarts last on every deploy. Its config and rules are single-file
+      # bind mounts, and git pull replaces those files, so a running Falco keeps
+      # reading the old copies; a restart mounts the new ones.
       - name: Deploy to server
         run: >
           ssh ${{ secrets.DOCKER_HOST_2 }} '
@@ -488,6 +491,7 @@ jobs:
             docker compose pull &&
             docker compose up -d -V --wait --wait-timeout 300 mediawiki jobrunner jobrunner-chron matomo &&
             docker compose up -d --wait --wait-timeout 300 &&
+            docker compose restart falco &&
             docker compose exec -T -u www-data mediawiki php maintenance/run.php purgeMessageBlobStore &&
             docker system prune -af &&
             docker volume prune -f
