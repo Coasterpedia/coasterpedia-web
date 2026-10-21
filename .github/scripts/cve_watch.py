@@ -514,7 +514,20 @@ def main() -> int:
     parser.add_argument("--wiki-api", default=WIKI_API)
     parser.add_argument("--dry-run", action="store_true",
                         help="print every verdict; don't send or update the state file")
+    parser.add_argument("--test-email", action="store_true",
+                        help="only send a test email, to check the SMTP credentials still work")
     args = parser.parse_args()
+
+    if args.test_email:
+        msg = EmailMessage()
+        msg["Subject"] = "[Coasterpedia] CVE watch test email"
+        msg["From"] = "wiki@coasterpedia.net"
+        msg["To"] = os.environ["SECURITY_ALERT_EMAIL"]
+        msg.set_content("The CVE watch sent this from GitHub Actions to check that its SMTP credentials work.\n"
+                        "Nothing needs doing.\n")
+        send(msg)
+        print("Test email sent")
+        return 0
 
     names = loaded_components(args.localsettings)
     seen = json.loads(args.state.read_text()) if args.state.exists() else {}
