@@ -126,8 +126,8 @@ $wgNativeImageLazyLoading = true;
 
 ## Shared memory settings
 ## Every client logs in to Redis as the "coasterpedia" user (docker-compose.yml
-## creates it). Without REDIS_PASSWORD, as in the DR drill, they use the default
-## user, which only works while config/redis/redis.conf leaves it on.
+## creates it). Without REDIS_PASSWORD they use the default user, which only
+## the DR drill's own Redis has: config/redis/redis.conf turns it off.
 $cpRedisAuth = getenv( 'REDIS_PASSWORD' ) ? [ 'coasterpedia', getenv( 'REDIS_PASSWORD' ) ] : null;
 $wgObjectCaches['redis'] = [
     'class' => 'RedisBagOStuff',
