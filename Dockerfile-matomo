@@ -49,6 +49,8 @@ RUN rm -r /var/www/html && mkdir /var/www/html
 
 COPY ./config/matomo/supervisord.conf /etc/
 COPY ./config/matomo/config.ini.php /usr/src/matomo/config/
+# Sorts after www.conf and zz-docker.conf, as in Dockerfile-mediawiki.
+COPY ./config/matomo/zzz-pool-overrides.conf /usr/local/etc/php-fpm.d/zzz-pool-overrides.conf
 
 # The code belongs to root and is read-only to PHP, as in Dockerfile-mediawiki.
 # Only tmp/ (caches) and misc/ (the GeoIP database it downloads) stay writable;
