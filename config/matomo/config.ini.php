@@ -88,6 +88,7 @@ Plugins[] = "FeatureFlags"
 Plugins[] = "AIAgents"
 Plugins[] = "AIProviders"
 Plugins[] = "McpServer"
+Plugins[] = "OAuth2"
 
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"
@@ -162,6 +163,7 @@ PluginsInstalled[] = "FeatureFlags"
 PluginsInstalled[] = "AIAgents"
 PluginsInstalled[] = "AIProviders"
 PluginsInstalled[] = "McpServer"
+PluginsInstalled[] = "OAuth2"
 
 [TrackingSpamPrevention]
 block_cloud_sync_throw_exception_on_error = 0

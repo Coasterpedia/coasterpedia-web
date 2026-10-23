@@ -25,6 +25,12 @@ RUN curl -o McpServer.zip \
     && rm McpServer.zip \
     && mv McpServer /usr/src/matomo/plugins
 
+RUN curl -o OAuth2.zip \
+    https://plugins.matomo.org/api/2.0/plugins/OAuth2/download/5.3.3 \
+    && unzip OAuth2.zip \
+    && rm OAuth2.zip \
+    && mv OAuth2 /usr/src/matomo/plugins
+
 # GeoIP: DB-IP's free city database (CC BY 4.0, https://db-ip.com), the same
 # file Matomo's own updater fetches, under a name its GeoIp2 provider looks for.
 # Built in because misc/ is a volume recreated on every deploy, which wiped the
