@@ -85,6 +85,9 @@ Plugins[] = "BotTracker"
 Plugins[] = "TrackingSpamPrevention"
 Plugins[] = "EnvironmentVariables"
 Plugins[] = "FeatureFlags"
+Plugins[] = "AIAgents"
+Plugins[] = "AIProviders"
+Plugins[] = "McpServer"
 
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"
@@ -156,6 +159,9 @@ PluginsInstalled[] = "TrackingSpamPrevention"
 PluginsInstalled[] = "JsTrackerInstallCheck"
 PluginsInstalled[] = "EnvironmentVariables"
 PluginsInstalled[] = "FeatureFlags"
+PluginsInstalled[] = "AIAgents"
+PluginsInstalled[] = "AIProviders"
+PluginsInstalled[] = "McpServer"
 
 [TrackingSpamPrevention]
 block_cloud_sync_throw_exception_on_error = 0

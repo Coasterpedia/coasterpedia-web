@@ -19,11 +19,11 @@ RUN curl -o TrackingSpamPrevention.zip \
     && rm TrackingSpamPrevention.zip \
     && mv TrackingSpamPrevention /usr/src/matomo/plugins
 
-RUN curl -o DataExport.zip \
-    https://plugins.matomo.org/api/2.0/plugins/DataExport/download/1.1.10 \
-    && unzip DataExport.zip \
-    && rm DataExport.zip \
-    && mv DataExport /usr/src/matomo/plugins
+RUN curl -o McpServer.zip \
+    https://plugins.matomo.org/api/2.0/plugins/McpServer/download/5.1.1 \
+    && unzip McpServer.zip \
+    && rm McpServer.zip \
+    && mv McpServer /usr/src/matomo/plugins
 
 # GeoIP: DB-IP's free city database (CC BY 4.0, https://db-ip.com), the same
 # file Matomo's own updater fetches, under a name its GeoIp2 provider looks for.
