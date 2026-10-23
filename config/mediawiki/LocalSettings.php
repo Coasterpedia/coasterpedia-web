@@ -11,7 +11,7 @@ $wgReadOnly = getenv( 'MW_READ_ONLY' ) ?: false;
 $wgSitename = "Coasterpedia";
 $wgMetaNamespace = "Coasterpedia";
 
-$wgShowExceptionDetails = true;
+// $wgShowExceptionDetails = true;
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
@@ -305,6 +305,58 @@ $wgMatomoAnalyticsServerURL = "https://analytics.coasterpedia.net/";
 $wgMatomoAnalyticsTokenAuth = getenv( 'MATOMO_API_KEY' );
 $wgMatomoAnalyticsSiteID = 2;
 $wgMatomoAnalyticsDisableCookie = true;
+// The extension keeps the info-page stats; the tracking snippet is the one below.
+$wgMatomoAnalyticsDisableJS = true;
+
+/**
+ * Matomo's tracking snippet, in place of MatomoAnalytics' own, so that a page
+ * Citizen prerenders on hover is counted only if the reader opens it.
+ * matomo.js only waits for the old visibilityState 'prerender', which
+ * speculation-rules prerendering never sets, so every hover was a pageview
+ * (Chromium pages per visit doubled from 2026-03-04).
+ *
+ * Otherwise this matches the extension's onSkinAfterBottomScripts, minus its
+ * setDocumentTitle: that is queued after trackPageView, never applies, and the
+ * reports are keyed by the HTML title.
+ */
+$wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
+	if ( $skin->getAuthority()->isAllowed( 'noanalytics' ) ) {
+		return;
+	}
+	$config = $skin->getConfig();
+	$server = $config->get( 'MatomoAnalyticsServerURL' );
+	$siteId = (int)$config->get( 'MatomoAnalyticsSiteID' );
+	$cookieless = $config->get( 'MatomoAnalyticsDisableCookie' ) ? 'true' : 'false';
+	$jsServer = MediaWiki\Html\Html::encodeJsVar( $server );
+
+	$text .= MediaWiki\Html\Html::inlineScript( <<<JS
+		var _paq = window._paq = window._paq || [];
+		if ( $cookieless ) {
+			_paq.push( [ 'disableCookies' ] );
+		}
+		_paq.push( [ 'setTrackerUrl', $jsServer + 'matomo.php' ] );
+		_paq.push( [ 'setSiteId', $siteId ] );
+		( function () {
+			function track() {
+				_paq.push( [ 'trackPageView' ] );
+				_paq.push( [ 'enableLinkTracking' ] );
+				var g = document.createElement( 'script' );
+				g.async = true;
+				g.src = $jsServer + 'matomo.js';
+				document.head.appendChild( g );
+			}
+			if ( document.prerendering ) {
+				document.addEventListener( 'prerenderingchange', track, { once: true } );
+			} else {
+				track();
+			}
+		}() );
+		JS
+	);
+	$text .= '<noscript><p><img src="' . htmlspecialchars( $server . 'matomo.php?idsite=' . $siteId .
+		'&rec=1&action_name=' . $skin->getRelevantTitle()->getPrefixedURL() ) .
+		'" style="border: 0;" alt="" /></p></noscript>';
+};
 
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
