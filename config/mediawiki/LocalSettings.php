@@ -326,6 +326,12 @@ $wgMatomoAnalyticsDisableJS = true;
  * figures. Matomo stores it only once site 2 has a visit-scope dimension with
  * ID 1.
  *
+ * Dimension 2 is a label, not a filter: the automation tells this browser
+ * shows, space-separated, or "none". Added 2026-10-23 to learn which tells
+ * catch the crawlers posing as old desktop Chrome before any is used to stop
+ * counting a visit. Chromium-only tells are checked only where the user agent
+ * claims Chrome.
+ *
  * Otherwise this matches the extension's onSkinAfterBottomScripts, minus its
  * setDocumentTitle: that is queued after trackPageView, never applies, and the
  * reports are keyed by the HTML title.
@@ -360,7 +366,33 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 				}
 				return total ? Number( total.getAttribute( 'data-mw-num-results-total' ) ) : null;
 			}
+			function automationTells() {
+				var n = navigator, tells = [];
+				var chrome = /Chrome\/(\d+)/.exec( n.userAgent );
+				var brand = n.userAgentData && n.userAgentData.brands.filter( function ( b ) {
+					return b.brand === 'Chromium';
+				} )[ 0 ];
+				if ( n.webdriver ) { tells.push( 'webdriver' ); }
+				if ( !n.languages || !n.languages.length ) { tells.push( 'no-languages' ); }
+				if ( !window.outerWidth || !window.outerHeight ) { tells.push( 'no-window' ); }
+				if ( chrome ) {
+					if ( !n.userAgentData ) {
+						tells.push( 'no-uadata' );
+					} else if ( brand && brand.version !== chrome[ 1 ] ) {
+						tells.push( 'ua-mismatch' );
+					}
+					if ( !window.chrome ) { tells.push( 'no-chrome-object' ); }
+					// Desktop Chrome always lists its built-in PDF viewers.
+					if ( !/Android|Mobile/.test( n.userAgent ) && !n.plugins.length ) { tells.push( 'no-plugins' ); }
+				}
+				return tells.join( ' ' ) || 'none';
+			}
 			function track() {
+				try {
+					_paq.push( [ 'setCustomDimension', 2, automationTells() ] );
+				} catch ( e ) {
+					_paq.push( [ 'setCustomDimension', 2, 'check failed' ] );
+				}
 				var keyword = $isSearch && new URLSearchParams( location.search ).get( 'search' );
 				var count = keyword ? resultCount() : null;
 				if ( count !== null ) {
