@@ -277,9 +277,9 @@ services:
       MATOMO_DATABASE_PASSWORD: ${MATOMO_DATABASE_PASSWORD}
       MATOMO_DATABASE_HOST: mariadb
       MATOMO_DATABASE_USERNAME: coasterpedia_analytics
-      MATOMO_EMAIL_HOST: ${SMTP_HOST}
-      MATOMO_EMAIL_USERNAME: ${SMTP_USER}
-      MATOMO_EMAIL_PASSWORD: ${SMTP_PASSWORD}
+      MATOMO_MAIL_HOST: ${SMTP_HOST}
+      MATOMO_MAIL_USERNAME: ${SMTP_USER}
+      MATOMO_MAIL_PASSWORD: ${SMTP_PASSWORD}
   ofelia:
     image: mcuadros/ofelia:0.3
     restart: unless-stopped
