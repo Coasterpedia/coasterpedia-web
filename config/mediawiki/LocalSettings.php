@@ -315,6 +315,17 @@ $wgMatomoAnalyticsDisableJS = true;
  * speculation-rules prerendering never sets, so every hover was a pageview
  * (Chromium pages per visit doubled from 2026-03-04).
  *
+ * Special:Search is tracked as a site search with its result count, so Matomo's
+ * "Search Keywords with No Results" report fills in. A search CirrusSearch
+ * rewrote ("Showing results for ... No results found for ...") counts as 0,
+ * because the reader's own words found nothing; a "Did you mean" suggestion
+ * keeps its count.
+ *
+ * Every hit carries custom dimension 1, "User" for a named account and
+ * "Anonymous" otherwise, so editors' own browsing can be left out of reader
+ * figures. Matomo stores it only once site 2 has a visit-scope dimension with
+ * ID 1.
+ *
  * Otherwise this matches the extension's onSkinAfterBottomScripts, minus its
  * setDocumentTitle: that is queued after trackPageView, never applies, and the
  * reports are keyed by the HTML title.
@@ -328,6 +339,8 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 	$siteId = (int)$config->get( 'MatomoAnalyticsSiteID' );
 	$cookieless = $config->get( 'MatomoAnalyticsDisableCookie' ) ? 'true' : 'false';
 	$jsServer = MediaWiki\Html\Html::encodeJsVar( $server );
+	$isSearch = $skin->getTitle()->isSpecial( 'Search' ) ? 'true' : 'false';
+	$userType = MediaWiki\Html\Html::encodeJsVar( $skin->getUser()->isNamed() ? 'User' : 'Anonymous' );
 
 	$text .= MediaWiki\Html\Html::inlineScript( <<<JS
 		var _paq = window._paq = window._paq || [];
@@ -336,9 +349,25 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 		}
 		_paq.push( [ 'setTrackerUrl', $jsServer + 'matomo.php' ] );
 		_paq.push( [ 'setSiteId', $siteId ] );
+		_paq.push( [ 'setCustomDimension', 1, $userType ] );
 		( function () {
+			// null when no search ran (the empty search form).
+			function resultCount() {
+				var total = document.querySelector( '[data-mw-num-results-total]' );
+				if ( document.getElementById( 'mw-search-DYM-rewritten' ) ||
+					document.querySelector( '.mw-search-nonefound' ) ) {
+					return 0;
+				}
+				return total ? Number( total.getAttribute( 'data-mw-num-results-total' ) ) : null;
+			}
 			function track() {
+				var keyword = $isSearch && new URLSearchParams( location.search ).get( 'search' );
+				var count = keyword ? resultCount() : null;
+				if ( count !== null ) {
+					_paq.push( [ 'trackSiteSearch', keyword, false, count ] );
+				} else {
 				_paq.push( [ 'trackPageView' ] );
+				}
 				_paq.push( [ 'enableLinkTracking' ] );
 				var g = document.createElement( 'script' );
 				g.async = true;

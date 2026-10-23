@@ -14,6 +14,12 @@ assume_secure_protocol = 1
 trusted_hosts[] = "analytics.coasterpedia.net"
 trusted_hosts[] = "coasterpedia.net"
 proxy_client_headers[] = HTTP_CF_CONNECTING_IP
+; Page reports keep up to 10,000 rows, not 500 (100 inside a folder), so the
+; ~25,000 articles stop collapsing into "Others". Every article is in the /wiki
+; folder, so the subtable limit matters as much as the top-level one.
+; Applies to reports processed from now on.
+datatable_archiving_maximum_rows_actions = 10000
+datatable_archiving_maximum_rows_subtable_actions = 10000
 
 [mail]
 transport = "smtp"
