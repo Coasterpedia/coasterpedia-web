@@ -56,6 +56,10 @@
     or (proc.exepath = /usr/bin/gif2webp and proc.args = "-version")
     or (proc.exepath = /usr/bin/cwebp
         and proc.args regex "^-q 80 -m 6 /tmp/thumbro_[0-9a-f]+[.][a-z]+ -o /tmp/transform_[0-9a-f]+[.]webp$")
+    or (proc.exepath = /usr/bin/diff3
+        and proc.args regex "^--text (--overlap-only|--ed --merge) /tmp/merge-mine-[A-Za-z0-9]{6} /tmp/merge-old-[A-Za-z0-9]{6} /tmp/merge-your-[A-Za-z0-9]{6}$")
+    or (proc.exepath = /usr/bin/diff and proc.pname = diff3
+        and proc.args regex "^-a --horizon-lines=100 ---no-directory -- /tmp/merge-(mine|your)-[A-Za-z0-9]{6} /tmp/merge-old-[A-Za-z0-9]{6}$")
 # - ifconfig -a: core's GlobalIdGenerator reads a MAC address for its node ID,
 #   once per container start (the cached ID lives in /tmp, which is tmpfs).
 # - pygmentize: SyntaxHighlight renders code blocks through Python. It runs
@@ -70,6 +74,11 @@
 #   writing its own temp files. Matched by regex, not glob: a glob's * also
 #   matches spaces, so it would let extra arguments through. Both tools arrived
 #   with libwebp-tools on 2026-09-30, after the learning period.
+# - diff3: core's wfMerge() ($wgDiff3), the three-way merge behind edit
+#   conflicts and undoing a revision that isn't the latest. Each merge runs
+#   diff3 twice (conflict check, then --ed --merge) on tempnam() files, and
+#   each diff3 runs diff twice, so one merge is six execs. First seen
+#   2026-10-23 on an undo of Disney Destiny.
 
 # Outputs name the parent rather than printing its command line: php-fpm
 # rewrites its own as "php-fpm: pool www" padded with kilobytes of spaces.
