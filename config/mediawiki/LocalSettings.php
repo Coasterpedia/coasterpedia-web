@@ -374,7 +374,6 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 				} )[ 0 ];
 				if ( n.webdriver ) { tells.push( 'webdriver' ); }
 				if ( !n.languages || !n.languages.length ) { tells.push( 'no-languages' ); }
-				if ( !window.outerWidth || !window.outerHeight ) { tells.push( 'no-window' ); }
 				if ( chrome ) {
 					if ( !n.userAgentData ) {
 						tells.push( 'no-uadata' );
