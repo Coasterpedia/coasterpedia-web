@@ -357,7 +357,7 @@ services:
   # and above are emailed. PagerDuty is off while FALCO_PAGERDUTY_ROUTINGKEY is
   # unset, which is how the learning period runs.
   falcosidekick:
-    image: falcosecurity/falcosidekick:2.35.0
+    image: falcosecurity/falcosidekick:2.35.1
     restart: always
     init: true
     read_only: true
