@@ -397,7 +397,7 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 				if ( count !== null ) {
 					_paq.push( [ 'trackSiteSearch', keyword, false, count ] );
 				} else {
-				_paq.push( [ 'trackPageView' ] );
+					_paq.push( [ 'trackPageView' ] );
 				}
 				_paq.push( [ 'enableLinkTracking' ] );
 				var g = document.createElement( 'script' );
@@ -1097,6 +1097,79 @@ $cpAnonDeniedModules = [
 ];
 
 /**
+ * Only users with runcargoqueries decide what a Cargo query asks, whatever the
+ * route. Cargo enforces it on Special:CargoQuery, Drilldown, action=cargoquery
+ * and cargoqueryautocomplete. The rest is closed here:
+ * - action=cargoautocomplete, Special:CargoExport and Special:CargoTables/<table>
+ *   check no right at all (cargoautocomplete takes a raw where).
+ * - Lua can run any query (mw.ext.cargo.query), so writing a module or using the
+ *   console needs the right.
+ * - #cargo_query and #cargo_compound_query: see the ParserFirstCallInit wrapper.
+ */
+$cpCargoRightModules = [ 'cargoautocomplete', 'scribunto-console' ];
+// NS_MODULE isn't defined until Scribunto registers.
+$wgNamespaceProtection[828] = [ 'runcargoqueries' ];
+
+/**
+ * DR-010 §8: what an anonymous client may still call once automated reading has
+ * moved to the Coasterpedia API. That's the readers' own calls (§2's table),
+ * feeds, logging in, and the Projector's templatedata read. The list is checked
+ * only in 'warn' and 'deny'.
+ *
+ * - 'off': nothing changes.
+ * - 'warn': once developer.coasterpedia.net is live. Calls outside the list
+ *   still run, with a warning naming the date. Anonymous wikitext reads over
+ *   rest.php, action=raw and Special:Export get Sunset and Link headers.
+ * - 'deny': from $cpAnonApiRefuseFrom. Calls outside the list, and the Cargo
+ *   refusals above, are refused with §8.1's text.
+ *
+ * Calls outside the list are counted with "warned" appended. A "warned" row
+ * from "anon site" means a reader's call is missing from the list, so fix it
+ * before switching to 'deny'.
+ */
+$cpAnonApiMode = 'off';
+$cpAnonApiRefuseFrom = '2026-12-01';
+$cpAnonApiModules = [
+	'query', 'opensearch', 'parse', 'feedrecentchanges', 'feedcontributions', 'rsd', 'templatedata',
+	'login', 'clientlogin', 'createaccount', 'paraminfo', 'help',
+];
+$cpAnonQueryModules = [
+	'prop' => [ 'description', 'extracts', 'imageinfo', 'info', 'pageimages', 'pageprops', 'revisions' ],
+	// users: the developer portal's daily block check reads blockinfo anonymously.
+	'list' => [ 'users' ],
+	'meta' => [ 'allmessages', 'authmanagerinfo', 'filerepoinfo', 'siteinfo', 'tokens', 'userinfo' ],
+	'generator' => [ 'prefixsearch', 'search' ],
+];
+// §8.1: state the policy and the route, and give the agent reading it no orders.
+$cpAnonApiNotice = static function () use ( $cpAnonApiMode, $cpAnonApiRefuseFrom ): string {
+	$route = 'Automated access goes through the Coasterpedia API: free keys for non-commercial projects, '
+		. 'self-serve in about a minute at https://developer.coasterpedia.net. '
+		. 'Terms: https://developer.coasterpedia.net/terms/.';
+	if ( $cpAnonApiMode === 'warn' ) {
+		$from = gmdate( 'j F Y', strtotime( $cpAnonApiRefuseFrom ) );
+		return "From $from, anonymous use of this endpoint will be limited to the site's own reader tools. $route";
+	}
+	return "Anonymous use of this endpoint is limited to the site's own reader tools. $route";
+};
+// Anonymous wikitext reads outside api.php: warned with headers, then refused.
+$cpAnonWikitextRead = static function ( callable $refuse ) use ( $cpAnonApiMode, $cpAnonApiRefuseFrom, $cpAnonApiNotice ): bool {
+	if ( $cpAnonApiMode === 'off'
+		|| MediaWiki\Context\RequestContext::getMain()->getUser()->isRegistered()
+	) {
+		return true;
+	}
+	if ( $cpAnonApiMode === 'deny' ) {
+		$refuse( $cpAnonApiNotice() );
+		return false;
+	}
+	// RFC 8594: the date this read stops working anonymously, and where to go instead.
+	$response = MediaWiki\Context\RequestContext::getMain()->getRequest()->response();
+	$response->header( 'Sunset: ' . gmdate( 'D, d M Y H:i:s', strtotime( $cpAnonApiRefuseFrom ) ) . ' GMT' );
+	$response->header( 'Link: <https://developer.coasterpedia.net/>; rel="sunset"' );
+	return true;
+};
+
+/**
  * API requests per minute by who is asking, checked in the hook below. nginx
  * only sees cookies, so its tiers are a per-IP ceiling (1000/min logged in);
  * these are the limits that know the account. A user in several groups gets the
@@ -1112,7 +1185,8 @@ $wgRateLimits['cp-api'] = [
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/ApiCheckCanExecute */
 $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message ) use (
-	$cpApiUsageRecord, $cpAnonParseModules, $cpAnonDeniedModules
+	$cpApiUsageRecord, $cpAnonParseModules, $cpAnonDeniedModules, $cpCargoRightModules,
+	$cpAnonApiMode, $cpAnonApiModules, $cpAnonQueryModules, $cpAnonApiNotice
 ) {
 	$main = $module->getMain();
 	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) !== 'api' || $main->isInternalMode() ) {
@@ -1121,6 +1195,8 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 	$request = $main->getRequest();
 	$call = $module->getModuleName();
 	$invoked = null;
+	$sub = [];
+	$wikitext = false;
 	$manager = $call === 'query' ? $module->getModuleManager() : null;
 	if ( $manager ) {
 		// Submodules validated against the manager, so junk values can't grow the hash.
@@ -1140,16 +1216,19 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 			if ( $group === 'prop' ) {
 				$props = $names;
 			}
+			$sub[$group] = $names;
 		}
 		$generator = (string)$request->getVal( 'generator' );
 		if ( $generator !== '' && $manager->isDefined( $generator ) ) {
 			$call .= " generator=$generator";
+			$sub['generator'] = [ $generator ];
 		}
 		// Wikitext harvesting looks like this.
 		if ( in_array( 'revisions', $props, true )
 			&& preg_match( '/(^|[|\x1f])content($|[|\x1f])/', (string)$request->getVal( 'rvprop' ) )
 		) {
 			$call .= ' rvprop=content';
+			$wikitext = true;
 		}
 	} elseif ( $call === 'parse' && $request->getCheck( 'text' ) ) {
 		// Gadgets parse text (the Lua data transport). Named by the module invoked,
@@ -1168,12 +1247,32 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 		|| ( $invoked !== null && !in_array( $invoked, $cpAnonParseModules, true ) )
 		|| $comparesText
 	);
+	$noCargoRight = !$denied && in_array( $module->getModuleName(), $cpCargoRightModules, true )
+		&& !$user->isAllowed( 'runcargoqueries' );
+	$denied = $denied || $noCargoRight;
+	// §8's allowlist: the module, each query submodule, no wikitext, and parse only for the gadgets.
+	$outside = !$denied && $cpAnonApiMode !== 'off' && !$user->isRegistered() && (
+		!in_array( $module->getModuleName(), $cpAnonApiModules, true )
+		|| $wikitext
+		|| ( $call === 'parse page' )
+		|| array_filter( $sub, static fn ( $names, $group ) => array_diff( $names, $cpAnonQueryModules[$group] ),
+			ARRAY_FILTER_USE_BOTH )
+	);
+	$denied = $denied || ( $outside && $cpAnonApiMode === 'deny' );
+	$warned = $outside && !$denied;
 	// A refused call never spends the caller's allowance.
 	$limited = !$denied && $user->pingLimiter( 'cp-api' );
-	$cpApiUsageRecord( 'api', $call . ( $denied ? ' denied' : ( $limited ? ' limited' : '' ) ) );
+	$cpApiUsageRecord( 'api', $call . ( $denied ? ' denied' : ( $limited ? ' limited' : ( $warned ? ' warned' : '' ) ) ) );
 	if ( $denied ) {
-		$message = MediaWiki\Api\ApiMessage::create( 'apierror-mustbeloggedin-generic', 'login-required' );
+		$message = match ( true ) {
+			$noCargoRight => MediaWiki\Api\ApiMessage::create( 'apierror-permissiondenied-generic', 'permissiondenied' ),
+			$cpAnonApiMode === 'off' => MediaWiki\Api\ApiMessage::create( 'apierror-mustbeloggedin-generic', 'login-required' ),
+			default => new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' ),
+		};
 		return false;
+	}
+	if ( $warned ) {
+		$module->addWarning( new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' ) );
 	}
 	if ( $limited ) {
 		$request->response()->header( 'Retry-After: 60' );
@@ -1184,7 +1283,9 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 };
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/RestCheckCanExecute */
-$wgHooks['RestCheckCanExecute'][] = static function ( $module, $handler, $path, $request, &$error ) use ( $cpApiUsageRecord ) {
+$wgHooks['RestCheckCanExecute'][] = static function ( $module, $handler, $path, $request, &$error ) use (
+	$cpApiUsageRecord, $cpAnonWikitextRead
+) {
 	if ( ( defined( 'MW_ENTRY_POINT' ) ? MW_ENTRY_POINT : '' ) !== 'rest' ) {
 		return true;
 	}
@@ -1193,26 +1294,102 @@ $wgHooks['RestCheckCanExecute'][] = static function ( $module, $handler, $path, 
 	// Parsoid's transform parses supplied wikitext: the same Cargo door as action=parse.
 	$denied = str_starts_with( $route, '/v1/transform/' )
 		&& !MediaWiki\Context\RequestContext::getMain()->getUser()->isRegistered();
+	// These two return the page source.
+	$source = in_array( $route, [ '/v1/page/{title}', '/v1/revision/{id}' ], true );
+	if ( !$denied && $source ) {
+		$denied = !$cpAnonWikitextRead( static function ( $notice ) use ( &$error ) {
+			$error = new MediaWiki\Rest\HttpException( $notice, 403 );
+		} );
+	}
 	$cpApiUsageRecord( 'rest', $request->getMethod() . " $route" . ( $denied ? ' denied' : '' ) );
 	if ( $denied ) {
-		$error = new MediaWiki\Rest\HttpException( 'You must be logged in.', 403 );
+		$error ??= new MediaWiki\Rest\HttpException( 'You must be logged in.', 403 );
 		return false;
 	}
 	return true;
 };
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/RawPageViewBeforeOutput */
-$wgHooks['RawPageViewBeforeOutput'][] = static function ( $rawAction, &$text ) use ( $cpApiUsageRecord ) {
+$wgHooks['RawPageViewBeforeOutput'][] = static function ( $rawAction, &$text ) use ( $cpApiUsageRecord, $cpAnonWikitextRead ) {
 	// javascript/css is gadgets and user scripts loading; wikitext is the page source leaving.
-	$cpApiUsageRecord( 'raw', $rawAction->getTitle()->getContentModel() );
+	$model = $rawAction->getTitle()->getContentModel();
+	$allowed = $model !== CONTENT_MODEL_WIKITEXT || $cpAnonWikitextRead( static function ( $notice ) use ( $rawAction, &$text ) {
+		$rawAction->getRequest()->response()->statusHeader( 403 );
+		$text = $notice;
+	} );
+	$cpApiUsageRecord( 'raw', $model . ( $allowed ? '' : ' denied' ) );
 	return true;
 };
 
 /** @see https://www.mediawiki.org/wiki/Manual:Hooks/SpecialPageBeforeExecute */
-$wgHooks['SpecialPageBeforeExecute'][] = static function ( $special, $subPage ) use ( $cpApiUsageRecord ) {
-	if ( $special->getName() === 'Export' ) {
-		$exporting = $subPage !== null || $special->getRequest()->getCheck( 'pages' );
-		$cpApiUsageRecord( 'export', $exporting ? 'pages' : 'form' );
+$wgHooks['SpecialPageBeforeExecute'][] = static function ( $special, $subPage ) use ( $cpApiUsageRecord, $cpAnonWikitextRead ) {
+	// Cargo checks no right on these (see $cpCargoRightModules). CargoExport runs
+	// any query; only Cargo's calendar/timeline/chart formats fetch from it, and
+	// no page uses them. The CargoTables list stays open; a table's rows don't.
+	$name = $special->getName();
+	if ( $name === 'CargoExport' || ( $name === 'CargoTables' && (string)$subPage !== '' ) ) {
+		$allowed = $special->getUser()->isAllowed( 'runcargoqueries' );
+		$cpApiUsageRecord( 'special', $name . ( $allowed ? '' : ' denied' ) );
+		if ( !$allowed ) {
+			throw new MediaWiki\Exception\PermissionsError( 'runcargoqueries' );
+		}
+		return true;
 	}
-	return true;
+	if ( $special->getName() !== 'Export' ) {
+		return true;
+	}
+	$exporting = $subPage !== null || $special->getRequest()->getCheck( 'pages' );
+	$allowed = !$exporting || $cpAnonWikitextRead( static function ( $notice ) use ( $special ) {
+		$out = $special->getOutput();
+		$out->setStatusCode( 403 );
+		$out->addWikiTextAsInterface( $notice );
+	} );
+	$cpApiUsageRecord( 'export', ( $exporting ? 'pages' : 'form' ) . ( $allowed ? '' : ' denied' ) );
+	return $allowed;
+};
+
+/**
+ * #cargo_query and #cargo_compound_query run only from a template only sysops can
+ * edit. Anywhere else (an article, a preview, action=parse, a template anyone can
+ * edit, whose parameters land unescaped in the where) they run only for a user
+ * with runcargoqueries, and that output is never cached for anyone else.
+ * The calling frame decides it, so building the function name from another
+ * template doesn't get round it. A template's parameters arrive as text and are
+ * never parsed again, so a caller can't start a new query inside one.
+ * Module frames are not trusted: modules frame:preprocess() text built from their
+ * arguments (DEFAULTSORT, Infobox/typed), and {{((}}-style templates can put a
+ * query into that text. Lua queries go through mw.ext.cargo, which the Module
+ * namespace protection above covers.
+ * Registered at run time: handlers added with register() run after
+ * extension.json's, so this replaces Cargo's own hooks.
+ */
+$wgExtensionFunctions[] = static function () {
+	$services = MediaWiki\MediaWikiServices::getInstance();
+	$services->getHookContainer()->register( 'ParserFirstCallInit', static function ( $parser ) use ( $services ) {
+		$functions = [
+			'cargo_query' => [ 'CargoQuery', 'run' ],
+			'cargo_compound_query' => [ 'CargoCompoundQuery', 'run' ],
+		];
+		foreach ( $functions as $id => $run ) {
+			$parser->setFunctionHook( $id, static function ( $parser, $frame, $args ) use ( $services, $run ) {
+				$title = $frame->isTemplate() ? $frame->getTitle() : null;
+				$trusted = $title && $title->getNamespace() === NS_TEMPLATE && in_array( 'sysop',
+					$services->getRestrictionStore()->getRestrictions( $title, 'edit' ), true );
+				if ( !$trusted ) {
+					$user = $parser->getUserIdentity();
+					if ( !$services->getPermissionManager()->userHasRight( $user, 'runcargoqueries' ) ) {
+						return '<strong class="error">This query didn\'t run. Queries run only from a '
+							. 'protected template.</strong>';
+					}
+					$parser->getOutput()->updateCacheExpiry( 0 );
+				}
+				// What Parser::callParserFunction passes a hook without SFH_OBJECT_ARGS.
+				$plain = [ $parser ];
+				foreach ( $args as $arg ) {
+					$plain[] = trim( $arg instanceof MediaWiki\Parser\PPNode ? $frame->expand( $arg ) : $arg );
+				}
+				return $run( ...$plain );
+			}, MediaWiki\Parser\Parser::SFH_OBJECT_ARGS );
+		}
+	} );
 };

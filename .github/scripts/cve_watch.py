@@ -253,15 +253,35 @@ def in_range(entry: dict, ours: tuple[int, ...]) -> bool | None:
     return (lowest is None or ours >= lowest) and (ours <= bound if inclusive else ours < bound)
 
 
+def norm(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
+CORE_PRODUCTS = ("mediawiki", "mediawikicore")
+
+
+def cna_products(record: dict | None) -> list[dict]:
+    return (record or {}).get("containers", {}).get("cna", {}).get("affected", [])
+
+
+def someone_elses(record: dict | None, names) -> str | None:
+    """The products the CNA names, if none is core or anything we load; None if any might be ours."""
+    products = [p.get("product", "") for p in cna_products(record)]
+    ours = [norm(n) for n in names] + [norm(a) for a, n in ALIASES.items() if n in names]
+    if not products or any(norm(p) in ("", "na", "unknown") or norm(p) in CORE_PRODUCTS
+                           or any(n in norm(p) for n in ours) for p in products):
+        return None
+    return ", ".join(sorted(set(products)))
+
+
 def cna_says(record: dict | None, name: str, version: str) -> bool | None:
     """Whether the CNA lists this version of `name` as affected; None if it doesn't say clearly."""
     ours = parse_version(version)
     if not record or not ours:
         return None
-    products = record.get("containers", {}).get("cna", {}).get("affected", [])
-    norm = lambda s: re.sub(r"[^a-z0-9]", "", s.lower())
+    products = cna_products(record)
     if name == "core":
-        mine = [p for p in products if norm(p.get("product", "")) in ("mediawiki", "mediawikicore")]
+        mine = [p for p in products if norm(p.get("product", "")) in CORE_PRODUCTS]
     else:
         # A lone product is ours even under another name (an alias, or "Mediawiki - Foo" for a fork).
         mine = [p for p in products if norm(name) in norm(p.get("product", ""))]
@@ -370,6 +390,10 @@ def check(cve: dict, hits: list[str], setup: Setup) -> list[tuple[str, str, str]
         record = get_json(CVE_ORG_URL + cve["id"])
     except (OSError, ValueError):
         record = None  # only the fix commits to go on
+    # "core" only means the description named no extension or skin we load. Third-party
+    # products built on MediaWiki (Semantic MediaWiki) often don't call themselves one.
+    if hits == ["core"] and (products := someone_elses(record, setup.names)):
+        return [("core", "not ours", f"the CNA lists it against {products}, which we don't run")]
     try:
         fixes = fix_commits([ref["url"] for ref in cve.get("references", [])])
     except (OSError, KeyError, ValueError) as e:

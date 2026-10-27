@@ -26,7 +26,7 @@ RUN curl -o McpServer.zip \
     && mv McpServer /usr/src/matomo/plugins
 
 RUN curl -o OAuth2.zip \
-    https://plugins.matomo.org/api/2.0/plugins/OAuth2/download/5.3.3 \
+    https://plugins.matomo.org/api/2.0/plugins/OAuth2/download/5.3.4 \
     && unzip OAuth2.zip \
     && rm OAuth2.zip \
     && mv OAuth2 /usr/src/matomo/plugins
