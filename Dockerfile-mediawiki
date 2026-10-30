@@ -117,6 +117,8 @@ COPY ./includes/maintenance/cpCargoRebuild.php /var/www/html/w/maintenance/cpCar
 COPY ./includes/maintenance/cpPageDataRepair.php /var/www/html/w/maintenance/cpPageDataRepair.php
 COPY ./includes/favicon.ico /var/www/html/favicon.ico
 COPY ./includes/robots.txt /var/www/html/robots.txt
+# Points agents at the Coasterpedia API (DR-010 §8.1).
+COPY ./includes/llms.txt /var/www/html/llms.txt
 
 USER root
 RUN chown -R root:root /var/www/html && \

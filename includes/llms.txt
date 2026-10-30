@@ -1,0 +1,19 @@
+# Coasterpedia
+
+> Coasterpedia is a volunteer-written wiki about amusement rides: roller coasters, other rides, water slides and the parks they're in, in about 25,000 articles. Article text is CC BY-SA 4.0. Photos have their own licences, named on each file's page.
+
+Ride and park data for apps, websites and scripts comes from the Coasterpedia API at https://api.coasterpedia.net/v1, as JSON with stable IDs and a change feed. A person gets a key by signing in at https://developer.coasterpedia.net with a Coasterpedia account. Free keys are for non-commercial projects.
+
+The wiki's own api.php is for the site's editors and reader tools. It refuses Cargo queries and supplied-wikitext parsing from anyone who isn't logged in, with an error that names the Coasterpedia API.
+
+## API
+
+- [Coasterpedia API for agents](https://developer.coasterpedia.net/llms.txt): the API's own llms.txt, with its guides and reference
+- [OpenAPI contract](https://developer.coasterpedia.net/openapi.yaml)
+- [Credit](https://developer.coasterpedia.net/docs/attribution.md): how to credit Coasterpedia when you show the data
+- [API terms](https://developer.coasterpedia.net/terms.md)
+
+## Optional
+
+- [Reusing content from Coasterpedia](https://coasterpedia.net/wiki/Help:Reusing_content_from_Coasterpedia): licences for text, photos and data
+- [Terms of use](https://coasterpedia.net/wiki/Coasterpedia:Terms_of_use)

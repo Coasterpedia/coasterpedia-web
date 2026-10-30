@@ -1106,13 +1106,15 @@ $cpAnonDeniedModules = [
  * Only users with runcargoqueries decide what a Cargo query asks, whatever the
  * route. Cargo enforces it on Special:CargoQuery, Drilldown, action=cargoquery
  * and cargoqueryautocomplete. The rest is closed here:
+ * - action=cargoquery and cargoqueryautocomplete are refused here too, before
+ *   Cargo's own check, so the refusal names the Coasterpedia API (§8.1).
  * - action=cargoautocomplete, Special:CargoExport and Special:CargoTables/<table>
  *   check no right at all (cargoautocomplete takes a raw where).
  * - Lua can run any query (mw.ext.cargo.query), so writing a module or using the
  *   console needs the right.
  * - #cargo_query and #cargo_compound_query: see the ParserFirstCallInit wrapper.
  */
-$cpCargoRightModules = [ 'cargoautocomplete', 'scribunto-console' ];
+$cpCargoRightModules = [ 'cargoquery', 'cargoqueryautocomplete', 'cargoautocomplete', 'scribunto-console' ];
 // NS_MODULE isn't defined until Scribunto registers.
 $wgNamespaceProtection[828] = [ 'runcargoqueries' ];
 
@@ -1126,8 +1128,8 @@ $wgNamespaceProtection[828] = [ 'runcargoqueries' ];
  * - 'warn': once developer.coasterpedia.net is live. Calls outside the list
  *   still run, with a warning naming the date. Anonymous wikitext reads over
  *   rest.php, action=raw and Special:Export get Sunset and Link headers.
- * - 'deny': from $cpAnonApiRefuseFrom. Calls outside the list, and the Cargo
- *   refusals above, are refused with §8.1's text.
+ * - 'deny': from $cpAnonApiRefuseFrom. Calls outside the list are refused with
+ *   §8.1's text. The Cargo refusals above use that text in every mode.
  *
  * Calls outside the list are counted with "warned" appended. A "warned" row
  * from "anon site" means a reader's call is missing from the list, so fix it
@@ -1147,15 +1149,16 @@ $cpAnonQueryModules = [
 	'generator' => [ 'prefixsearch', 'search' ],
 ];
 // §8.1: state the policy and the route, and give the agent reading it no orders.
-$cpAnonApiNotice = static function () use ( $cpAnonApiMode, $cpAnonApiRefuseFrom ): string {
+// $warning is for a call that still runs; a refused call always gets the refusal.
+$cpAnonApiNotice = static function ( bool $warning = false, ?string $lead = null ) use ( $cpAnonApiRefuseFrom ): string {
 	$route = 'Automated access goes through the Coasterpedia API: free keys for non-commercial projects, '
 		. 'self-serve in about a minute at https://developer.coasterpedia.net. '
 		. 'Terms: https://developer.coasterpedia.net/terms/.';
-	if ( $cpAnonApiMode === 'warn' ) {
+	if ( $warning ) {
 		$from = gmdate( 'j F Y', strtotime( $cpAnonApiRefuseFrom ) );
-		return "From $from, anonymous use of this endpoint will be limited to the site's own reader tools. $route";
+		$lead = "From $from, anonymous use of this endpoint will be limited to the site's own reader tools.";
 	}
-	return "Anonymous use of this endpoint is limited to the site's own reader tools. $route";
+	return ( $lead ?? "Anonymous use of this endpoint is limited to the site's own reader tools." ) . " $route";
 };
 // Anonymous wikitext reads outside api.php: warned with headers, then refused.
 $cpAnonWikitextRead = static function ( callable $refuse ) use ( $cpAnonApiMode, $cpAnonApiRefuseFrom, $cpAnonApiNotice ): bool {
@@ -1270,15 +1273,15 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 	$limited = !$denied && $user->pingLimiter( 'cp-api' );
 	$cpApiUsageRecord( 'api', $call . ( $denied ? ' denied' : ( $limited ? ' limited' : ( $warned ? ' warned' : '' ) ) ) );
 	if ( $denied ) {
-		$message = match ( true ) {
-			$noCargoRight => MediaWiki\Api\ApiMessage::create( 'apierror-permissiondenied-generic', 'permissiondenied' ),
-			$cpAnonApiMode === 'off' => MediaWiki\Api\ApiMessage::create( 'apierror-mustbeloggedin-generic', 'login-required' ),
-			default => new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' ),
-		};
+		// The same §8.1 text on every refusal, in every mode: an agent refused here tries the next route.
+		$message = $noCargoRight && $user->isRegistered()
+			? new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice( false,
+				'Only administrators, patrollers and bots can run Cargo queries on this wiki.' ), 'permissiondenied' )
+			: new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' );
 		return false;
 	}
 	if ( $warned ) {
-		$module->addWarning( new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' ) );
+		$module->addWarning( new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice( true ), 'cp-api-key-required' ) );
 	}
 	if ( $limited ) {
 		$request->response()->header( 'Retry-After: 60' );
