@@ -979,6 +979,14 @@ $wgHooks['SkinAddFooterLinks'][] = function( $sk, $key, &$footerlinks ) {
 		],
 		$sk->msg('footer-kofi')->escaped()
 	);
+	$footerlinks['api'] = MediaWiki\Html\Html::rawElement(
+		'a',
+		[
+			'href' => 'https://developer.coasterpedia.net',
+			'rel' => $rel
+		],
+		$sk->msg('footer-api')->escaped()
+	);
 };
 
 /**
