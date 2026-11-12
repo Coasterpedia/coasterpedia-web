@@ -104,10 +104,12 @@ COPY ./composer.json /var/www/html/w/composer.local.json
 # Composer refuses packages with known security advisories; keep that on.
 # PHP_CodeSniffer is dev-only, never installed, but still resolved; ignored as
 # in the jobrunner stage.
-# Core 1.46 pins symfony/yaml 7.4.12, which CVE-2026-109413 now blocks (fixed in
-# 7.4.18). Drop the require once core pins 7.4.18 or later.
+# Releases up to 1.46.2 pin symfony/yaml 7.4.12, which advisories block
+# (CVE-2026-109413, CVE-2026-123792; fixed in 7.4.23, as REL1_46 now pins).
+# ~ rather than exact, so a patched release gets picked up instead of the next
+# advisory failing the build. Drop once the base image ships 1.46.3 or later.
 RUN composer config --no-plugins --json policy.advisories.ignore '["squizlabs/php_codesniffer"]' && \
-    composer require --no-plugins --no-update --no-interaction symfony/yaml:7.4.21 && \
+    composer require --no-plugins --no-update --no-interaction 'symfony/yaml:~7.4.23' && \
     composer update --no-dev --no-interaction --no-scripts --ignore-platform-reqs --verbose
 
 # Resumable Cargo table rebuild (see the script's header). Runs as
