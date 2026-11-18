@@ -419,6 +419,14 @@ $wgHooks['SkinAfterBottomScripts'][] = function ( $skin, &$text ) {
 ##### CAPTCHA #####
 $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 $wgCaptchaTriggers['create'] = true;
+// No create captcha on talk pages: DiscussionTools' Add topic box can't draw
+// Turnstile, so new accounts got a bare text field. Links still trigger it.
+// Talk, User talk, Coasterpedia talk, File talk, MediaWiki talk, Template talk,
+// Help talk, Category talk, Module talk, Draft talk.
+foreach ( [ 1, 3, 5, 7, 9, 11, 13, 15, 829, 3001 ] as $ns ) {
+	$wgCaptchaTriggersOnNamespace[$ns]['create'] = false;
+}
+unset( $ns );
 $wgTurnstileSiteKey= '0x4AAAAAABh32xrwXkf_zM90';
 $wgTurnstileSecretKey= getenv( 'TURNSTILE_SECRET' );
 
