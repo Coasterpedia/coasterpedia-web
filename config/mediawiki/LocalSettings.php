@@ -1282,10 +1282,15 @@ $wgHooks['ApiCheckCanExecute'][] = static function ( $module, $user, &$message )
 	$cpApiUsageRecord( 'api', $call . ( $denied ? ' denied' : ( $limited ? ' limited' : ( $warned ? ' warned' : '' ) ) ) );
 	if ( $denied ) {
 		// The same §8.1 text on every refusal, in every mode: an agent refused here tries the next route.
+		// Except editing: anons can't edit at all, and VisualEditor shows this text to the reader.
+		$editing = !$user->isRegistered() && in_array( $module->getModuleName(),
+			[ 'visualeditor', 'visualeditoredit', 'stashedit', 'discussiontoolspreview' ], true );
 		$message = $noCargoRight && $user->isRegistered()
 			? new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice( false,
 				'Only administrators, patrollers and bots can run Cargo queries on this wiki.' ), 'permissiondenied' )
-			: new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' );
+			: ( $editing
+				? new MediaWiki\Api\ApiRawMessage( 'You need to log in to edit Coasterpedia.', 'notloggedin' )
+				: new MediaWiki\Api\ApiRawMessage( $cpAnonApiNotice(), 'cp-api-key-required' ) );
 		return false;
 	}
 	if ( $warned ) {
