@@ -124,7 +124,7 @@ RUN git clone --depth 1 -b 1.3 "https://github.com/chariz/mediawiki-extensions-D
 RUN git clone --depth 1 -b 4.0.6 "https://github.com/Universal-Omega/DynamicPageList4.git" extensions/DynamicPageList4
 RUN git clone --depth 1 -b v4.2.0 "https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo.git" extensions/EmbedVideo
 RUN git clone --depth 1 -b main "https://github.com/miraheze/MatomoAnalytics.git" extensions/MatomoAnalytics
-RUN git clone --depth 1 -b v2.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
+RUN git clone --depth 1 -b v3.0.0 "https://github.com/octfx/mediawiki-extensions-MultiPurge.git" extensions/MultiPurge
 RUN git clone --depth 1 -b main "https://github.com/weirdgloop/mediawiki-extensions-SearchDigest.git" extensions/SearchDigest
 # Hotfix: SearchDigest's schema files hardcode bare table names, so on a wiki with
 # $wgDBprefix the updater creates `searchdigest`/`searchdigest_blocks` while every
