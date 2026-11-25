@@ -137,7 +137,7 @@ def read_setup(names: dict[str, str], dockerfile: Path, wiki_api: str) -> Setup:
     text = dockerfile.read_text()
     branch = re.search(r"^ENV MEDIAWIKI_BRANCH (\S+)", text, re.MULTILINE).group(1)
     clones = {name: (repo, branch if ref == "$MEDIAWIKI_BRANCH" else ref) for ref, repo, name in CLONE.findall(text)}
-    core, live = re.search(r"^FROM mediawiki:([\d.]+)", text, re.MULTILINE).group(1), {}
+    core, live = re.search(r"^ARG MEDIAWIKI_VERSION=(\S+)", text, re.MULTILINE).group(1), {}
     try:
         query = get_json(f"{wiki_api}?action=query&meta=siteinfo&siprop=general|extensions"
                          "&format=json&formatversion=2")["query"]
@@ -165,7 +165,7 @@ class Component:
 def component(name: str, setup: Setup) -> Component:
     if name == "core":
         return Component(name, "core", "wikimedia/mediawiki", setup.core, setup.branch, setup.core,
-                         f"{setup.core} tarball in the base image")
+                         f"{setup.core} tarball")
     if name in setup.clones:
         repo, ref = setup.clones[name]
         commit, version = setup.live.get(repo.lower(), (None, ""))
@@ -323,7 +323,7 @@ def triage(cve_id: str, fixes: set, record: dict | None, comp: Component) -> tup
         todo = {
             "branch": f"It isn't on {comp.branch} yet. Apply it as a hotfix patch in Dockerfile-mediawiki.",
             "tag": "Bump to a release that has it (Renovate opens a PR once one is tagged) or apply it as a hotfix patch.",
-            "core": f"Apply it as a patch until a mediawiki:{comp.version} image or newer ships it.",
+            "core": "Apply it as a patch until a MediaWiki release has it, then merge Renovate's MEDIAWIKI_VERSION bump.",
             "bundled": f"It's on {comp.branch}, so swap in a {comp.branch} clone, as done for Thanks." if on_branch
                        else f"It isn't on {comp.branch} yet. Apply it as a patch.",
         }[comp.kind]
@@ -411,7 +411,7 @@ def check(cve: dict, hits: list[str], setup: Setup) -> list[tuple[str, str, str]
 class PhpCheck:
     live: str          # PHP the wiki runs
     fix: str           # newest security release on that branch
-    tag: str           # base image tag in Dockerfile-mediawiki
+    tag: str           # php base image tag in Dockerfile-mediawiki
     base: str | None   # PHP in that tag's arm64 variant, if the registry answered
 
     @property
@@ -421,7 +421,7 @@ class PhpCheck:
         return "pending" if parse_version(self.base) >= parse_version(self.fix) else "waiting"
 
     def explain(self) -> str:
-        image = f"mediawiki:{self.tag} for {BASE_ARCH}"
+        image = f"php:{self.tag} for {BASE_ARCH}"
         return {
             "pending": f"{image} has PHP {self.base}. Run the Docker workflow to deploy it. "
                        "If you don't, Monday's rebuild deploys it.",
@@ -457,9 +457,9 @@ def check_php(wiki_api: str, dockerfile: Path) -> PhpCheck | None:
     fix = max(security, key=parse_version)
     if parse_version(live) >= parse_version(fix):
         return None
-    tag = re.search(r"^FROM mediawiki:(\S+)", dockerfile.read_text(), re.MULTILINE).group(1)
+    tag = re.search(r"^FROM php:(\S+)", dockerfile.read_text(), re.MULTILINE).group(1)
     try:
-        base = base_image_php("mediawiki", tag)
+        base = base_image_php("php", tag)
     except (OSError, KeyError, ValueError, StopIteration) as e:
         print(f"Couldn't read the base image's PHP version ({e})", file=sys.stderr)
         base = None

@@ -45,7 +45,6 @@
 				"extensions/OAuth/composer.json",
 				"extensions/PageImages/composer.json",
 				"extensions/ParserFunctions/composer.json",
-				"extensions/PdfHandler/composer.json",
 				"extensions/Popups/composer.json",
 				"extensions/RelatedArticles/composer.json",
 				"extensions/ReplaceText/composer.json",

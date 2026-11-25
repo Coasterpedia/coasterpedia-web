@@ -32,15 +32,14 @@
 
 # Programs PHP legitimately starts in the web containers: the shell proc_open()
 # runs commands through, and the tools MediaWiki shells out to for thumbnails,
-# SVGs, PDFs and syntax highlighting. php-fpm and nginx are listed in case an
+# SVGs and syntax highlighting. php-fpm and nginx are listed in case an
 # ancestor match ever includes the process itself.
 # Tune this from the learning period's emails; keep it to real binaries.
 # Names not yet seen in the learning period; once each is, move it into
 # cp_expected_web_exec below with its exact arguments.
 - list: cp_php_allowed_programs
   items: [php-fpm, nginx, sh, ash,
-          convert, magick, identify, rsvg-convert, vips, vipsthumbnail,
-          gs, pdfinfo, pdftotext, pdftoppm, git]
+          rsvg-convert, vips, vipsthumbnail, git]
 
 # Commands seen in the learning period, matched on their exact shape rather
 # than name alone, so an allowed tool with an attacker's arguments still alerts.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), phpredis, which is built from a GitHub tag because PECL went down during an urgent rebuild, the Falco images, and MariaDB and Redis, which are pinned by digest so a deploy only restarts them when a bump is merged. Other images stay managed by hand.",
+  "description": "Only what nothing else updates: extensions and skins pinned to a release tag in Dockerfile-mediawiki (REL1_46 and main clones already follow their branch on the weekly rebuild), MediaWiki core (the 1.46.x tarball), the PHP extensions built from GitHub tags because PECL went down during an urgent rebuild (phpredis, APCu, LuaSandbox, wikidiff2), the Falco images, and MariaDB and Redis, which are pinned by digest so a deploy only restarts them when a bump is merged. Other images stay managed by hand.",
   "extends": ["config:recommended"],
   "enabledManagers": ["custom.regex", "docker-compose", "github-actions"],
   "labels": ["dependencies"],
@@ -21,6 +21,14 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG \\w+_VERSION=(?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "# renovate: datasource=<datasource> depName=<name> on the line above a workflow step's version: input",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+version: (?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
@@ -40,9 +48,14 @@
       "allowedVersions": "/^11\\.8\\.\\d+$/"
     },
     {
-      "description": "phpredis tags its release candidates 6.3.0RC1 and so on. Only offer final releases.",
-      "matchPackageNames": ["phpredis/phpredis"],
-      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/"
+      "description": "Stay on the MediaWiki 1.46 series. Moving to 1.47 means new REL branches for every clone, so it is an upgrade to plan, not a routine bump.",
+      "matchPackageNames": ["wikimedia/mediawiki"],
+      "allowedVersions": "/^1\\.46\\.\\d+$/"
+    },
+    {
+      "description": "Some of these tag release candidates, such as phpredis 6.3.0RC1. Only offer final releases.",
+      "matchPackageNames": ["phpredis/phpredis", "krakjoe/apcu", "wikimedia/mediawiki-php-luasandbox", "wikimedia/mediawiki-php-wikidiff2"],
+      "allowedVersions": "/^v?\\d+\\.\\d+\\.\\d+$/"
     },
     {
       "description": "Batch non-major GitHub Actions updates into one PR",

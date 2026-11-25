@@ -174,8 +174,9 @@ $wgJobBackoffThrottling['htmlCacheUpdate'] = 5;
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
 $wgEnableUploads = true;
-$wgUseImageMagick = true;
-$wgImageMagickConvertCommand = "/usr/bin/convert";
+// Thumbro scales every bitmap type the wiki holds with libvips, so the image
+// has no ImageMagick. A type Thumbro doesn't cover gets an error thumbnail.
+$wgUseImageMagick = false;
 $wgMaxImageArea = "3e7";
 $wgIgnoreImageErrors = true;
 
@@ -798,7 +799,6 @@ wfLoadExtension( 'OATHAuth' );
 wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'PageImages' );
 wfLoadExtension( 'ParserFunctions' );
-wfLoadExtension( 'PdfHandler' );
 wfLoadExtension( 'Popups' );
 wfLoadExtension( 'RelatedArticles' );
 wfLoadExtension( 'ReplaceText' );
