@@ -20,6 +20,7 @@ proxy_client_headers[] = HTTP_CF_CONNECTING_IP
 ; Applies to reports processed from now on.
 datatable_archiving_maximum_rows_actions = 10000
 datatable_archiving_maximum_rows_subtable_actions = 10000
+datatable_archiving_maximum_rows_actions_flat = 0
 
 [mail]
 transport = "smtp"
