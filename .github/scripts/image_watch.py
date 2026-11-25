@@ -17,9 +17,12 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import subprocess
 import sys
+import textwrap
 from collections import defaultdict
+from dataclasses import dataclass
 from email.message import EmailMessage
 from pathlib import Path
 
@@ -30,6 +33,8 @@ SEVERITIES = ("CRITICAL", "HIGH")
 # Trivy's result classes: packages the OS package manager installed, and
 # libraries a language package manager installed (Composer, npm, Go, Java).
 OS_PACKAGES = "os-pkgs"
+DISTROS = {"alpine": "Alpine", "amazon": "Amazon Linux", "debian": "Debian",
+           "redhat": "Red Hat", "ubuntu": "Ubuntu"}
 
 
 def deployed(versions: Path) -> dict[str, str]:
@@ -65,10 +70,12 @@ def findings(report: dict) -> list[dict]:
                     "package": vuln["PkgName"],
                     "installed": vuln.get("InstalledVersion", ""),
                     "fixed": vuln["FixedVersion"],
-                    "title": vuln.get("Title", ""),
-                    "url": vuln.get("PrimaryURL", ""),
                     "os": result.get("Class") == OS_PACKAGES,
-                    "target": result.get("Target", ""),
+                    # The distribution for OS packages (alpine, amazon, ubuntu), else
+                    # the language package type (composer, gobinary, jar).
+                    "type": result.get("Type", ""),
+                    # Java results all have the Target "Java"; PkgPath names the jar.
+                    "target": vuln.get("PkgPath") or result.get("Target", ""),
                 })
     return found
 
@@ -77,36 +84,87 @@ def key(image: str, f: dict) -> str:
     return f"{image}:{f['id']}:{f['package']}"
 
 
-def todo(image: str, f: dict) -> str:
-    if f["os"]:
-        return ("Alpine has the fix. Run the Docker workflow: a manual run builds without the cache, "
-                "so apk picks it up. If it's still here afterwards, the fix isn't in the Alpine branch "
-                "the base image uses yet.")
-    if image in ("mediawiki", "jobrunner"):
-        return (f"From {f['target']}. If it's a Composer package, bump it in composer.json or wait "
-                "for the MediaWiki release that does.")
-    return f"From {f['target']}, inside the upstream {image} image. It needs that image's next release."
+@dataclass
+class Build:
+    base: str        # what the image is built on, for the email
+    upgrades: bool   # whether its build runs apk upgrade
 
 
-def build_email(new: dict[str, list[dict]], sender: str, recipient: str) -> EmailMessage:
+def build_of(image: str, repo: Path) -> Build:
+    if image == "opensearch":
+        # deploy.yml builds Wikimedia's image at a pinned tag; we have no Dockerfile.
+        tag = re.search(r"IMAGE_NAME: \S+/opensearch\s+TAG: (\S+)",
+                        (repo / ".github/workflows/deploy.yml").read_text())
+        return Build(f"Wikimedia's OpenSearch image {tag[1]}" if tag else "Wikimedia's OpenSearch image", False)
+    dockerfile = repo / f"Dockerfile-{'mediawiki' if image == 'jobrunner' else image}"
+    text = dockerfile.read_text() if dockerfile.exists() else ""
+    base = re.search(r"^FROM (\S+)", text, re.MULTILINE)
+    return Build(base[1] if base else "its base image", "apk upgrade" in text)
+
+
+def group(found: list[dict]) -> list[dict]:
+    """One entry per package version, with its CVEs, fixed versions and files."""
+    groups: dict[tuple, dict] = {}
+    for f in found:
+        g = groups.setdefault((f["os"], f["type"], f["package"], f["installed"]), {
+            **{k: f[k] for k in ("os", "type", "package", "installed")},
+            "cves": {}, "fixed": [], "targets": []})
+        g["cves"][f["id"]] = f["severity"]
+        for k, v in (("fixed", f["fixed"]), ("targets", f["target"])):
+            if v and v not in g[k]:
+                g[k].append(v)
+    return sorted(groups.values(), key=lambda g: (
+        -sum(s == "CRITICAL" for s in g["cves"].values()), -len(g["cves"]), g["package"]))
+
+
+def todo(image: str, g: dict, build: Build) -> str:
+    if g["os"]:
+        distro = DISTROS.get(g["type"], g["type"].title())
+        if g["type"] == "alpine" and build.upgrades:
+            return ("Alpine has the fix. Run the Docker workflow manually: it builds without the cache, "
+                    "and the build's apk upgrade picks it up. If it's still here afterwards, the fix "
+                    f"isn't in the Alpine branch {build.base} uses yet.")
+        return (f"{distro} has the fix, but our build doesn't upgrade {distro} packages. "
+                f"It's fixed when {build.base} ships a rebuild.")
+    where = g["targets"][0] + (f" and {len(g['targets']) - 1} more" if len(g["targets"]) > 1 else "")
+    if g["type"] == "composer" and image in ("mediawiki", "jobrunner"):
+        return f"A Composer package ({where}). Bump it in composer.json, or wait for the MediaWiki release that does."
+    if g["type"] == "gobinary":
+        return (f"A Go program ({where}) built with an old Go. It's fixed when {build.base} "
+                "ships a rebuild with a newer Go.")
+    if g["type"] in ("jar", "pom", "gradle"):
+        return f"A Java library ({where}) that comes with {build.base}. It's fixed by a newer version of that image."
+    return f"A {g['type']} package ({where}) from {build.base}. It's fixed when that ships a newer one."
+
+
+def build_email(new: dict[str, list[dict]], builds: dict[str, Build],
+                sender: str, recipient: str) -> EmailMessage:
     count = sum(len(v) for v in new.values())
-    parts = []
+    parts, packages = [], 0
     for image, found in sorted(new.items()):
-        lines = [f"{image} ({REGISTRY}/{image})\n"]
-        for f in sorted(found, key=lambda f: (f["severity"] != "CRITICAL", f["id"])):
-            lines.append(f"{f['id']}  {f['severity'].lower()}  {f['package']} {f['installed']}, "
-                         f"fixed in {f['fixed']}")
-            lines += [f"  {f[k]}" for k in ("title", "url") if f[k]]
-            lines.append(f"  {todo(image, f)}\n")
+        lines = [f"{image}, built on {builds[image].base}\n"]
+        for g in group(found):
+            packages += 1
+            lines.append(f"{g['package']} {g['installed']}, fixed in {'; '.join(g['fixed'])}")
+            for severity in SEVERITIES:
+                ids = sorted(i for i, s in g["cves"].items() if s == severity)
+                if ids:
+                    lines += textwrap.wrap(f"{len(ids)} {severity.lower()}: {', '.join(ids)}",
+                                           width=76, initial_indent="  ", subsequent_indent="    ")
+            lines += textwrap.wrap(todo(image, g, builds[image]), width=76,
+                                   initial_indent="  ", subsequent_indent="  ")
+            lines.append("")
         parts.append("\n".join(lines))
     msg = EmailMessage()
-    msg["Subject"] = f"[Coasterpedia] {count} fixable image vulnerabilit{'y' if count == 1 else 'ies'}"
+    msg["Subject"] = (f"[Coasterpedia] {count} fixable image vulnerabilit{'y' if count == 1 else 'ies'} "
+                      f"in {packages} package{'' if packages == 1 else 's'}")
     msg["From"] = sender
     msg["To"] = recipient
     msg.set_content(
         "Trivy found these critical or high vulnerabilities in the deployed images, and each\n"
-        "has a fixed version. Each says what's left to do.\n\n"
-        + ("-" * 72 + "\n\n").join(parts)
+        "has a fixed version. Each package says what's left to do. Look a CVE up at\n"
+        "https://avd.aquasec.com/nvd/<cve-id>.\n\n"
+        + ("\n" + "-" * 72 + "\n\n").join(parts)
     )
     return msg
 
@@ -114,6 +172,8 @@ def build_email(new: dict[str, list[dict]], sender: str, recipient: str) -> Emai
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--versions", type=Path, default=Path("versions.env"))
+    parser.add_argument("--repo", type=Path, default=Path("."),
+                        help="checkout to read the Dockerfiles and deploy.yml from")
     parser.add_argument("--state", type=Path, default=Path(".image-watch-seen.json"))
     parser.add_argument("--report", type=Path, action="append", default=[],
                         help="IMAGE=PATH: read a saved Trivy JSON report instead of scanning (for testing)")
@@ -149,7 +209,8 @@ def main() -> int:
         return 1 if failed else 0
 
     if new:
-        send(build_email(new, "wiki@coasterpedia.net", os.environ["SECURITY_ALERT_EMAIL"]))
+        builds = {image: build_of(image, args.repo) for image in new}
+        send(build_email(new, builds, "wiki@coasterpedia.net", os.environ["SECURITY_ALERT_EMAIL"]))
 
     # Only after the email went out, so a failed send is retried next run. Images
     # that failed to scan keep their old entries rather than re-alerting later.
