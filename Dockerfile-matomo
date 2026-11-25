@@ -5,25 +5,19 @@ RUN apk upgrade --no-cache && \
     apk add --no-cache nginx supervisor unzip
 
 RUN curl -o EnvironmentVariables.zip \
-    https://plugins.matomo.org/api/2.0/plugins/EnvironmentVariables/download/5.0.4 \
+    https://plugins.matomo.org/api/2.0/plugins/EnvironmentVariables/download/6.0.1 \
     && unzip EnvironmentVariables.zip \
     && rm EnvironmentVariables.zip \
     && mv EnvironmentVariables /usr/src/matomo/plugins
 
-RUN curl -o BotTracker.zip \
-    https://plugins.matomo.org/api/2.0/plugins/BotTracker/download/5.2.20 \
-    && unzip BotTracker.zip \
-    && rm BotTracker.zip \
-    && mv BotTracker /usr/src/matomo/plugins
-
 RUN curl -o McpServer.zip \
-    https://plugins.matomo.org/api/2.0/plugins/McpServer/download/5.1.2 \
+    https://plugins.matomo.org/api/2.0/plugins/McpServer/download/6.0.1 \
     && unzip McpServer.zip \
     && rm McpServer.zip \
     && mv McpServer /usr/src/matomo/plugins
 
 RUN curl -o OAuth2.zip \
-    https://plugins.matomo.org/api/2.0/plugins/OAuth2/download/5.4.1 \
+    https://plugins.matomo.org/api/2.0/plugins/OAuth2/download/6.1.2 \
     && unzip OAuth2.zip \
     && rm OAuth2.zip \
     && mv OAuth2 /usr/src/matomo/plugins

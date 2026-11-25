@@ -158,6 +158,15 @@
   priority: ALERT
   tags: [coasterpedia, credential_access]
 
+# Matomo rewrites Apache/IIS access files across its tree after every update
+# and cache clear: 96 refused writes, one email each, on the 6.0.0 upgrade
+# (2026-11-25). nginx reads neither file, so a planted one does nothing.
+- macro: cp_matomo_server_files
+  condition: >
+    (container.image.repository = ghcr.io/coasterpedia/coasterpedia-web/matomo
+     and evt.type in (open, openat, openat2)
+     and (fs.path.name endswith /.htaccess or fs.path.name endswith /web.config))
+
 - rule: CP write refused under the code tree
   desc: >
     A write to the application code that failed because the filesystem is
@@ -172,6 +181,7 @@
     and evt.res in (EROFS, EACCES, EPERM)
     and (fs.path.name startswith /var/www/html/ or fs.path.name startswith /usr/src/matomo/
          or fs.path.target startswith /var/www/html/ or fs.path.target startswith /usr/src/matomo/)
+    and not cp_matomo_server_files
   output: >
     Refused write under the code tree in %container.name
     (path=%fs.path.name target=%fs.path.target syscall=%evt.type error=%evt.res
